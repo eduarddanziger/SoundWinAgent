@@ -1,0 +1,4 @@
+[submodule "msbuildLibCpp"]
+	path = msbuildLibCpp
+	url = https://github.com/eduarddanziger/msbuildLibCpp.git
+	branch = main
