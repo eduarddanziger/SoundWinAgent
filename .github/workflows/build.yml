@@ -7,6 +7,9 @@ on:
     tags:
       - 'Release-*'
 
+  workflow_dispatch:
+
+
 permissions:
   contents: write
 
