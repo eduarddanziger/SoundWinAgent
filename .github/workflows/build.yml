@@ -33,7 +33,7 @@ jobs:
       run: |
         dotnet nuget add source https://nuget.pkg.github.com/eduarddanziger/index.json `
           --name github `
-          --username dan-chemo `
+          --username eduarddanziger `
           --password ${{ secrets.NUGET_AUTH_TOKEN }} `
           --store-password-in-clear-text
 
