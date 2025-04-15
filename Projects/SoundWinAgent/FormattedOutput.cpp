@@ -3,16 +3,16 @@
 #include "FormattedOutput.h"
 
 #include <TimeUtils.h>
+#include <StringUtils.h>
+
+#include <SpdLogger.h>
 
 #include <public/ClassDefHelper.h>
 #include <public/DefToString.h>
 
-#include <SpdLogger.h>
-
-
 void FormattedOutput::LogAndPrint(const std::wstring & mess)
 {
-    SPD_L->info(WString2StringTruncate(mess));
+    SPD_L->info(ed::WString2StringTruncate(mess));
     std::wcout << CurrentLocalTimeWithoutDate << mess << '\n';
 }
 
@@ -47,18 +47,6 @@ void FormattedOutput::PrintDeviceInfo(const SoundDeviceInterface * device)
         << ", Volume " << device->GetCurrentRenderVolume()
         << " / " << device->GetCurrentCaptureVolume();
     LogAndPrint(wos.str());
-}
-
-std::string FormattedOutput::WString2StringTruncate(const std::wstring & str)
-{
-    std::string result;
-    result.reserve(str.size());
-
-    std::ranges::for_each(str, [&result](wchar_t wc) {
-        result += static_cast<char>(wc);
-    });
-
-    return result;
 }
 
 std::wostream & FormattedOutput::CurrentLocalTimeWithoutDate(std::wostream & os)

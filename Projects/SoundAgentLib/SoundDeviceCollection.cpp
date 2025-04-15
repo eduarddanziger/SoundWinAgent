@@ -2,7 +2,15 @@
 #include "stdafx.h"
 
 #include "SoundDeviceCollection.h"
+
 #include "SoundDevice.h"
+#include "Utilities.h"
+#include "CaseInsensitiveSubstr.h"
+
+#include <StringUtils.h>
+
+#include "public/DefToString.h"
+#include "public/generate-uuid.h"
 
 #include <iostream>
 #include <cstddef>
@@ -15,10 +23,6 @@
 #include <valarray>
 #include <magic_enum_iostream.hpp>
 
-#include "public/DefToString.h"
-#include "public/generate-uuid.h"
-#include "Utilities.h"
-#include "CaseInsensitiveSubstr.h"
 
 using namespace std::literals::string_literals;
 

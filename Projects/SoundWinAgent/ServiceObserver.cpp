@@ -7,6 +7,7 @@
 #include "HttpRequestProcessor.h"
 
 #include <SpdLogger.h>
+#include <StringUtils.h>
 
 ServiceObserver::ServiceObserver(SoundDeviceCollectionInterface& collection,
     std::wstring apiBaseUrl,
@@ -92,5 +93,5 @@ void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std:
 
 void ServiceObserver::OnTrace(const std::wstring & line)
 {
-    SPD_L->info(FormattedOutput::WString2StringTruncate(line));
+    SPD_L->info(ed::WString2StringTruncate(line));
 }
