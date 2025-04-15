@@ -26,8 +26,8 @@
   </ImportGroup>
   <ImportGroup Label="Shared">
     <Import Project="..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets" Condition="Exists('..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" />
-    <Import Project="..\..\packages\SpdLogger.2.1.1-RC016\build\native\SpdLogger.targets" Condition="Exists('..\..\packages\SpdLogger.2.1.1-RC016\build\native\SpdLogger.targets')" />
-    <Import Project="..\..\packages\CommonCppModules.2.1.1-RC018\build\native\CommonCppModules.targets" Condition="Exists('..\..\packages\CommonCppModules.2.1.1-RC018\build\native\CommonCppModules.targets')" />
+    <Import Project="..\..\packages\CommonCppModules.2.1.1-RC022\build\native\CommonCppModules.targets" Condition="Exists('..\..\packages\CommonCppModules.2.1.1-RC022\build\native\CommonCppModules.targets')" />
+    <Import Project="..\..\packages\SpdLogger.2.1.1-RC022\build\native\SpdLogger.targets" Condition="Exists('..\..\packages\SpdLogger.2.1.1-RC022\build\native\SpdLogger.targets')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -41,7 +41,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.;$(SolutionDir)Projects\SoundAgentLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <!-- Enable release-version debugging (optimization off, etc.) -->
@@ -50,8 +50,7 @@
       <WholeProgramOptimization Condition="'$(Configuration)'=='Release'">false</WholeProgramOptimization>
       <FunctionLevelLinking Condition="'$(Configuration)'=='Release'" />
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -155,7 +154,7 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets'))" />
-    <Error Condition="!Exists('..\..\packages\SpdLogger.2.1.1-RC016\build\native\SpdLogger.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SpdLogger.2.1.1-RC016\build\native\SpdLogger.targets'))" />
-    <Error Condition="!Exists('..\..\packages\CommonCppModules.2.1.1-RC018\build\native\CommonCppModules.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\CommonCppModules.2.1.1-RC018\build\native\CommonCppModules.targets'))" />
+    <Error Condition="!Exists('..\..\packages\CommonCppModules.2.1.1-RC022\build\native\CommonCppModules.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\CommonCppModules.2.1.1-RC022\build\native\CommonCppModules.targets'))" />
+    <Error Condition="!Exists('..\..\packages\SpdLogger.2.1.1-RC022\build\native\SpdLogger.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SpdLogger.2.1.1-RC022\build\native\SpdLogger.targets'))" />
   </Target>
 </Project>
