@@ -15,32 +15,3 @@
 #define SAFE_RELEASE(punk)  \
               if ((punk) != NULL)  \
                 { (punk)->Release(); (punk) = NULL; }
-
-inline std::set<std::wstring> Split(const std::wstring & s, const wchar_t delimiter)
-{
-    std::set<std::wstring> result;
-    std::wstringstream ss(s);
-    std::wstring item;
-
-    while (getline(ss, item, delimiter))
-    {
-        result.insert(item);
-    }
-
-    return result;
-}
-
-inline std::wstring Merge(const std::set<std::wstring> & st, const wchar_t delimiter)
-{
-    size_t i = 0;
-    std::wstring result;
-    for (const auto & s : st)
-    {
-        result += s;
-        if (++i < st.size())
-        {
-            result += delimiter;
-        }
-    }
-    return result;
-}

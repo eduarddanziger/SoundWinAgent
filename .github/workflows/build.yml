@@ -85,11 +85,10 @@ jobs:
       run: nuget restore SoundWinAgent.sln
 
     - name: Integrate vcpkg with MSBuild
-      run: |
-        vcpkg integrate install
+      run: vcpkg integrate install
 
     - name: Build with MSBuild
-      run: msbuild /p:Configuration=Release /p:VcpkgEnabled=true /p:VcpkgManifestPath=Projects/SoundWinAgent/vcpkg.json /target:Rebuild -restore
+      run: msbuild /p:Configuration=Release /p:VcpkgEnabled=true /p:VcpkgManifestPath=vcpkg.json /target:Rebuild -restore
 
     - name: Upload entire artifacts directory
       uses: actions/upload-artifact@v4
