@@ -9,7 +9,6 @@
 
 #include <StringUtils.h>
 
-#include "public/DefToString.h"
 #include "public/generate-uuid.h"
 
 #include <iostream>
@@ -21,7 +20,8 @@
 #include <sstream>
 #include <string>
 #include <valarray>
-#include <magic_enum_iostream.hpp>
+
+#include <magic_enum/magic_enum_iostream.hpp>
 
 
 using namespace std::literals::string_literals;
@@ -131,6 +131,8 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
     // Get flow direction via IMMEndpoint
     auto flow = SoundDeviceFlowType::None;
     {
+        using magic_enum::iostream_operators::operator<<;
+
         EDataFlow lowLevelFlow;
         IMMEndpoint * pEndpoint = nullptr;
         hr = deviceEndpointSmartPtr->QueryInterface(__uuidof(IMMEndpoint), reinterpret_cast<void**>(&pEndpoint));
@@ -143,7 +145,7 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
             return false;
         }
         flow = ConvertFromLowLevelFlow(lowLevelFlow);
-        LOG_INFO(L"The end point device " << i << L", id \"" << deviceId << L"\", has a data flow \"" << GetFlowAsString(flow) << L"\".");
+        LOG_INFO(L"The end point device " << i << L", id \"" << deviceId << L"\", has a data flow \"" << flow << L"\".");
     }
     // Read device PnP Class id property
     std::wstring pnpGuid;
