@@ -9,7 +9,6 @@ on:
 
   workflow_dispatch:
 
-
 permissions:
   contents: write
 
@@ -27,18 +26,6 @@ jobs:
   
     - name: Unshallow repository
       run: git fetch --prune --unshallow
-
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
-
-    - name: Add GitHub Packages NuGet source
-      shell: pwsh
-      run: |
-        dotnet nuget add source https://nuget.pkg.github.com/eduarddanziger/index.json `
-          --name github `
-          --username eduarddanziger `
-          --password ${{ secrets.NUGET_AUTH_TOKEN }} `
-          --store-password-in-clear-text
 
     - name: Get version from Git tags
       shell: pwsh
@@ -80,6 +67,18 @@ jobs:
         # Output the version
         "VERSION=$VERSION" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
         Write-Output "Using version: $VERSION"    
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1
+
+    - name: Add GitHub Packages NuGet source
+      shell: pwsh
+      run: |
+        dotnet nuget add source https://nuget.pkg.github.com/eduarddanziger/index.json `
+          --name github `
+          --username eduarddanziger `
+          --password ${{ secrets.NUGET_AUTH_TOKEN }} `
+          --store-password-in-clear-text
 
     - name: Restore NuGets
       run: nuget restore SoundWinAgent.sln

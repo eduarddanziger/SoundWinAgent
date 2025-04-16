@@ -8,7 +8,9 @@
 #include <SpdLogger.h>
 
 #include <public/ClassDefHelper.h>
-#include <public/DefToString.h>
+
+#include <magic_enum/magic_enum_iostream.hpp>
+
 
 void FormattedOutput::LogAndPrint(const std::wstring & mess)
 {
@@ -31,19 +33,23 @@ void FormattedOutput::LogAsErrorPrintAndThrow(const std::string & mess)
 
 void FormattedOutput::PrintEvent(SoundDeviceEventType event, const std::wstring & devicePnpId)
 {
-    std::wostringstream wos; wos << L"Event caught: " << ed::GetDeviceCollectionEventAsString(event) << L"."
+    using magic_enum::iostream_operators::operator<<;
+
+    std::wostringstream wos; wos << L"Event caught: " << event << L"."
         << L" Device PnP id: " << devicePnpId << L'\n';
     LogAndPrint(wos.str());
 }
 
 void FormattedOutput::PrintDeviceInfo(const SoundDeviceInterface * device)
 {
+    using magic_enum::iostream_operators::operator<<;
+
     const auto idString = device->GetPnpId();
     const std::wstring idAsWideString(idString.begin(), idString.end());
 	std::wostringstream wos; wos << std::wstring(4, L' ')
         << idString
         << ", \"" << device->GetName()
-        << "\", " << ed::GetFlowAsString(device->GetFlow())
+        << "\", " << device->GetFlow()
         << ", Volume " << device->GetCurrentRenderVolume()
         << " / " << device->GetCurrentCaptureVolume();
     LogAndPrint(wos.str());

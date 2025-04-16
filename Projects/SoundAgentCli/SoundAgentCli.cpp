@@ -1,16 +1,18 @@
 #include "stdafx.h"
 
-#include <SpdLogger.h>
+#include "TimeUtils.h"
+
+#include <public/CoInitRaiiHelper.h>
+#include <public/SoundAgentInterface.h>
 
 #include <filesystem>
 #include <iomanip>
 #include <memory>
 #include <tchar.h>
+#include <magic_enum/magic_enum_iostream.hpp>
 
-#include <public/CoInitRaiiHelper.h>
-#include <public/SoundAgentInterface.h>
-#include <public/DefToString.h>
-#include "TimeUtils.h" // Include the header for TimeUtils
+#include <SpdLogger.h>
+
 
 namespace
 {
@@ -49,11 +51,13 @@ public:
 public:
     static void PrintDeviceInfo(const SoundDeviceInterface* device, size_t i)
     {
+        using magic_enum::iostream_operators::operator<<;
+
         const auto idString = device->GetPnpId();
         const std::wstring idAsWideString(idString.begin(), idString.end());
         std::wcout << CurrentLocalTimeWithoutDate << L"[" << i << L"]: " << idAsWideString
             << L", \"" << device->GetName()
-            << L"\", " << ed::GetFlowAsString(device->GetFlow())
+            << L"\", " << device->GetFlow() // magic to string
             << L", Volume " << device->GetCurrentRenderVolume()
 			<< L" / " << device->GetCurrentCaptureVolume()
             << '\n';
@@ -78,7 +82,9 @@ public:
 
     void OnCollectionChanged(SoundDeviceEventType event, const std::wstring& devicePnpId) override
     {
-        std::wcout << '\n' << CurrentLocalTimeWithoutDate << L"Event caught: " << ed::GetDeviceCollectionEventAsString(event) << L"."
+        using magic_enum::iostream_operators::operator<<; // out-of-the-box stream operators for enums
+
+        std::wcout << '\n' << CurrentLocalTimeWithoutDate << L"Event caught: " << event << L"."
             <<  L" Device PnP id: " << devicePnpId << L'\n';
 
         PrintCollection();
