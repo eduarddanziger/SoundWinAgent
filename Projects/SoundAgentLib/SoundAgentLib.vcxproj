@@ -24,6 +24,9 @@
     <Import Project="..\..\packages\CommonCppModules.2.1.1-RC022\build\native\CommonCppModules.targets" Condition="Exists('..\..\packages\CommonCppModules.2.1.1-RC022\build\native\CommonCppModules.targets')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>

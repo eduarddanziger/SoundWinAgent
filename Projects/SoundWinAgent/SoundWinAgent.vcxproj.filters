@@ -68,7 +68,6 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="res\SoundWinAgent.rc2" />
-    <None Include="vcpkg.json" />
     <None Include="GenerateCertificate.ps1" />
   </ItemGroup>
   <ItemGroup>

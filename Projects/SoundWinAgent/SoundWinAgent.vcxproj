@@ -58,12 +58,7 @@
       <OptimizeReferences Condition="'$(Configuration)'=='Release'" />
       <EnableCOMDATFolding Condition="'$(Configuration)'=='Release'" />
       <LinkTimeCodeGeneration Condition="'$(Configuration)'=='Release'" />
-      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)\x64\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalLibraryDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)\x64\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\x64\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -90,13 +85,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="GenerateCertificate.ps1">
-      <SubType>
-      </SubType>
-    </None>
+    <None Include="GenerateCertificate.ps1" />
+    <None Include="CodeSign.pfx" />
     <None Include="packages.config" />
     <None Include="res\SoundWinAgent.rc2" />
-    <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SoundWinAgent.rc" />
