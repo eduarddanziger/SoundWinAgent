@@ -35,6 +35,8 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="res\SoundAgentCli.rc2" />
+    <None Include="GenerateCertificate.ps1" />
+    <None Include="CodeSign.pfx" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SoundAgentCli.rc" />
