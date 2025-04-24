@@ -8,6 +8,7 @@
 
 #include <Poco/Util/ServerApplication.h>
 #include <Poco/UnicodeConverter.h>
+#include <Poco/Util/HelpFormatter.h>
 #include <vector>
 
 #include "SodiumCrypt.h"
@@ -23,6 +24,9 @@ class AudioDeviceService final : public Poco::Util::ServerApplication {
 protected:
     int main(const std::vector<std::string>& args) override {
         try {
+            if (helpRequested_)
+                return Application::EXIT_OK;
+
             const auto msgStart = "Starting Sound Agent...";
             FormattedOutput::LogAndPrint(msgStart);
 
@@ -81,18 +85,11 @@ protected:
         loadConfiguration();
         ServerApplication::initialize(self);
 
-       
-		if (argv().size() == 2)
-		{
-			const auto baseUrlNarrow = argv()[1];
-			apiBaseUrl_ = std::wstring(baseUrlNarrow.length(), L' ');
-            std::ranges::copy(baseUrlNarrow, apiBaseUrl_.begin());
-        }
-        else
+        if (apiBaseUrl_.empty())
         {
             apiBaseUrl_ = ReadWideStringConfigProperty(API_BASE_URL_PROPERTY_KEY);
         }
-
+       
         apiBaseUrl_ += L"/api/AudioDevices";
 
 		universalToken_ = ReadWideStringConfigProperty(UNIVERSAL_TOKEN_PROPERTY_KEY);
@@ -101,12 +98,67 @@ protected:
 
         setUnixOptions(false);  // Force Windows service behavior
     }
+
+    void defineOptions(Poco::Util::OptionSet& options) override
+    {
+        ServerApplication::defineOptions(options);
+
+        options.addOption(
+            Poco::Util::Option("url", "", "Base Server URL, e.g. http://localhost:5027")
+            .required(false)
+            .repeatable(false)
+            .argument("<url>", true)
+            .callback(Poco::Util::OptionCallback<AudioDeviceService>(this, &AudioDeviceService::HandleUrl)));
+
+        options.addOption(
+            Poco::Util::Option("help", "h", "Help information")
+            .required(false)
+            .repeatable(false)
+            .callback(Poco::Util::OptionCallback<AudioDeviceService>(this, &AudioDeviceService::HandleHelp)));
+
+        options.addOption(
+            Poco::Util::Option("version", "", "Version information")
+            .required(false)
+            .repeatable(false)
+            .callback(Poco::Util::OptionCallback<AudioDeviceService>(this, &AudioDeviceService::HandleVersion)));
+    }
+
+    void HandleHelp(const std::string& name, const std::string& value)
+    {
+        Poco::Util::HelpFormatter helpFormatter(options());
+        helpFormatter.setCommand(commandName());
+        helpFormatter.setHeader("Options:");
+        helpFormatter.setUsage("[options]");
+        helpFormatter.setFooter("\n");
+        helpFormatter.format(std::cout);
+        stopOptionsProcessing();
+        helpRequested_ = true;
+    }
+
+    void HandleVersion(const std::string& name, const std::string& value)
+    {
+        std::cout << "Version " << PRODUCT_VERSION_ATTRIBUTE << "\n";
+        stopOptionsProcessing();
+        helpRequested_ = true;
+    }
+
+    void HandleUrl(const std::string& name, const std::string& value)
+    {
+        std::cout << "Got Server URL " << value << "\n";
+        apiBaseUrl_ = std::wstring(value.length(), L' ');
+        std::ranges::copy(value, apiBaseUrl_.begin());
+    }
+
+
+
 private:
 	std::wstring apiBaseUrl_;
 	std::wstring universalToken_;
     std::wstring codespaceName_;
 
-    // bool isService_ = config().getBool("application.runAsService", false);
+    bool helpRequested_ = false;
+
+
     static constexpr auto API_BASE_URL_PROPERTY_KEY = "custom.apiBaseUrl";
     static constexpr auto UNIVERSAL_TOKEN_PROPERTY_KEY = "custom.universalToken";
     static constexpr auto CODESPACE_NAME_PROPERTY_KEY = "custom.codespaceName";

@@ -22,8 +22,9 @@ The Sound Agent Service collects audio device information and sends it to a remo
 4. SoundWinAgent.exe can be started as a Windows CLI, too. Stop it via Ctrl-C
 5. SoundWinAgent.exe accepts an optional command line parameter, the URL of the backend ASP.Net Core REST API Server, e.g.:
 ```powershell or bash
-SoundWinAgent.exe "http://localhost:5027"
+SoundWinAgent.exe /url=http://localhost:5027
 ```
+6. SoundWinAgent.exe /help brings a command line help screen with all available options.
 
 ## How to Build
 1. Install Visual Studio 2022, download [Nuget.exe](https://dist.nuget.org/win-x86-commandline/latest/nuget.exe) and set a NuGet environment variable to the path of the NuGet executable.
