@@ -71,11 +71,10 @@ void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std:
         const auto soundDeviceInterface = collection_.CreateItem(devicePnpId);
         PostDeviceToApi(event, soundDeviceInterface.get(), "(by device discovery) ");
     }
-    // TODO: other events
     else if (event == SoundDeviceEventType::VolumeRenderChanged || event == SoundDeviceEventType::VolumeCaptureChanged)
     {
         const auto soundDeviceInterface = collection_.CreateItem(devicePnpId);
-		bool renderOrCapture = event == SoundDeviceEventType::VolumeRenderChanged;
+		const bool renderOrCapture = event == SoundDeviceEventType::VolumeRenderChanged;
         PutVolumeChangeToApi(devicePnpId, renderOrCapture, renderOrCapture ? soundDeviceInterface->GetCurrentRenderVolume() : soundDeviceInterface->GetCurrentCaptureVolume());
     }
     /*

@@ -2,8 +2,6 @@
 
 #include "HttpRequestProcessor.h"
 
-#include <TimeUtils.h>
-
 #include "FormattedOutput.h"
 
 #include <nlohmann/json.hpp>
@@ -123,25 +121,29 @@ void HttpRequestProcessor::ProcessingWorker()
             item = requestQueue_.front();
         }
 
-		if (item.Hint.find("(copy)") != std::string::npos && preventSendingCopy_)
+		// If the sending of the "genuine" request (before the actual copy) was successful, let's skip the copy and continue processing
+		if (item.Hint.find("(copy)") != std::string::npos && successfullySent_)
 		{
 			std::unique_lock lock(mutex_);
 			requestQueue_.pop();
 			continue;
 		}
 
-        if ((preventSendingCopy_ = SendRequest(item, apiBaseUrlNoTrailingSlash_)))
+
+		// If the sending was successful, set retries to 0 and remove the request from the queue
+        if ((successfullySent_ = SendRequest(item, apiBaseUrlNoTrailingSlash_)))
 		{   // Request was successful
             std::unique_lock lock(mutex_);
             retryAwakingCount_ = 0;
             requestQueue_.pop();
-            std::this_thread::sleep_for(std::chrono::milliseconds(300));
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
             continue;
         }
 
+		// Check if base url is on GitHub Codespace. If not , we don't need to wake up
         if (apiBaseUrlNoTrailingSlash_.find(L".github.") == std::wstring::npos)
         {// NOT  a GitHub Codespace, no wake up
-            const auto msg = std::wstring(L"No connection to the expected REST server \"") + apiBaseUrlNoTrailingSlash_ + L"\".";
+            const auto msg = std::wstring(L"Request sending to \"") + apiBaseUrlNoTrailingSlash_ + L"\" unsuccessful. Wake up make no sense. Skipping request.";
 			FormattedOutput::LogAndPrint(msg);
 
 			std::unique_lock lock(mutex_);
@@ -150,8 +152,7 @@ void HttpRequestProcessor::ProcessingWorker()
         }
 
 		if (++retryAwakingCount_ <= MAX_AWAKING_RETRIES)
-        {
-            // let us retry
+		{   // Wake-retrials are yet to be exhausted
             const auto url = std::format(L"https://api.github.com/user/codespaces/{}/start", codespaceName_);
             SendRequest(
                 CreateAwakingRequest()
