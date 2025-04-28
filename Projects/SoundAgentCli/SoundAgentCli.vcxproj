@@ -106,6 +106,7 @@
       <ZipFileNameSuffix Condition=" '$(Configuration)' == 'Debug' ">-Debug</ZipFileNameSuffix>
       <ZipFileName>$(ArtifactsDirectory)$(AssemblyName)$(ZipFileNameSuffix)-$(PackageVersion).zip</ZipFileName>
     </PropertyGroup>
+    <MakeDir Directories="$(ArtifactsDirectory)" Condition="!Exists('$(ArtifactsDirectory)')" />
     <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(BaseDirectory)$(ReleaseNotesFileName)" />
     <FileUpdate Files="$(ReleaseNotesTargetPathName)" Regex="\$version\$" ReplacementText="$(PackageVersion)" />
     <Time Format="dd.MM.yyyy">
