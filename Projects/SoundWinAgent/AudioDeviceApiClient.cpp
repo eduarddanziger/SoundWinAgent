@@ -56,7 +56,6 @@ void AudioDeviceApiClient::PostDeviceToApi(SoundDeviceEventType eventType, const
     // Convert nlohmann::json to cpprestsdk::json::value
     const web::json::value jsonPayload = web::json::value::parse(payload.dump());
 
-    // Create HTTP client and request
     web::http::http_request request(web::http::methods::POST);
     request.set_body(jsonPayload);
     request.headers().set_content_type(U("application/json"));
@@ -79,8 +78,8 @@ void AudioDeviceApiClient::PutVolumeChangeToApi(const std::wstring & pnpId, bool
 	};
 	// Convert nlohmann::json to cpprestsdk::json::value
 	const web::json::value jsonPayload = web::json::value::parse(payload.dump());
-	// Create HTTP client and request
-	web::http::http_request request(web::http::methods::PUT);
+
+    web::http::http_request request(web::http::methods::PUT);
 	request.set_body(jsonPayload);
 	request.headers().set_content_type(U("application/json"));
 

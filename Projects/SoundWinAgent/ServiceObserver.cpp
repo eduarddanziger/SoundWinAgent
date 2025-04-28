@@ -42,12 +42,12 @@ void ServiceObserver::PostAndPrintCollection() const
 
     for (size_t i = 0; i < collection_.GetSize(); ++i)
     {
-        const std::unique_ptr deviceSmartPtr(collection_.CreateItem(i));
+        const auto deviceSmartPtr(collection_.CreateItem(i));
 
         FormattedOutput::PrintDeviceInfo(deviceSmartPtr.get());
         if (!apiBaseUrl_.empty())
         {
-            PostDeviceToApi(SoundDeviceEventType::Confirmed, deviceSmartPtr.get(), "(by iteration on collection) ");
+            PostDeviceToApi(SoundDeviceEventType::Confirmed, deviceSmartPtr.get(), "(by iteration on device collection) ");
         }
         else
         {
@@ -66,28 +66,26 @@ void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std:
 {
     FormattedOutput::PrintEvent(event, devicePnpId);
 
+	//There is no (event == SoundDeviceEventType::Confirmed). "Confirmed" is sent by collection initialization
     if (event == SoundDeviceEventType::Discovered)
     {
         const auto soundDeviceInterface = collection_.CreateItem(devicePnpId);
         PostDeviceToApi(event, soundDeviceInterface.get(), "(by device discovery) ");
     }
-    // TODO: other events
     else if (event == SoundDeviceEventType::VolumeRenderChanged || event == SoundDeviceEventType::VolumeCaptureChanged)
     {
         const auto soundDeviceInterface = collection_.CreateItem(devicePnpId);
-		bool renderOrCapture = event == SoundDeviceEventType::VolumeRenderChanged;
+		const bool renderOrCapture = event == SoundDeviceEventType::VolumeRenderChanged;
         PutVolumeChangeToApi(devicePnpId, renderOrCapture, renderOrCapture ? soundDeviceInterface->GetCurrentRenderVolume() : soundDeviceInterface->GetCurrentCaptureVolume());
     }
-    /*
-    else if (event == SoundDeviceEventType::Removed)
+    else if (event == SoundDeviceEventType::Detached)
     {
-        RemoveToApi(devicePnpId);
+        // not yet implemented RemoveToApi(devicePnpId);
     }
     else
 	{
-		SPD_L->warn("Unknown event type: {}", static_cast<int>(event));
+		SPD_L->warn("Unexpected event type: {}", static_cast<int>(event));
 	}
-	*/
 
 }
 

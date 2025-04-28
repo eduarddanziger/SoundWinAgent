@@ -3,7 +3,10 @@
     "poco",
     "cpprestsdk",
     "nlohmann-json",
-    "spdlog",
+    {
+      "name": "spdlog",
+      "version>=": "1.15.1"
+    },
     "libsodium",
     "magic-enum"
   ],
