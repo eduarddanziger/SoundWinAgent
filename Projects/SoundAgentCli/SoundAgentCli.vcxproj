@@ -100,10 +100,18 @@
     <PropertyGroup>
       <BaseDirectory>$(MSBuildThisFileDirectory)..\..\</BaseDirectory>
       <ArtifactsDirectory>$(BaseDirectory)artifacts\</ArtifactsDirectory>
-      <PublishFullDirectory>$(ProjectDir)PublishDir</PublishFullDirectory>
+      <ReleaseNotesFileName>SoundWinAgent-Release-Notes.md</ReleaseNotesFileName>
+      <PublishFullDirectory>$(ProjectDir)PublishDir\</PublishFullDirectory>
+      <ReleaseNotesTargetPathName>$(PublishFullDirectory)$(ReleaseNotesFileName)</ReleaseNotesTargetPathName>
       <ZipFileNameSuffix Condition=" '$(Configuration)' == 'Debug' ">-Debug</ZipFileNameSuffix>
       <ZipFileName>$(ArtifactsDirectory)$(AssemblyName)$(ZipFileNameSuffix)-$(PackageVersion).zip</ZipFileName>
     </PropertyGroup>
+    <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(BaseDirectory)$(ReleaseNotesFileName)" />
+    <FileUpdate Files="$(ReleaseNotesTargetPathName)" Regex="\$version\$" ReplacementText="$(PackageVersion)" />
+    <Time Format="dd.MM.yyyy">
+      <Output TaskParameter="FormattedTime" PropertyName="BuildDate" />
+    </Time>
+    <FileUpdate Files="$(ReleaseNotesTargetPathName)" Regex="\$date\$" ReplacementText="$(BuildDate)" />
     <ItemGroup>
       <BinFiles Include="$(OutputPath)*.dll" />
       <BinFiles Include="$(OutputPath)*.exe" />
