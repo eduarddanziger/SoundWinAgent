@@ -18,8 +18,6 @@ public:
 
     static void PrintDeviceInfo(const SoundDeviceInterface* device);
 
-    static std::string WString2StringTruncate(const std::wstring& str);
     static std::wostream & CurrentLocalTimeWithoutDate(std::wostream & os);
-
     static std::ostream & CurrentLocalTimeWithoutDate(std::ostream & os);
 };
