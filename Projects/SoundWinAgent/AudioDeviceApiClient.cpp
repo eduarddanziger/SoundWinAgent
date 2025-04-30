@@ -114,7 +114,7 @@ std::wstring AudioDeviceApiClient::GetHostNameW()
             wchar_t hostNameBuffer[MAX_COMPUTERNAME_LENGTH + 1];
             DWORD bufferSize = std::size(hostNameBuffer);
             GetComputerNameW(hostNameBuffer, &bufferSize);
-            return std::wstring(hostNameBuffer);
+            return { hostNameBuffer };
         }();
     return HOST_NAME;
 }

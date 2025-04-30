@@ -30,6 +30,9 @@ public:
     }
 
 private:
+    static std::string GetHostName();
+
+private:
     SoundDeviceCollectionInterface& collection_;
     std::wstring apiBaseUrl_;
     std::wstring universalToken_;

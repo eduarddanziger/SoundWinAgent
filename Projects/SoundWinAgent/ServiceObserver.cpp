@@ -93,3 +93,18 @@ void ServiceObserver::OnTrace(const std::wstring & line)
 {
     SPD_L->info(ed::WString2StringTruncate(line));
 }
+
+std::string ServiceObserver::GetHostName()
+{
+    static const std::string HOST_NAME = []() -> std::string
+        {
+            wchar_t hostNameBuffer[MAX_COMPUTERNAME_LENGTH + 1];
+            DWORD bufferSize = std::size(hostNameBuffer);
+            GetComputerNameW(hostNameBuffer, &bufferSize);
+            std::wstring hostName(hostNameBuffer);
+            std::ranges::transform(hostName, hostName.begin(),
+                [](wchar_t c) { return std::toupper(c); });
+            return utility::conversions::to_utf8string(hostNameBuffer);
+        }();
+    return HOST_NAME;
+}
