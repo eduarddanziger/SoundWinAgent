@@ -7,10 +7,12 @@
 #include <nlohmann/json.hpp>
 #include <format>
 
+#include "SpdLogger.h"
 
-HttpRequestProcessor::HttpRequestProcessor(std::wstring apiBaseUrl,
-    std::wstring universalToken,
-    std::wstring codespaceName)  // Added codespaceName parameter
+
+HttpRequestProcessor::HttpRequestProcessor(std::string apiBaseUrl,
+                                           std::string universalToken,
+                                           std::string codespaceName)  // Added codespaceName parameter
     : apiBaseUrlNoTrailingSlash_(std::move(apiBaseUrl))
     , universalToken_(std::move(universalToken))
     , codespaceName_(std::move(codespaceName))  // Initialize new member
@@ -32,31 +34,48 @@ HttpRequestProcessor::~HttpRequestProcessor()
     }
 }
 
-void HttpRequestProcessor::EnqueueRequest(const web::http::http_request & request, const std::wstring & urlSuffix,
-                                          const std::string & hint)
+void HttpRequestProcessor::EnqueueRequest(bool postOrPut, const std::chrono::system_clock::time_point & time, const std::string & urlSuffix,
+                                          const std::string & payload, const std::unordered_map<std::string, std::string> & header, const std::string & hint)
 {
     std::unique_lock lock(mutex_);
 
     // Add to queue
-    requestQueue_.push(RequestItem{.Request = request, .UrlSuffix = urlSuffix ,.Hint = hint});
+    requestQueue_.push_back(RequestItem{
+        .PostOrPut = postOrPut,
+        .Time = time,
+        .UrlSuffix = urlSuffix,
+        .Payload = payload,
+        .Header = header,
+        .Hint = hint
+    });
 
     // Notify worker thread
     condition_.notify_one();
 }
 
-bool HttpRequestProcessor::SendRequest(const RequestItem & item, const std::wstring & urlBase)
+bool HttpRequestProcessor::SendRequest(const RequestItem & requestItem, const std::string & urlBase)
 {
-    const auto messageDeviceAppendix = item.Hint;
+    const auto messageDeviceAppendix = requestItem.Hint;
 
     try
     {
-        SPD_L->info("Processing request{}", messageDeviceAppendix);
+        SPD_L->info("Processing request: {}", messageDeviceAppendix);
 
-        // Create HTTP client object
-        web::http::client::http_client client(urlBase + item.UrlSuffix);
+        // Create HTTP client
+        const auto url = utility::conversions::to_string_t(urlBase + requestItem.UrlSuffix);
+        web::http::client::http_client client(url);
+
+        // Create HTTP request
+        web::http::http_request httpRequest(requestItem.PostOrPut ? web::http::methods::POST : web::http::methods::PUT);
+        httpRequest.headers().set_content_type(L"application/json");
+        httpRequest.set_body(web::json::value::parse(requestItem.Payload));
+        for (const auto& [name, val] : requestItem.Header)
+        {
+            httpRequest.headers().add(utility::conversions::to_string_t(name), utility::conversions::to_string_t(val));
+        }
 
         // Synchronously send the request and get response
-        const web::http::http_response response = client.request(item.Request).get();
+        const web::http::http_response response = client.request(httpRequest).get();
 
         if (const auto statusCode = response.status_code();
             statusCode == web::http::status_codes::Created ||
@@ -119,78 +138,66 @@ void HttpRequestProcessor::ProcessingWorker()
             }
 
             item = requestQueue_.front();
+            requestQueue_.pop_front();
         }
 
-		// If the sending of the "genuine" request (before the actual copy) was successful, let's skip the copy and continue processing
-		if (item.Hint.find("(copy)") != std::string::npos && successfullySent_)
-		{
-			std::unique_lock lock(mutex_);
-			requestQueue_.pop();
-			continue;
-		}
-
+        const auto itemCloned = item;
 
 		// If the sending was successful, set retries to 0 and remove the request from the queue
-        if ((successfullySent_ = SendRequest(item, apiBaseUrlNoTrailingSlash_)))
+        if (SendRequest(item, apiBaseUrlNoTrailingSlash_))
 		{   // Request was successful
-            std::unique_lock lock(mutex_);
             retryAwakingCount_ = 0;
-            requestQueue_.pop();
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
             continue;
         }
 
 		// Check if base url is on GitHub Codespace. If not , we don't need to wake up
-        if (apiBaseUrlNoTrailingSlash_.find(L".github.") == std::wstring::npos)
+        if (apiBaseUrlNoTrailingSlash_.find(".github.") == std::string::npos)
         {// NOT  a GitHub Codespace, no wake up
-            const auto msg = std::wstring(L"Request sending to \"") + apiBaseUrlNoTrailingSlash_ + L"\" unsuccessful. Wake up make no sense. Skipping request.";
+            const auto msg = std::string("Request sending to \"") + apiBaseUrlNoTrailingSlash_ + "\" unsuccessful. Wake up make no sense. Skipping request.";
 			FormattedOutput::LogAndPrint(msg);
-
-			std::unique_lock lock(mutex_);
-			requestQueue_.pop();
 			continue;
         }
 
 		if (++retryAwakingCount_ <= MAX_AWAKING_RETRIES)
 		{   // Wake-retrials are yet to be exhausted
-            const auto url = std::format(L"https://api.github.com/user/codespaces/{}/start", codespaceName_);
+
+            // send awaking request
+            const auto url = std::format("https://api.github.com/user/codespaces/{}/start", codespaceName_);
             SendRequest(
                 CreateAwakingRequest()
                 , url);
+
+			// push the prepared cloned request back to the queue
+		    std::unique_lock lock(mutex_);
+            requestQueue_.push_front(itemCloned);
         }
 		else
-		{   // we have tried enough. Abandon the request (pop)
-            std::unique_lock lock(mutex_);
-            requestQueue_.pop();
-            if (retryAwakingCount_ > MAX_IGNORING_RETRIES)
-            {
-				retryAwakingCount_ = 0;
-            }
-                
+		{   // Retries exhausted
+			const auto msg = std::string("Request sending to \"") + apiBaseUrlNoTrailingSlash_ + "\" unsuccessful. Retries exhausted. Skipping request's sending.";
+			FormattedOutput::LogAndPrint(msg);
+    		retryAwakingCount_ = 0;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }
 }
 
 HttpRequestProcessor::RequestItem HttpRequestProcessor::CreateAwakingRequest() const
 {
-    const std::string codespaceNameUtf8 = utility::conversions::to_utf8string(codespaceName_);
-
     const nlohmann::json payload = {
         // ReSharper disable once StringLiteralTypo
-        {"codespace_name", codespaceNameUtf8}
+        {"codespace_name", codespaceName_}
     };
-    // Convert nlohmann::json to cpprestsdk::json::value
-    const web::json::value jsonPayload = web::json::value::parse(payload.dump());
+    // Convert nlohmann::json to string and to value
+    const std::string payloadString = payload.dump();
 
-    const std::wstring authorizationValue = L"Bearer " + universalToken_;
-
-    web::http::http_request request(web::http::methods::POST);
-    request.headers().add(U("Authorization"), authorizationValue);
-    request.headers().add(U("Accept"), U("application/vnd.github.v3+json"));
-    request.headers().set_content_type(U("application/json"));
-    request.set_body(jsonPayload);
+    const std::string authorizationValue = "Bearer " + universalToken_;
+	std::unordered_map<std::string, std::string> header{
+		{"Authorization", authorizationValue},
+		{"Accept", "application/vnd.github.v3+json"}
+	};
 
 	std::ostringstream oss; oss << " awaking a backend " << retryAwakingCount_ << " / " << MAX_AWAKING_RETRIES;
-    return RequestItem{ .Request = request, .UrlSuffix = L"" ,.Hint = oss.str() };
+    return RequestItem{.PostOrPut = true, .Time = std::chrono::system_clock::now(), .UrlSuffix = "" , .Payload = payloadString, .Header = header, .Hint = oss.str() };
 }
+

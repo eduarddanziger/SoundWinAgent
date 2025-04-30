@@ -52,7 +52,7 @@ protected:
         }
     }
 
-    std::wstring ReadWideStringConfigProperty(const std::string & propertyName) const
+    [[nodiscard]] std::string ReadStringConfigProperty(const std::string & propertyName) const
     {
         if (!config().hasProperty(propertyName))
         {
@@ -60,12 +60,12 @@ protected:
 			FormattedOutput::LogAsErrorPrintAndThrow(msg);
         }
 
-        auto narrowVal = config().getString(propertyName);
+        auto returnValue = config().getString(propertyName);
         try
         {
-            narrowVal = SodiumDecrypt(narrowVal, "32-characters-long-secure-key-12");
+            returnValue = SodiumDecrypt(returnValue, "32-characters-long-secure-key-12");
         }
-        catch (const std::exception& ex)
+        catch (const std::exception& ex)  // NOLINT(bugprone-empty-catch)
         {
             SPD_L->info("Decryption doesn't work: {}.", ex.what());
         }
@@ -76,8 +76,6 @@ protected:
             throw;
         }
 
-		std::wstring returnValue(narrowVal.length(), L' ');
-        std::ranges::copy(narrowVal, returnValue.begin());
 		return returnValue;
     }
 
@@ -87,14 +85,14 @@ protected:
 
         if (apiBaseUrl_.empty())
         {
-            apiBaseUrl_ = ReadWideStringConfigProperty(API_BASE_URL_PROPERTY_KEY);
+            apiBaseUrl_ = ReadStringConfigProperty(API_BASE_URL_PROPERTY_KEY);
         }
        
-        apiBaseUrl_ += L"/api/AudioDevices";
+        apiBaseUrl_ += "/api/AudioDevices";
 
-		universalToken_ = ReadWideStringConfigProperty(UNIVERSAL_TOKEN_PROPERTY_KEY);
+		universalToken_ = ReadStringConfigProperty(UNIVERSAL_TOKEN_PROPERTY_KEY);
 
-		codespaceName_ = ReadWideStringConfigProperty(CODESPACE_NAME_PROPERTY_KEY);
+		codespaceName_ = ReadStringConfigProperty(CODESPACE_NAME_PROPERTY_KEY);
 
         setUnixOptions(false);  // Force Windows service behavior
     }
@@ -145,16 +143,15 @@ protected:
     void HandleUrl(const std::string& name, const std::string& value)
     {
         std::cout << "Got Server URL " << value << "\n";
-        apiBaseUrl_ = std::wstring(value.length(), L' ');
-        std::ranges::copy(value, apiBaseUrl_.begin());
+        apiBaseUrl_ = value;
     }
 
 
 
 private:
-	std::wstring apiBaseUrl_;
-	std::wstring universalToken_;
-    std::wstring codespaceName_;
+	std::string apiBaseUrl_;
+	std::string universalToken_;
+    std::string codespaceName_;
 
     bool helpRequested_ = false;
 
