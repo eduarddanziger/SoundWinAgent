@@ -1,5 +1,6 @@
 {
   "dependencies": [
+    "fmt",
     "poco",
     "cpprestsdk",
     "nlohmann-json",
