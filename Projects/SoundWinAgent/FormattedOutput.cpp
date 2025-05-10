@@ -3,7 +3,7 @@
 #include "FormattedOutput.h"
 
 #include <TimeUtils.h>
-#include <StringUtils.h>
+#include "public/StringUtils.h"
 
 #include <SpdLogger.h>
 
@@ -31,13 +31,13 @@ void FormattedOutput::LogAsErrorPrintAndThrow(const std::string & mess)
 	throw std::runtime_error(mess);
 }
 
-void FormattedOutput::PrintEvent(SoundDeviceEventType event, const std::wstring & devicePnpId)
+void FormattedOutput::PrintEvent(SoundDeviceEventType event, const std::string & devicePnpId)
 {
     using magic_enum::iostream_operators::operator<<;
 
-    std::wostringstream wos; wos << L"Event caught: " << event << L"."
-        << L" Device PnP id: " << devicePnpId << L'\n';
-    LogAndPrint(wos.str());
+    std::ostringstream os; os << "Event caught: " << event << "."
+        << " Device PnP id: " << devicePnpId << '\n';
+    LogAndPrint(os.str());
 }
 
 void FormattedOutput::PrintDeviceInfo(const SoundDeviceInterface * device)
@@ -45,14 +45,13 @@ void FormattedOutput::PrintDeviceInfo(const SoundDeviceInterface * device)
     using magic_enum::iostream_operators::operator<<;
 
     const auto idString = device->GetPnpId();
-    const std::wstring idAsWideString(idString.begin(), idString.end());
-	std::wostringstream wos; wos << std::wstring(4, L' ')
+	std::ostringstream os; os << std::string(4, ' ')
         << idString
         << ", \"" << device->GetName()
         << "\", " << device->GetFlow()
         << ", Volume " << device->GetCurrentRenderVolume()
         << " / " << device->GetCurrentCaptureVolume();
-    LogAndPrint(wos.str());
+    LogAndPrint(os.str());
 }
 
 std::wostream & FormattedOutput::CurrentLocalTimeWithoutDate(std::wostream & os)

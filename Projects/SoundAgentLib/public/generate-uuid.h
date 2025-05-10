@@ -31,25 +31,3 @@ inline std::string generate_uuid()
     return uuidOut;
 }
 
-inline std::wstring generate_w_uuid()
-{
-    UUID uuid;
-    RPC_WSTR  uuidStr;
-
-    if (UuidCreate(&uuid) != RPC_S_OK)
-    {
-        std::ostringstream os; os << "Couldn't create uuid, error code" << GetLastError() << ".";
-        throw std::runtime_error(os.str());
-    }
-
-    if (UuidToStringW(&uuid, &uuidStr) != RPC_S_OK)
-    {
-        std::ostringstream os; os << "Couldn't convert uuid to string, error code" << GetLastError() << ".";
-        throw std::runtime_error(os.str());
-    }
-
-    const std::wstring uuidOut = reinterpret_cast<const wchar_t*>(uuidStr);
-
-    RpcStringFreeW(&uuidStr);
-    return uuidOut;
-}

@@ -154,7 +154,8 @@ void HttpRequestProcessor::ProcessingWorker()
 		// Check if base url is on GitHub Codespace. If not , we don't need to wake up
         if (apiBaseUrlNoTrailingSlash_.find(".github.") == std::string::npos)
         {// NOT  a GitHub Codespace, no wake up
-            const auto msg = std::string("Request sending to \"") + apiBaseUrlNoTrailingSlash_ + "\" unsuccessful. Wake up make no sense. Skipping request.";
+            const auto msg = std::string("Request sending to \"") + apiBaseUrlNoTrailingSlash_ +
+                "\" unsuccessful. Waking up makes no sense. Skipping request.";
 			FormattedOutput::LogAndPrint(msg);
 			continue;
         }

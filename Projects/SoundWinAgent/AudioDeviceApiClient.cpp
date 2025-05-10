@@ -9,7 +9,6 @@
 
 #include <string>
 #include <sstream>
-#include <StringUtils.h>
 #include <nlohmann/json.hpp>
 
 #include "TimeUtils.h"
@@ -90,8 +89,8 @@ void AudioDeviceApiClient::PostDeviceToApi(SoundDeviceEventType eventType, const
 	nowTimeAsSystemTimeString = nowTimeAsSystemTimeString.substr(0, nowTimeAsSystemTimeString.length() - 7);
 
     const nlohmann::json payload = {
-        {"pnpId", ed::WString2StringTruncate(device->GetPnpId())},
-        {"name", ed::WString2StringTruncate(device->GetName())},
+        {"pnpId", device->GetPnpId()},
+        {"name", device->GetName()},
         {"flowType", device->GetFlow()},
         {"renderVolume", device->GetCurrentRenderVolume()},
         {"captureVolume", device->GetCurrentCaptureVolume()},
@@ -102,7 +101,7 @@ void AudioDeviceApiClient::PostDeviceToApi(SoundDeviceEventType eventType, const
 
     // Convert nlohmann::json to string and to value
     const std::string payloadString = payload.dump();
-    const auto hint = hintPrefix + "Post a device." + ed::WString2StringTruncate(device->GetPnpId());
+    const auto hint = hintPrefix + "Post a device." + device->GetPnpId();
 
     SPD_L->info("Enqueueing: {}...", hint);
     requestProcessor_->EnqueueRequest(true, nowTime, "", payloadString, {}, hint);

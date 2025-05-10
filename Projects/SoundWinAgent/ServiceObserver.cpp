@@ -7,7 +7,7 @@
 #include "HttpRequestProcessor.h"
 
 #include <SpdLogger.h>
-#include <StringUtils.h>
+#include "public/StringUtils.h"
 
 ServiceObserver::ServiceObserver(SoundDeviceCollectionInterface& collection,
     std::string apiBaseUrl,
@@ -60,7 +60,7 @@ void ServiceObserver::PostAndPrintCollection() const
         << FormattedOutput::CurrentLocalTimeWithoutDate << "-----------------------------------------------\n";
 }
 
-void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std::wstring & devicePnpId)
+void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std::string & devicePnpId)
 {
     FormattedOutput::PrintEvent(event, devicePnpId);
 
@@ -74,7 +74,7 @@ void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std:
     {
         const auto soundDeviceInterface = collection_.CreateItem(devicePnpId);
 		const bool renderOrCapture = event == SoundDeviceEventType::VolumeRenderChanged;
-        PutVolumeChangeToApi(ed::WString2StringTruncate(devicePnpId), renderOrCapture, renderOrCapture ? soundDeviceInterface->GetCurrentRenderVolume() : soundDeviceInterface->GetCurrentCaptureVolume());
+        PutVolumeChangeToApi(devicePnpId, renderOrCapture, renderOrCapture ? soundDeviceInterface->GetCurrentRenderVolume() : soundDeviceInterface->GetCurrentCaptureVolume());
     }
     else if (event == SoundDeviceEventType::Detached)
     {
@@ -85,11 +85,6 @@ void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std:
 		SPD_L->warn("Unexpected event type: {}", static_cast<int>(event));
 	}
 
-}
-
-void ServiceObserver::OnTrace(const std::wstring & line)
-{
-    SPD_L->info(ed::WString2StringTruncate(line));
 }
 
 std::string ServiceObserver::GetHostName()

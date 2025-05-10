@@ -18,7 +18,7 @@ using EndPointVolumeSmartPtr = CComPtr<IAudioEndpointVolume>;
 
 class SoundDeviceCollection final : public SoundDeviceCollectionInterface, protected MultipleNotificationClient {
 protected:
-    using TPnPIdToDeviceMap = std::map<std::wstring, SoundDevice>;
+    using TPnPIdToDeviceMap = std::map<std::string, SoundDevice>;
     using ProcessDeviceFunctionT =
         std::function<void(ed::audio::SoundDeviceCollection*, const std::wstring&, const SoundDevice&, EndPointVolumeSmartPtr)>;
 
@@ -27,11 +27,11 @@ public:
     ~SoundDeviceCollection() override;
 
 public:
-    explicit SoundDeviceCollection(std::wstring nameFilter, bool bothHeadsetAndMicro);
+    explicit SoundDeviceCollection(bool bothHeadsetAndMicro);
 
     [[nodiscard]] size_t GetSize() const override;
     [[nodiscard]] std::unique_ptr<SoundDeviceInterface> CreateItem(size_t deviceNumber) const override;
-    [[nodiscard]] std::unique_ptr<SoundDeviceInterface> CreateItem(const std::wstring& devicePnpId) const override;
+    [[nodiscard]] std::unique_ptr<SoundDeviceInterface> CreateItem(const std::string& devicePnpId) const override;
     void Subscribe(SoundDeviceObserverInterface & observer) override;
     void Unsubscribe(SoundDeviceObserverInterface & observer) override;
 
@@ -49,17 +49,15 @@ private:
     static void UpdateDeviceVolume(SoundDeviceCollection* self, const std::wstring& deviceId, const SoundDevice& device, EndPointVolumeSmartPtr);
 
 
-    void NotifyObservers(SoundDeviceEventType action, const std::wstring & devicePNpId) const;
+    void NotifyObservers(SoundDeviceEventType action, const std::string & devicePNpId) const;
     [[nodiscard]] bool IsDeviceApplicable(const SoundDevice & device) const;
-    bool TryCreateDeviceAndGetVolumeEndpoint(ULONG i,
-                                             CComPtr<IMMDevice> deviceEndpointSmartPtr,
-                                             SoundDevice & device,
-                                             std::wstring & deviceId,
-                                             EndPointVolumeSmartPtr & outVolumeEndpoint
-    ) const;
+    static bool TryCreateDeviceAndGetVolumeEndpoint(ULONG i,
+                                                    CComPtr<IMMDevice> deviceEndpointSmartPtr,
+                                                    SoundDevice & device,
+                                                    std::wstring & deviceId,
+                                                    EndPointVolumeSmartPtr & outVolumeEndpoint
+    );
 
-    void TraceIt(const std::wstring & line) const;
-    void TraceItDebug(const std::wstring & line) const;
     void UnregisterAllEndpointsVolumes();
     void UnregisterAndRemoveEndpointsVolumes(const std::wstring & deviceId);
 
@@ -71,7 +69,7 @@ private:
                                                EndPointVolumeSmartPtr & outVolumeEndpoint
     ) const;
 
-    static std::pair<std::vector<std::wstring>, std::vector<std::wstring>>
+    static std::pair<std::vector<std::string>, std::vector<std::string>>
         GetDevicePnPIdsWithChangedVolume(const TPnPIdToDeviceMap & devicesBeforeUpdate, const TPnPIdToDeviceMap & devicesAfterUpdate);
 
 public:
@@ -79,12 +77,11 @@ public:
 
 
 private:
-    std::map<std::wstring, SoundDevice> pnpToDeviceMap_;
+    std::map<std::string, SoundDevice> pnpToDeviceMap_;
     std::set<SoundDeviceObserverInterface*> observers_;
     IMMDeviceEnumerator * enumerator_ = nullptr;
-    std::wstring nameFilter_;
     bool bothHeadsetAndMicro_;
-    const std::wstring noPlugAndPlayGuid_ = L"00000000-0000-0000-FFFF-FFFFFFFFFFFF";
+    const std::string noPlugAndPlayGuid_ = "00000000-0000-0000-FFFF-FFFFFFFFFFFF";
 
     std::map<std::wstring, CComPtr<IAudioEndpointVolume>> devIdToEndpointVolumes_;
 };

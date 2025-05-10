@@ -16,15 +16,15 @@
 
 namespace
 {
-    std::wostream& CurrentLocalTimeWithoutDate(std::wostream& os) {
-        const std::wstring currentTime = ed::getLocalTimeAsWideString();
+    std::ostream& CurrentLocalTimeWithoutDate(std::ostream& os) {
+        const std::string currentTime = ed::getLocalTimeAsString();
         if
         (
             constexpr int beginOfTimeCountingFromTheEnd = 15;
             currentTime.size() >= beginOfTimeCountingFromTheEnd
         )
         {
-            os << currentTime.substr(currentTime.size() - beginOfTimeCountingFromTheEnd, 12) << L" ";
+            os << currentTime.substr(currentTime.size() - beginOfTimeCountingFromTheEnd, 12) << " ";
         }
         return os;
     }
@@ -54,12 +54,11 @@ public:
         using magic_enum::iostream_operators::operator<<;
 
         const auto idString = device->GetPnpId();
-        const std::wstring idAsWideString(idString.begin(), idString.end());
-        std::wcout << CurrentLocalTimeWithoutDate << L"[" << i << L"]: " << idAsWideString
-            << L", \"" << device->GetName()
-            << L"\", " << device->GetFlow() // magic to string
-            << L", Volume " << device->GetCurrentRenderVolume()
-			<< L" / " << device->GetCurrentCaptureVolume()
+        std::cout << CurrentLocalTimeWithoutDate << "[" << i << "]: " << idString
+            << ", \"" << device->GetName()
+            << "\", " << device->GetFlow() // magic to string
+            << ", Volume " << device->GetCurrentRenderVolume()
+			<< " / " << device->GetCurrentCaptureVolume()
             << '\n';
     }
 
@@ -70,40 +69,24 @@ public:
             const std::unique_ptr<SoundDeviceInterface> deviceSmartPtr(collection_.CreateItem(i));
             PrintDeviceInfo(deviceSmartPtr.get(), i);
         }
-        std::wcout << '\n' << CurrentLocalTimeWithoutDate << "Press Enter to regenerate device list; To stop, type S or Q and press Enter\n";
+        std::cout << '\n' << CurrentLocalTimeWithoutDate << "Press Enter to regenerate device list; To stop, type S or Q and press Enter\n";
     }
 
     void ResetCollectionContentAndPrintIt() const
     {
-        std::wcout << CurrentLocalTimeWithoutDate << L"Regenerating device list.\n";
+        std::cout << CurrentLocalTimeWithoutDate << "Regenerating device list.\n";
         collection_.ResetContent();
         PrintCollection();
     }
 
-    void OnCollectionChanged(SoundDeviceEventType event, const std::wstring& devicePnpId) override
+    void OnCollectionChanged(SoundDeviceEventType event, const std::string& devicePnpId) override
     {
         using magic_enum::iostream_operators::operator<<; // out-of-the-box stream operators for enums
 
-        std::wcout << '\n' << CurrentLocalTimeWithoutDate << L"Event caught: " << event << L"."
-            <<  L" Device PnP id: " << devicePnpId << L'\n';
+        std::cout << '\n' << CurrentLocalTimeWithoutDate << "Event caught: " << event << "."
+            <<  " Device PnP id: " << devicePnpId << '\n';
 
         PrintCollection();
-    }
-
-    void OnTrace(const std::wstring& line) override
-    {
-        std::string result; result.reserve(line.size());
-        std::ranges::for_each(line, [&result](const auto p)
-        {
-            result += static_cast<char>(p);
-        });
-
-        SPD_L->info(result);
-    }
-
-    void OnTraceDebug(const std::wstring& line) override
-    {
-        OnTrace(line);
     }
 
 private:
@@ -114,9 +97,9 @@ bool StopAndWaitForInput()
 {
     for (;;)
     {
-        std::wstring line;
-        std::getline(std::wcin, line);
-        if (line == L"S" || line == L"s" || line == L"Q" || line == L"q")
+        std::string line;
+        std::getline(std::cin, line);
+        if (line == "S" || line == "s" || line == "Q" || line == "q")
         {
             return false;
         }
@@ -125,7 +108,7 @@ bool StopAndWaitForInput()
             return true;
         }
 
-        std::wcout << '\n' << CurrentLocalTimeWithoutDate << L"Input " << line << L" not recognized.\n";
+        std::cout << '\n' << CurrentLocalTimeWithoutDate << "Input " << line << " not recognized.\n";
     }
 }
 
@@ -138,25 +121,14 @@ int _tmain(int argc, _TCHAR * argv[])
     _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 
     bool bothHeadsetAndMicro = true;
-    std::wstring filter;
     if (argc > 1)
     {
-        filter = std::wstring(argv[1]);
+        bothHeadsetAndMicro = argv[1][0] != L'0';
     }
 
-    if (argc > 2)
-    {
-        bothHeadsetAndMicro = argv[2][0] != L'0';
-    }
-
-    if (argc > 3)
-    {
-        std::wcout << L"Wrong command line!\nUsage: \"" << argv[0] << "\" <filter substring>\n";
-        return -1;
-    }
 
     ed::CoInitRaiiHelper coInitHelper;
-    const auto coll(SoundAgent::CreateDeviceCollection(filter, bothHeadsetAndMicro));
+    const auto coll(SoundAgent::CreateDeviceCollection(bothHeadsetAndMicro));
     ServiceObserver o(*coll);
     coll->Subscribe(o);
 

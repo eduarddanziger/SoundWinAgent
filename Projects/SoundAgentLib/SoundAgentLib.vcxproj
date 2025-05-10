@@ -38,6 +38,8 @@
       <WholeProgramOptimization Condition="'$(Configuration)'=='Release'">false</WholeProgramOptimization>
       <FunctionLevelLinking Condition="'$(Configuration)'=='Release'" />
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -49,11 +51,11 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CaseInsensitiveSubstr.h" />
     <ClInclude Include="public\ClassDefHelper.h" />
     <ClInclude Include="public\CoInitRaiiHelper.h" />
     <ClInclude Include="public\generate-uuid.h" />
     <ClInclude Include="public\SoundAgentInterface.h" />
+    <ClInclude Include="public\StringUtils.h" />
     <ClInclude Include="SoundDevice.h" />
     <ClInclude Include="SoundDeviceCollection.h" />
     <ClInclude Include="MultipleNotificationClient.h" />

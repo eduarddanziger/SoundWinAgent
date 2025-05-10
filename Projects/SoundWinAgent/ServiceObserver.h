@@ -20,14 +20,7 @@ public:
 public:
     void PostAndPrintCollection() const;
 
-    void OnCollectionChanged(SoundDeviceEventType event, const std::wstring& devicePnpId) override;
-
-    void OnTrace(const std::wstring& line) override;
-
-    void OnTraceDebug(const std::wstring& line) override
-    {
-        OnTrace(line);
-    }
+    void OnCollectionChanged(SoundDeviceEventType event, const std::string& devicePnpId) override;
 
 private:
     static std::string GetHostName();

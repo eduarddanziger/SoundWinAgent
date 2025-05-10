@@ -30,7 +30,7 @@ protected:
             const auto msgStart = "Starting Sound Agent...";
             FormattedOutput::LogAndPrint(msgStart);
 
-            const auto coll(SoundAgent::CreateDeviceCollection(L"", true));
+            const auto coll(SoundAgent::CreateDeviceCollection(true));
             ServiceObserver serviceObserver(*coll, apiBaseUrl_, universalToken_, codespaceName_);
             coll->Subscribe(serviceObserver);
 
