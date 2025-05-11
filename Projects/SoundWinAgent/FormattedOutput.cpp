@@ -15,13 +15,11 @@
 void FormattedOutput::LogAndPrint(const std::wstring & mess)
 {
     SPD_L->info(ed::WString2StringTruncate(mess));
-    std::wcout << CurrentLocalTimeWithoutDate << mess << '\n';
 }
 
 void FormattedOutput::LogAndPrint(const std::string & mess)
 {
     SPD_L->info(mess);
-    std::cout << CurrentLocalTimeWithoutDate << mess << '\n';
 }
 
 void FormattedOutput::LogAsErrorPrintAndThrow(const std::string & mess)

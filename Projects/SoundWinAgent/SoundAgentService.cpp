@@ -83,6 +83,17 @@ protected:
         loadConfiguration();
         ServerApplication::initialize(self);
 
+        ed::model::Logger::Inst().SetOutputToConsole(true);
+        if (std::filesystem::path logFile;
+            ed::utility::AppPath::GetAndValidateLogFileInProgramData(
+                logFile, RESOURCE_FILENAME_ATTRIBUTE)
+            )
+        {
+            ed::model::Logger::Inst().SetPathName(logFile);
+        }
+		SPD_L->info("Logging initialized");
+
+
         if (apiBaseUrl_.empty())
         {
             apiBaseUrl_ = ReadStringConfigProperty(API_BASE_URL_PROPERTY_KEY);
@@ -145,8 +156,6 @@ protected:
         std::cout << "Got Server URL " << value << "\n";
         apiBaseUrl_ = value;
     }
-
-
 
 private:
 	std::string apiBaseUrl_;

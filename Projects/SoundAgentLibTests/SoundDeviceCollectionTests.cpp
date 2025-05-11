@@ -5,6 +5,7 @@
 #include <queue>
 
 #include <CppUnitTest.h>
+#include <spdlog/spdlog.h>
 
 #include "SoundDeviceCollection.h"
 
@@ -33,6 +34,7 @@ public:
 
         TEST_METHOD_INITIALIZE(MyInit)
         {
+            spdlog::info("Default log initialized");
             _CrtMemCheckpoint(&sOld); //take a snapshot
         }
 
@@ -70,7 +72,7 @@ public:
             // delete[] ss;
 
         }
-        TEST_METHOD(ResetConmtentMemoryLeakTest)
+        TEST_METHOD(ResetContentMemoryLeakTest)
         {
             SoundDeviceCollection devColl(false);
 			devColl.ResetContent();

@@ -76,9 +76,7 @@ void AudioDeviceApiClient::PostDeviceToApi(SoundDeviceEventType eventType, const
 {
     if (!device)
     {
-        const auto msg = "Cannot post device data: nullptr provided";
-        std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
-        SPD_L->error(msg);
+        SPD_L->error("Cannot post device data: nullptr provided");
         return;
     }
 
