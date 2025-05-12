@@ -12,21 +12,9 @@
 #include <magic_enum/magic_enum_iostream.hpp>
 
 
-void FormattedOutput::LogAndPrint(const std::wstring & mess)
-{
-    SPD_L->info(ed::WString2StringTruncate(mess));
-}
-
 void FormattedOutput::LogAndPrint(const std::string & mess)
 {
     SPD_L->info(mess);
-}
-
-void FormattedOutput::LogAsErrorPrintAndThrow(const std::string & mess)
-{
-    SPD_L->error(mess);
-    std::cerr << CurrentLocalTimeWithoutDate << mess << '\n';
-	throw std::runtime_error(mess);
 }
 
 void FormattedOutput::PrintEvent(SoundDeviceEventType event, const std::string & devicePnpId)

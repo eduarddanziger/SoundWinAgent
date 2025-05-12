@@ -23,12 +23,13 @@
 class AudioDeviceService final : public Poco::Util::ServerApplication {
 protected:
     int main(const std::vector<std::string>& args) override {
-        try {
-            if (helpRequested_)
-                return Application::EXIT_OK;
+        if (helpRequested_)
+        {
+            return Application::EXIT_OK;
+        }
 
-            const auto msgStart = "Starting Sound Agent...";
-            FormattedOutput::LogAndPrint(msgStart);
+        try {
+            spdlog::info("Starting Sound Agent...");
 
             const auto coll(SoundAgent::CreateDeviceCollection(true));
             ServiceObserver serviceObserver(*coll, apiBaseUrl_, universalToken_, codespaceName_);
@@ -41,13 +42,12 @@ protected:
 
             coll->Unsubscribe(serviceObserver);
 
-            const auto msgStop = "Stopping...";
-            FormattedOutput::LogAndPrint(msgStop);
+            spdlog::info("Stopping...");
 
             return EXIT_OK;
         }
         catch (const Poco::Exception& ex) {
-			SPD_L-> error(ex.displayText());
+			spdlog::error(ex.displayText());
             return EXIT_SOFTWARE;
         }
     }
@@ -57,7 +57,8 @@ protected:
         if (!config().hasProperty(propertyName))
         {
             const auto msg = std::string("FATAL: No \"") + propertyName + "\" property configured.";
-			FormattedOutput::LogAsErrorPrintAndThrow(msg);
+            spdlog::error(msg);
+            throw std::runtime_error(msg);
         }
 
         auto returnValue = config().getString(propertyName);
@@ -67,32 +68,51 @@ protected:
         }
         catch (const std::exception& ex)  // NOLINT(bugprone-empty-catch)
         {
-            SPD_L->info("Decryption doesn't work: {}.", ex.what());
+            spdlog::info("Decryption doesn't work: {}.", ex.what());
         }
         catch (...)
         {
-            const auto msg = std::string("Unknown error. Propagating...");
-            FormattedOutput::LogAndPrint(msg);
+            spdlog::error("Unknown error. Propagating...");
             throw;
         }
 
 		return returnValue;
     }
 
+    static void SetUpLog()
+    {
+        ed::model::Logger::Inst().SetOutputToConsole(true);
+        try
+        {
+            if (std::filesystem::path logFile;
+                ed::utility::AppPath::GetAndValidateLogFileInProgramData(
+                    logFile, RESOURCE_FILENAME_ATTRIBUTE)
+            )
+            {
+                ed::model::Logger::Inst().SetPathName(logFile);
+                SPD_L->info("Logging set-up done.");
+            }
+            else
+            {
+                SPD_L->warn("Logging set-up partially done; Log file can not be used.");
+            }
+        }
+        catch (const std::exception& ex)
+        {
+            SPD_L->warn("Logging set-up partially done; Log file can not be used: {}.", ex.what());
+        }
+    }
+
     void initialize(Application& self) override {
         loadConfiguration();
         ServerApplication::initialize(self);
 
-        ed::model::Logger::Inst().SetOutputToConsole(true);
-        if (std::filesystem::path logFile;
-            ed::utility::AppPath::GetAndValidateLogFileInProgramData(
-                logFile, RESOURCE_FILENAME_ATTRIBUTE)
-            )
-        {
-            ed::model::Logger::Inst().SetPathName(logFile);
-        }
-		SPD_L->info("Logging initialized");
+        if (helpRequested_)
+		{
+			return;
+		}
 
+        SetUpLog();
 
         if (apiBaseUrl_.empty())
         {
@@ -164,7 +184,6 @@ private:
 
     bool helpRequested_ = false;
 
-
     static constexpr auto API_BASE_URL_PROPERTY_KEY = "custom.apiBaseUrl";
     static constexpr auto UNIVERSAL_TOKEN_PROPERTY_KEY = "custom.universalToken";
     static constexpr auto CODESPACE_NAME_PROPERTY_KEY = "custom.codespaceName";
@@ -177,14 +196,6 @@ int _tmain(int argc, _TCHAR * argv[])
     _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
     _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);
     _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
-
-    if (std::filesystem::path logFile;
-        ed::utility::AppPath::GetAndValidateLogFileInProgramData(
-            logFile, RESOURCE_FILENAME_ATTRIBUTE)
-        )
-    {
-        ed::model::Logger::Inst().SetPathName(logFile);
-    }
 
     ed::CoInitRaiiHelper coInitHelper;
 
