@@ -275,3 +275,5 @@ Deliverables/*/[Ll]ib
 
 **/vcpkg_installed/
 **/PublishDir/
+
+NuGet.Config
