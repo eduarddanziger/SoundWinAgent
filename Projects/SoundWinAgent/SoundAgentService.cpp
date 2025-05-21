@@ -89,17 +89,18 @@ protected:
                     logFile, RESOURCE_FILENAME_ATTRIBUTE)
             )
             {
-                ed::model::Logger::Inst().SetPathName(logFile);
-                SPD_L->info("Logging set-up done.");
+                ed::model::Logger::Inst().SetPathName(logFile).Init();
             }
             else
             {
-                SPD_L->warn("Logging set-up partially done; Log file can not be used.");
+                ed::model::Logger::Inst().Init();
+                spdlog::warn("Log file can not be written.");
             }
         }
         catch (const std::exception& ex)
         {
-            SPD_L->warn("Logging set-up partially done; Log file can not be used: {}.", ex.what());
+            ed::model::Logger::Inst().Init();
+            spdlog::warn("Logging set-up partially done; Log file can not be used: {}.", ex.what());
         }
     }
 

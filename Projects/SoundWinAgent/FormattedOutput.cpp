@@ -28,16 +28,7 @@ void FormattedOutput::PrintEvent(SoundDeviceEventType event, const std::string &
 
 void FormattedOutput::PrintDeviceInfo(const SoundDeviceInterface * device)
 {
-    using magic_enum::iostream_operators::operator<<;
-
-    const auto idString = device->GetPnpId();
-	std::ostringstream os; os << std::string(4, ' ')
-        << idString
-        << ", \"" << device->GetName()
-        << "\", " << device->GetFlow()
-        << ", Volume " << device->GetCurrentRenderVolume()
-        << " / " << device->GetCurrentCaptureVolume();
-    LogAndPrint(os.str());
+	spdlog::info(R"({}, "{}", {}, Volume {} / {})", device->GetPnpId(), device->GetName(), magic_enum::enum_name(device->GetFlow()), device->GetCurrentRenderVolume(), device->GetCurrentCaptureVolume());
 }
 
 std::wostream & FormattedOutput::CurrentLocalTimeWithoutDate(std::wostream & os)

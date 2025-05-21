@@ -5,7 +5,7 @@
 #include <queue>
 
 #include <CppUnitTest.h>
-#include <spdlog/spdlog.h>
+#include <SpdLogger.h>
 
 #include "SoundDeviceCollection.h"
 
@@ -18,12 +18,13 @@ namespace ed::audio {
     TEST_CLASS(SoundDeviceCollectionTests) {
 #ifdef _DEBUG
 private:
-    _CrtMemState sOld;
-    _CrtMemState sNew;
-    _CrtMemState sDiff;
+    _CrtMemState sOld_ = {};
+    _CrtMemState sNew_ = {};
+    _CrtMemState sDiff_ = {};
 public:
 
-        static int MyReportHook(int reportType, wchar_t* message, int* returnValue)
+    // ReSharper disable once CppParameterMayBeConstPtrOrRef
+    static int MyReportHook(int reportType, wchar_t* message, int* returnValue)
         {
             if (message) {
                 Logger::WriteMessage(message);
@@ -34,21 +35,22 @@ public:
 
         TEST_METHOD_INITIALIZE(MyInit)
         {
-            spdlog::info("Default log initialized");
-            _CrtMemCheckpoint(&sOld); //take a snapshot
+            model::Logger::Inst().SetOutputToConsole(true).Init();
+
+            _CrtMemCheckpoint(&sOld_); //take a snapshot
         }
 
         TEST_METHOD_CLEANUP(CleanUp)
         {
-            _CrtMemCheckpoint(&sNew);
+            _CrtMemCheckpoint(&sNew_);
             _CrtSetReportHookW2(_CRT_RPTHOOK_INSTALL, MyReportHook);
 
-            if (_CrtMemDifference(&sDiff, &sOld, &sNew)) // if there is a difference
+            if (_CrtMemDifference(&sDiff_, &sOld_, &sNew_)) // if there is a difference
             {
                 _CrtDbgReportW(_CRT_WARN, __WFILE__, __LINE__, nullptr, L"\n----------- _CrtMemDumpStatistics ---------\n");
-                _CrtMemDumpStatistics(&sDiff);
+                _CrtMemDumpStatistics(&sDiff_);
                 _CrtDbgReportW(_CRT_WARN, __WFILE__, __LINE__, nullptr, L"\n----------- _CrtMemDumpAllObjectsSince ---------\n");
-                _CrtMemDumpAllObjectsSince(&sOld);
+                _CrtMemDumpAllObjectsSince(&sOld_);
                 _CrtDbgReportW(_CRT_WARN, __WFILE__, __LINE__, nullptr, L"\n----------- _CrtDumpMemoryLeaks ---------\n");
                 _CrtDumpMemoryLeaks();
 				Assert::IsTrue(false, L"Memory leak detected");
@@ -57,7 +59,7 @@ public:
             {
                 _CrtDbgReportW(_CRT_WARN, __WFILE__, __LINE__, nullptr, L"\n-----------No memory leaks found ---------\n");
             }
-
+            model::Logger::Inst().Free();
         }
             
 
@@ -70,7 +72,6 @@ public:
             // char* ss = new char[14];
             // strcpy_s(ss, 14, "stackoverflow");
             // delete[] ss;
-
         }
         TEST_METHOD(ResetContentMemoryLeakTest)
         {

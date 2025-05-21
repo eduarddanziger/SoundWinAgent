@@ -36,14 +36,34 @@ public:
     explicit ServiceObserver(SoundDeviceCollectionInterface & collection)
         : collection_(collection)
     {
-        if (std::filesystem::path logFile;
-            ed::utility::AppPath::GetAndValidateLogFileInProgramData(
-                logFile, RESOURCE_FILENAME_ATTRIBUTE)
-            )
+        SetUpLog();
+    }
+
+    static void SetUpLog()
+    {
+        ed::model::Logger::Inst().SetOutputToConsole(true);
+        try
         {
-            ed::model::Logger::Inst().SetPathName(logFile);
+            if (std::filesystem::path logFile;
+                ed::utility::AppPath::GetAndValidateLogFileInProgramData(
+                    logFile, RESOURCE_FILENAME_ATTRIBUTE)
+                )
+            {
+                ed::model::Logger::Inst().SetPathName(logFile).Init();
+            }
+            else
+            {
+                ed::model::Logger::Inst().Init();
+                spdlog::warn("Log file can not be written.");
+            }
+        }
+        catch (const std::exception& ex)
+        {
+            ed::model::Logger::Inst().Init();
+            spdlog::warn("Logging set-up partially done; Log file can not be used: {}.", ex.what());
         }
     }
+
 
     DISALLOW_COPY_MOVE(ServiceObserver);
     ~ServiceObserver() override = default;
