@@ -12,12 +12,12 @@
 ServiceObserver::ServiceObserver(SoundDeviceCollectionInterface& collection,
     std::string apiBaseUrl,
     std::string universalToken,
-    std::string codespaceName) // Added codespaceName parameter
+    std::string codeSpaceName)
     : collection_(collection)
     , apiBaseUrl_(std::move(apiBaseUrl))
     , universalToken_(std::move(universalToken))
-    , codespaceName_(std::move(codespaceName)) // Initialize new member
-    , requestProcessorSmartPtr_(std::make_shared<HttpRequestProcessor>(apiBaseUrl_, universalToken_, codespaceName_))
+    , codeSpaceName_(std::move(codeSpaceName))
+    , requestProcessorSmartPtr_(std::make_shared<HttpRequestProcessor>(apiBaseUrl_, universalToken_, codeSpaceName_))
 {
 }
 

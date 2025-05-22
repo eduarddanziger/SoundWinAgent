@@ -318,7 +318,6 @@ ed::audio::SoundDevice ed::audio::SoundDeviceCollection::MergeDeviceWithExisting
         ; foundPair != pnpToDeviceMap_.end()
     )
     {
-        auto volume = device.GetCurrentRenderVolume();
         auto flow = device.GetFlow();
         uint16_t renderVolume = device.GetCurrentRenderVolume();
 		uint16_t captureVolume = device.GetCurrentCaptureVolume();
@@ -352,6 +351,7 @@ ed::audio::SoundDevice ed::audio::SoundDeviceCollection::MergeDeviceWithExisting
     return device;
 }
 
+// ReSharper disable once CppPassValueParameterByConstReference
 void ed::audio::SoundDeviceCollection::ProcessActiveDeviceList(ProcessDeviceFunctionT processDeviceFunc)
 {
 	HRESULT hr;
@@ -376,7 +376,7 @@ void ed::audio::SoundDeviceCollection::ProcessActiveDeviceList(ProcessDeviceFunc
 	{
 		SoundDevice device;
 		EndPointVolumeSmartPtr endPointVolumeSmartPtr;
-		bool isDeviceCreated = false;
+		bool isDeviceCreated;
 		std::wstring deviceId;
 		{
 			CComPtr<IMMDevice> endpointDeviceSmartPtr;
@@ -542,7 +542,6 @@ bool ed::audio::SoundDeviceCollection::CheckRemovalAndUnmergeDeviceFromExistingO
         ; foundPair != pnpToDeviceMap_.end()
     )
     {
-        const auto volume = device.GetCurrentRenderVolume();
         auto flow = device.GetFlow();
         auto name = device.GetName();
 
@@ -575,7 +574,6 @@ bool ed::audio::SoundDeviceCollection::CheckRemovalAndUnmergeDeviceFromExistingO
                 break;
             case SoundDeviceFlowType::None:
             case SoundDeviceFlowType::RenderAndCapture:
-            default:
                 break;
             }
 

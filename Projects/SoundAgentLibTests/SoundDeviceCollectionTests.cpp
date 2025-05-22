@@ -45,6 +45,8 @@ public:
             _CrtMemCheckpoint(&sNew_);
             _CrtSetReportHookW2(_CRT_RPTHOOK_INSTALL, MyReportHook);
 
+            model::Logger::Inst().Free();
+
             if (_CrtMemDifference(&sDiff_, &sOld_, &sNew_)) // if there is a difference
             {
                 _CrtDbgReportW(_CRT_WARN, __WFILE__, __LINE__, nullptr, L"\n----------- _CrtMemDumpStatistics ---------\n");
@@ -59,7 +61,6 @@ public:
             {
                 _CrtDbgReportW(_CRT_WARN, __WFILE__, __LINE__, nullptr, L"\n-----------No memory leaks found ---------\n");
             }
-            model::Logger::Inst().Free();
         }
             
 

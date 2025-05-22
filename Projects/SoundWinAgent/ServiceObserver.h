@@ -9,7 +9,7 @@ public:
     ServiceObserver(SoundDeviceCollectionInterface& collection,
         std::string apiBaseUrl,
         std::string universalToken,
-        std::string codespaceName); // Added codespaceName parameter
+        std::string codeSpaceName);
 
     void PostDeviceToApi(SoundDeviceEventType messageType, const SoundDeviceInterface* devicePtr, const std::string & hintPrefix= "") const;
     void PutVolumeChangeToApi(const std::string & pnpId, bool renderOrCapture, uint16_t volume, const std::string & hintPrefix= "") const;
@@ -29,6 +29,6 @@ private:
     SoundDeviceCollectionInterface& collection_;
     std::string apiBaseUrl_;
     std::string universalToken_;
-    std::string codespaceName_; // Newly added member for codespaceName
+    std::string codeSpaceName_;
     std::shared_ptr<HttpRequestProcessor> requestProcessorSmartPtr_;
 };

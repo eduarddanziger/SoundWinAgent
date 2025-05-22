@@ -18,7 +18,6 @@ public:
     void PutVolumeChangeToApi(const std::string & pnpId, bool renderOrCapture, uint16_t volume, const std::string& hintPrefix) const;
 
 private:
-private:
     std::shared_ptr<HttpRequestProcessor> requestProcessor_;
 	std::function<std::string()> getHostNameCallback_;
 

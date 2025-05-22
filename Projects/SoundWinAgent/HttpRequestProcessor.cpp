@@ -12,10 +12,10 @@
 
 HttpRequestProcessor::HttpRequestProcessor(std::string apiBaseUrl,
                                            std::string universalToken,
-                                           std::string codespaceName)  // Added codespaceName parameter
+                                           std::string codeSpaceName)  // Added codeSpaceName parameter
     : apiBaseUrlNoTrailingSlash_(std::move(apiBaseUrl))
     , universalToken_(std::move(universalToken))
-    , codespaceName_(std::move(codespaceName))  // Initialize new member
+    , codeSpaceName_(std::move(codeSpaceName))  // Initialize new member
     , running_(true)
 {
     workerThread_ = std::thread(&HttpRequestProcessor::ProcessingWorker, this);
@@ -151,9 +151,9 @@ void HttpRequestProcessor::ProcessingWorker()
             continue;
         }
 
-		// Check if base url is on GitHub Codespace. If not , we don't need to wake up
+		// Check if base url is on GitHub codespace. If not , we don't need to wake up
         if (apiBaseUrlNoTrailingSlash_.find(".github.") == std::string::npos)
-        {// NOT  a GitHub Codespace, no wake up
+        {// NOT a GitHub codespace, no wake up
             const auto msg = std::string("Request sending to \"") + apiBaseUrlNoTrailingSlash_ +
                 "\" unsuccessful. Waking up makes no sense. Skipping request.";
 			FormattedOutput::LogAndPrint(msg);
@@ -164,7 +164,7 @@ void HttpRequestProcessor::ProcessingWorker()
 		{   // Wake-retrials are yet to be exhausted
 
             // send awaking request
-            const auto url = std::format("https://api.github.com/user/codespaces/{}/start", codespaceName_);
+            const auto url = std::format("https://api.github.com/user/codespaces/{}/start", codeSpaceName_);
             SendRequest(
                 CreateAwakingRequest()
                 , url);
@@ -187,7 +187,7 @@ HttpRequestProcessor::RequestItem HttpRequestProcessor::CreateAwakingRequest() c
 {
     const nlohmann::json payload = {
         // ReSharper disable once StringLiteralTypo
-        {"codespace_name", codespaceName_}
+        {"codespace_name", codeSpaceName_}
     };
     // Convert nlohmann::json to string and to value
     const std::string payloadString = payload.dump();

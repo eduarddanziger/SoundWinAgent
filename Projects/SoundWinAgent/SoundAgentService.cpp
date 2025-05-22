@@ -12,8 +12,6 @@
 #include <vector>
 
 #include "SodiumCrypt.h"
-#include "AudioDeviceApiClient.h"
-#include "FormattedOutput.h"
 #include "ServiceObserver.h"
 
 #include <public/CoInitRaiiHelper.h>
@@ -32,7 +30,7 @@ protected:
             spdlog::info("Starting Sound Agent...");
 
             const auto coll(SoundAgent::CreateDeviceCollection(true));
-            ServiceObserver serviceObserver(*coll, apiBaseUrl_, universalToken_, codespaceName_);
+            ServiceObserver serviceObserver(*coll, apiBaseUrl_, universalToken_, codeSpaceName_);
             coll->Subscribe(serviceObserver);
 
             coll->ResetContent();
@@ -124,7 +122,7 @@ protected:
 
 		universalToken_ = ReadStringConfigProperty(UNIVERSAL_TOKEN_PROPERTY_KEY);
 
-		codespaceName_ = ReadStringConfigProperty(CODESPACE_NAME_PROPERTY_KEY);
+		codeSpaceName_ = ReadStringConfigProperty(CODESPACE_NAME_PROPERTY_KEY);
 
         setUnixOptions(false);  // Force Windows service behavior
     }
@@ -181,12 +179,14 @@ protected:
 private:
 	std::string apiBaseUrl_;
 	std::string universalToken_;
-    std::string codespaceName_;
+    std::string codeSpaceName_;
 
     bool helpRequested_ = false;
 
     static constexpr auto API_BASE_URL_PROPERTY_KEY = "custom.apiBaseUrl";
     static constexpr auto UNIVERSAL_TOKEN_PROPERTY_KEY = "custom.universalToken";
+    // ReSharper disable once IdentifierTypo
+    // ReSharper disable once StringLiteralTypo
     static constexpr auto CODESPACE_NAME_PROPERTY_KEY = "custom.codespaceName";
 };
 

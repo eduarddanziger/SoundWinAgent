@@ -3,7 +3,6 @@
 #include "FormattedOutput.h"
 
 #include <TimeUtils.h>
-#include "public/StringUtils.h"
 
 #include <SpdLogger.h>
 

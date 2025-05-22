@@ -6,7 +6,6 @@
 #include <public/SoundAgentInterface.h>
 
 #include <filesystem>
-#include <iomanip>
 #include <memory>
 #include <tchar.h>
 #include <magic_enum/magic_enum_iostream.hpp>
@@ -113,23 +112,26 @@ private:
     SoundDeviceCollectionInterface & collection_;
 };
 
-bool StopAndWaitForInput()
+namespace
 {
-    for (;;)
-    {
-        std::string line;
-        std::getline(std::cin, line);
-        if (line == "S" || line == "s" || line == "Q" || line == "q")
-        {
-            return false;
-        }
-        if (line.empty())
-        {
-            return true;
-        }
+	bool StopAndWaitForInput()
+	{
+		for (;;)
+		{
+			std::string line;
+			std::getline(std::cin, line);
+			if (line == "S" || line == "s" || line == "Q" || line == "q")
+			{
+				return false;
+			}
+			if (line.empty())
+			{
+				return true;
+			}
 
-        std::cout << '\n' << CurrentLocalTimeWithoutDate << "Input " << line << " not recognized.\n";
-    }
+			std::cout << '\n' << CurrentLocalTimeWithoutDate << "Input " << line << " not recognized.\n";
+		}
+	}
 }
 
 int _tmain(int argc, _TCHAR * argv[])

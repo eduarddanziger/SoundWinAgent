@@ -2,7 +2,6 @@
 
 #include <CppUnitTest.h>
 
-#include <fmt/core.h>
 #include <fmt/chrono.h>
 #include <TimeUtils.h>
 

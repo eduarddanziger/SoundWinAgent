@@ -2,7 +2,6 @@
 
 #include "AudioDeviceApiClient.h"
 
-#include <iostream>
 #include <public/SoundAgentInterface.h>
 
 #include <SpdLogger.h>
@@ -10,6 +9,8 @@
 #include <string>
 #include <sstream>
 #include <nlohmann/json.hpp>
+
+#include "HttpRequestProcessor.h"
 
 #include "TimeUtils.h"
 
@@ -59,10 +60,6 @@ namespace ed
     }
 }
 
-
-
-#include "FormattedOutput.h"
-#include "HttpRequestProcessor.h"
 
 
 // ReSharper disable once CppPassValueParameterByConstReference
