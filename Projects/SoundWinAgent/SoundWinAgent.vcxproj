@@ -124,7 +124,6 @@
       <ZipFileNameSuffix Condition=" '$(Configuration)' == 'Debug' ">-Debug</ZipFileNameSuffix>
       <ZipFileName>$(ArtifactsDirectory)$(AssemblyName)$(ZipFileNameSuffix)-$(PackageVersion).zip</ZipFileName>
     </PropertyGroup>
-    <MakeDir Directories="$(ArtifactsDirectory)" Condition="!Exists('$(ArtifactsDirectory)')" />
     <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(BaseDirectory)$(ReleaseNotesFileName)" />
     <FileUpdate Files="$(ReleaseNotesTargetPathName)" Regex="\$version\$" ReplacementText="$(PackageVersion)" />
     <Time Format="dd.MM.yyyy">
@@ -138,7 +137,9 @@
     </ItemGroup>
     <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="@(BinFiles)" />
     <!-- <XmlUpdate XmlFileName="$(PublishFullDirectory)$(MSBuildProjectName).xml" XPath="/config/custom/apiBaseUrl" Value="https://studious-bassoon-7vp9wvpw7rxjf4wg-5027.app.github.dev" /> -->
+    <MakeDir Directories="$(ArtifactsDirectory)" Condition="!Exists('$(ArtifactsDirectory)')" />
     <ZipDirectory Overwrite="true" SourceDirectory="$(PublishFullDirectory)" DestinationFile="$(ZipFileName)" />
+    <Copy DestinationFolder="$(ArtifactsDirectory)" SourceFiles="$(ReleaseNotesTargetPathName)" />
     <RemoveDir Directories="$(PublishFullDirectory)" />
   </Target>
   <ProjectExtensions>

@@ -11,7 +11,7 @@ Released on $date$
 ~~~
 
 ## Changes
-- Discovery, Confirm, and Sound Change messages 
+- Discovery, Confirm, and Sound Volume messages
 - Latest spdog etc. via vcpkg
 
 
