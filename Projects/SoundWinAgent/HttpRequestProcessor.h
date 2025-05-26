@@ -1,52 +1,60 @@
 ﻿#pragma once
 
 #include <cpprest/http_client.h>
-#include <queue>
+#include <deque>
 #include <mutex>
 #include <thread>
 #include <condition_variable>
 #include <atomic>
 #include <chrono>
+#include <unordered_map>
+
+#include <public/ClassDefHelper.h>
 
 class HttpRequestProcessor {
 
 public:
     struct RequestItem {
-        web::http::http_request Request;
-        std::wstring UrlSuffix;
+        bool PostOrPut;
+		std::chrono::system_clock::time_point Time;
+        std::string UrlSuffix;
+        std::string Payload;
+        std::unordered_map<std::string, std::string> Header;
         std::string Hint; // For logging/tracking
     };
 
-    // Updated constructor: now takes both apiBaseUrl and codespaceName, along with universalToken.
-    HttpRequestProcessor(std::wstring apiBaseUrl,
-                         std::wstring universalToken,
-                         std::wstring codespaceName);
+    HttpRequestProcessor(std::string apiBaseUrl,
+                         std::string universalToken,
+                         std::string codeSpaceName);
 
     DISALLOW_COPY_MOVE(HttpRequestProcessor);
 
     ~HttpRequestProcessor();
 
     void EnqueueRequest(
-        const web::http::http_request & request,
-        const std::wstring & urlSuffix, const std::string & hint);
+        bool postOrPut,
+        const std::chrono::system_clock::time_point & time,
+        const std::string & urlSuffix, const std::string & payload,
+        const std::unordered_map<std::string, std::string> & header,
+        const std::string & hint
+    );
 
 private:
     void ProcessingWorker();
-    static bool SendRequest(const RequestItem & item, const std::wstring & urlBase);
-    RequestItem CreateAwakingRequest() const;
+    static bool SendRequest(const RequestItem & requestItem, const std::string & urlBase);
+    [[nodiscard]] RequestItem CreateAwakingRequest() const;
 
 private:
-    std::wstring apiBaseUrlNoTrailingSlash_;
-    std::wstring universalToken_;
-    std::wstring codespaceName_; // Newly added member for codespace name
+    std::string apiBaseUrlNoTrailingSlash_;
+    std::string universalToken_;
+    std::string codeSpaceName_;
 
-    std::queue<RequestItem> requestQueue_;
+    std::deque<RequestItem> requestQueue_;
     std::mutex mutex_;
     std::condition_variable condition_;
     std::thread workerThread_;
     std::atomic<bool> running_;
     uint64_t retryAwakingCount_ = 0;
-	bool successfullySent_ = false;
     static constexpr uint64_t MAX_AWAKING_RETRIES = 15;
     static constexpr uint64_t MAX_IGNORING_RETRIES = MAX_AWAKING_RETRIES * 3;
 };

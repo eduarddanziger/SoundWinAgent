@@ -26,8 +26,8 @@
   </ImportGroup>
   <ImportGroup Label="Shared">
     <Import Project="..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets" Condition="Exists('..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" />
-    <Import Project="..\..\packages\CommonCppModules.2.2.0\build\native\CommonCppModules.targets" Condition="Exists('..\..\packages\CommonCppModules.2.2.0\build\native\CommonCppModules.targets')" />
-    <Import Project="..\..\packages\SpdLogger.2.2.0\build\native\SpdLogger.targets" Condition="Exists('..\..\packages\SpdLogger.2.2.0\build\native\SpdLogger.targets')" />
+    <Import Project="..\..\packages\CommonCppModules.2.2.1\build\native\CommonCppModules.targets" Condition="Exists('..\..\packages\CommonCppModules.2.2.1\build\native\CommonCppModules.targets')" />
+    <Import Project="..\..\packages\SpdLogger.2.2.1\build\native\SpdLogger.targets" Condition="Exists('..\..\packages\SpdLogger.2.2.1\build\native\SpdLogger.targets')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -38,6 +38,7 @@
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
+    <VcpkgTriplet>x64-windows-static</VcpkgTriplet>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -51,6 +52,8 @@
       <FunctionLevelLinking Condition="'$(Configuration)'=='Release'" />
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -59,6 +62,8 @@
       <EnableCOMDATFolding Condition="'$(Configuration)'=='Release'" />
       <LinkTimeCodeGeneration Condition="'$(Configuration)'=='Release'" />
       <AdditionalLibraryDirectories>$(SolutionDir)\x64\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">crypt32.lib;winhttp.lib;iphlpapi.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">crypt32.lib;winhttp.lib;iphlpapi.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -119,7 +124,6 @@
       <ZipFileNameSuffix Condition=" '$(Configuration)' == 'Debug' ">-Debug</ZipFileNameSuffix>
       <ZipFileName>$(ArtifactsDirectory)$(AssemblyName)$(ZipFileNameSuffix)-$(PackageVersion).zip</ZipFileName>
     </PropertyGroup>
-    <MakeDir Directories="$(ArtifactsDirectory)" Condition="!Exists('$(ArtifactsDirectory)')" />
     <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(BaseDirectory)$(ReleaseNotesFileName)" />
     <FileUpdate Files="$(ReleaseNotesTargetPathName)" Regex="\$version\$" ReplacementText="$(PackageVersion)" />
     <Time Format="dd.MM.yyyy">
@@ -133,7 +137,9 @@
     </ItemGroup>
     <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="@(BinFiles)" />
     <!-- <XmlUpdate XmlFileName="$(PublishFullDirectory)$(MSBuildProjectName).xml" XPath="/config/custom/apiBaseUrl" Value="https://studious-bassoon-7vp9wvpw7rxjf4wg-5027.app.github.dev" /> -->
+    <MakeDir Directories="$(ArtifactsDirectory)" Condition="!Exists('$(ArtifactsDirectory)')" />
     <ZipDirectory Overwrite="true" SourceDirectory="$(PublishFullDirectory)" DestinationFile="$(ZipFileName)" />
+    <Copy DestinationFolder="$(ArtifactsDirectory)" SourceFiles="$(ReleaseNotesTargetPathName)" />
     <RemoveDir Directories="$(PublishFullDirectory)" />
   </Target>
   <ProjectExtensions>
@@ -146,7 +152,7 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets'))" />
-    <Error Condition="!Exists('..\..\packages\CommonCppModules.2.2.0\build\native\CommonCppModules.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\CommonCppModules.2.2.0\build\native\CommonCppModules.targets'))" />
-    <Error Condition="!Exists('..\..\packages\SpdLogger.2.2.0\build\native\SpdLogger.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SpdLogger.2.2.0\build\native\SpdLogger.targets'))" />
+    <Error Condition="!Exists('..\..\packages\CommonCppModules.2.2.1\build\native\CommonCppModules.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\CommonCppModules.2.2.1\build\native\CommonCppModules.targets'))" />
+    <Error Condition="!Exists('..\..\packages\SpdLogger.2.2.1\build\native\SpdLogger.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SpdLogger.2.2.1\build\native\SpdLogger.targets'))" />
   </Target>
 </Project>

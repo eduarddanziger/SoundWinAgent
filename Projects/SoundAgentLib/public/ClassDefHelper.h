@@ -32,7 +32,3 @@ public: \
 protected: \
 	TypeName () = default
 #endif // AS_INTERFACE
-
-
-
-

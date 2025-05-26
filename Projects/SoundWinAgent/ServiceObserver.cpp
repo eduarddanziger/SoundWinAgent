@@ -7,32 +7,30 @@
 #include "HttpRequestProcessor.h"
 
 #include <SpdLogger.h>
-#include <StringUtils.h>
+#include "public/StringUtils.h"
 
 ServiceObserver::ServiceObserver(SoundDeviceCollectionInterface& collection,
-    std::wstring apiBaseUrl,
-    std::wstring universalToken,
-    std::wstring codespaceName) // Added codespaceName parameter
+    std::string apiBaseUrl,
+    std::string universalToken,
+    std::string codeSpaceName)
     : collection_(collection)
     , apiBaseUrl_(std::move(apiBaseUrl))
     , universalToken_(std::move(universalToken))
-    , codespaceName_(std::move(codespaceName)) // Initialize new member
-    , requestProcessorSmartPtr_(std::make_shared<HttpRequestProcessor>(apiBaseUrl_, universalToken_, codespaceName_))
+    , codeSpaceName_(std::move(codeSpaceName))
+    , requestProcessorSmartPtr_(std::make_shared<HttpRequestProcessor>(apiBaseUrl_, universalToken_, codeSpaceName_))
 {
 }
 
 void ServiceObserver::PostDeviceToApi(const SoundDeviceEventType messageType, const SoundDeviceInterface* devicePtr, const std::string & hintPrefix) const
 {
-    const AudioDeviceApiClient apiClient(requestProcessorSmartPtr_);
+    const AudioDeviceApiClient apiClient(requestProcessorSmartPtr_, GetHostName);
     apiClient.PostDeviceToApi(messageType, devicePtr, hintPrefix);
-    apiClient.PostDeviceToApi(messageType, devicePtr, hintPrefix + "(copy) ");
 }
 
-void ServiceObserver::PutVolumeChangeToApi(const std::wstring & pnpId, bool renderOrCapture, uint16_t volume, const std::string & hintPrefix) const
+void ServiceObserver::PutVolumeChangeToApi(const std::string & pnpId, bool renderOrCapture, uint16_t volume, const std::string & hintPrefix) const
 {
-	const AudioDeviceApiClient apiClient(requestProcessorSmartPtr_);
+	const AudioDeviceApiClient apiClient(requestProcessorSmartPtr_, GetHostName);
 	apiClient.PutVolumeChangeToApi(pnpId, renderOrCapture, volume, hintPrefix);
-	apiClient.PutVolumeChangeToApi(pnpId, renderOrCapture, volume, hintPrefix + "(copy) ");
 }
 
 void ServiceObserver::PostAndPrintCollection() const
@@ -62,7 +60,7 @@ void ServiceObserver::PostAndPrintCollection() const
         << FormattedOutput::CurrentLocalTimeWithoutDate << "-----------------------------------------------\n";
 }
 
-void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std::wstring & devicePnpId)
+void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std::string & devicePnpId)
 {
     FormattedOutput::PrintEvent(event, devicePnpId);
 
@@ -89,7 +87,17 @@ void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std:
 
 }
 
-void ServiceObserver::OnTrace(const std::wstring & line)
+std::string ServiceObserver::GetHostName()
 {
-    SPD_L->info(ed::WString2StringTruncate(line));
+    static const std::string HOST_NAME = []() -> std::string
+        {
+            wchar_t hostNameBuffer[MAX_COMPUTERNAME_LENGTH + 1];
+            DWORD bufferSize = std::size(hostNameBuffer);
+            GetComputerNameW(hostNameBuffer, &bufferSize);
+            std::wstring hostName(hostNameBuffer);
+            std::ranges::transform(hostName, hostName.begin(),
+                [](wchar_t c) { return std::toupper(c); });
+            return utility::conversions::to_utf8string(hostNameBuffer);
+        }();
+    return HOST_NAME;
 }

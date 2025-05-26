@@ -10,11 +10,9 @@ public:
 protected:
 	DISALLOW_IMPLICIT_CONSTRUCTORS(FormattedOutput);
 public:
-    static void LogAndPrint(const std::wstring& mess);
     static void LogAndPrint(const std::string& mess);
-    static void LogAsErrorPrintAndThrow(const std::string& mess);
 
-    static void PrintEvent(SoundDeviceEventType event, const std::wstring& devicePnpId);
+    static void PrintEvent(SoundDeviceEventType event, const std::string& devicePnpId);
 
     static void PrintDeviceInfo(const SoundDeviceInterface* device);
 

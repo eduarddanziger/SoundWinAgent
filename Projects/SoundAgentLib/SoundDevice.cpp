@@ -5,12 +5,12 @@
 ed::audio::SoundDevice::~SoundDevice() = default;
 
 ed::audio::SoundDevice::SoundDevice()
-    : SoundDevice(L"", L"", SoundDeviceFlowType::None, 0, 0)
+    : SoundDevice("", "", SoundDeviceFlowType::None, 0, 0)
 {
 }
 
 // ReSharper disable once CppParameterMayBeConst
-ed::audio::SoundDevice::SoundDevice(std::wstring pnpId, std::wstring name, SoundDeviceFlowType flow, uint16_t renderVolume,
+ed::audio::SoundDevice::SoundDevice(std::string pnpId, std::string name, SoundDeviceFlowType flow, uint16_t renderVolume,
                           uint16_t captureVolume)
     : pnpId_(std::move(pnpId))
       , name_(std::move(name))
@@ -64,12 +64,12 @@ ed::audio::SoundDevice & ed::audio::SoundDevice::operator=(SoundDevice && toMove
     return *this;
 }
 
-std::wstring ed::audio::SoundDevice::GetName() const
+std::string ed::audio::SoundDevice::GetName() const
 {
     return name_;
 }
 
-std::wstring ed::audio::SoundDevice::GetPnpId() const
+std::string ed::audio::SoundDevice::GetPnpId() const
 {
     return pnpId_;
 }
@@ -98,4 +98,3 @@ void ed::audio::SoundDevice::SetCurrentCaptureVolume(uint16_t volume)
 {
     captureVolume_ = volume;
 }
-

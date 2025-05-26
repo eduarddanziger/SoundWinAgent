@@ -21,3 +21,5 @@
 #include <queue>
 #include <string>
 #include <assert.h>
+
+#include "VersionInformation.h"

@@ -25,26 +25,4 @@
 #include "Utilities.h"
 
 #include <TimeUtils.h>
-#include <PrefixStream.h>
 
-
-#define TO_STREAM_LOG_WITH_TIME_PREFIX(v_stream, v_prefix) \
-	ed::PrefixOStreamW poss(ed::getLocalTimeAsWideString() + (v_prefix), v_stream, true); \
-	poss
-
-#define TO_STREAM_LOG(oss) TO_STREAM_LOG_WITH_TIME_PREFIX(oss, L" : ")
-
-#ifndef _NO_LOG_
-//#define PUT_TO_STREAM_LOG(oss, inp) TO_STREAM_LOG(oss) << inp
-#define PUT_TO_STREAM_LOG(oss, inp) oss << inp
-#else
-#define PUT_TO_STREAM_LOG(oss, inp)
-#endif //_NO_LOG_
-
-#define LOG_INFO(inp) { std::wostringstream oss; \
-                PUT_TO_STREAM_LOG(oss, inp); \
-                TraceIt(oss.str().c_str()); }
-
-#define LOG_INFO_COLL(inp, coll) { std::wostringstream oss; \
-                PUT_TO_STREAM_LOG(oss, inp); \
-                (coll)->TraceIt(oss.str().c_str()); }

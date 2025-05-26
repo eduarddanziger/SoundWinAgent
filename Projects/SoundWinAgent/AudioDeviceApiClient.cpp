@@ -1,5 +1,4 @@
 ﻿#include "stdafx.h"
-// ReSharper disable CppExpressionWithoutSideEffects
 
 #include "AudioDeviceApiClient.h"
 
@@ -11,16 +10,62 @@
 #include <sstream>
 #include <nlohmann/json.hpp>
 
-
-#include <TimeUtils.h>
-
-#include "FormattedOutput.h"
 #include "HttpRequestProcessor.h"
+
+#include "TimeUtils.h"
+
+namespace ed
+{
+    template<typename Char_, typename Clock_, class Duration_ = typename Clock_::duration>
+    std::basic_string<Char_> systemTimeToStringWithSystemTime(const std::chrono::time_point<Clock_, Duration_>& time, const std::basic_string<Char_>& betweenDateAndTime)
+    {
+        const time_t timeT = to_time_t(time);
+
+        // ReSharper disable once CppUseStructuredBinding
+        tm localTimeT{};
+        if (gmtime_s(&localTimeT, &timeT) != 0)
+        {
+            return std::basic_string<Char_>();
+        }
+
+        const auto microsecondsFraction = chr::duration_cast<chr::microseconds>(
+            time.time_since_epoch()
+        ).count() % 1000000;
+
+        std::basic_ostringstream<Char_> oss; oss
+            << std::setbase(10)	// setbase is "sticky"
+            << std::setfill(any_string_array<Char_>("0").data()[0]) // setfill is "sticky"
+            << std::setw(4) << localTimeT.tm_year + 1900 // setw is not sticky
+            << any_string_array<Char_>("-").data()
+            << std::setw(2) << localTimeT.tm_mon + 1
+            << any_string_array<Char_>("-").data()
+            << std::setw(2) << localTimeT.tm_mday
+            << betweenDateAndTime
+            << std::setw(2) << localTimeT.tm_hour
+            << any_string_array<Char_>(":").data()
+            << std::setw(2) << localTimeT.tm_min
+            << any_string_array<Char_>(":").data()
+            << std::setw(2) << localTimeT.tm_sec
+            << any_string_array<Char_>(".").data()
+            << std::setw(6)
+            << microsecondsFraction;
+
+        return oss.str();
+    }
+
+    template<typename Clock_, class Duration_ = typename Clock_::duration>
+    [[nodiscard]] std::string systemTimeAsStringWithSystemTime(const std::chrono::time_point<Clock_, Duration_>& time, const std::string& betweenDateAndTime = " ")
+    {
+        return systemTimeToStringWithSystemTime(time, betweenDateAndTime);
+    }
+}
+
 
 
 // ReSharper disable once CppPassValueParameterByConstReference
-AudioDeviceApiClient::AudioDeviceApiClient(std::shared_ptr<HttpRequestProcessor> processor)  // NOLINT(performance-unnecessary-value-param, modernize-pass-by-value)
+AudioDeviceApiClient::AudioDeviceApiClient(std::shared_ptr<HttpRequestProcessor> processor, std::function<std::string()> getHostNameCallback)
     : requestProcessor_(processor)  // NOLINT(performance-unnecessary-value-param)
+	, getHostNameCallback_(std::move(getHostNameCallback))
 {
 }
 
@@ -28,94 +73,51 @@ void AudioDeviceApiClient::PostDeviceToApi(SoundDeviceEventType eventType, const
 {
     if (!device)
     {
-        const auto msg = "Cannot post device data: nullptr provided";
-        std::cout << FormattedOutput::CurrentLocalTimeWithoutDate << msg << '\n';
-        SPD_L->error(msg);
+        SPD_L->error("Cannot post device data: nullptr provided");
         return;
     }
 
-    // Convert wstring parameters to UTF-8 strings for JSON
-    const std::string pnpIdUtf8 = utility::conversions::to_utf8string(device->GetPnpId());
-    const std::string nameUtf8 = utility::conversions::to_utf8string(device->GetName());
-    const std::string hostName = GetHostName();
+    const std::string hostName = getHostNameCallback_();
 
-    auto localTimeAsString = ed::getLocalTimeAsString("T");
-    localTimeAsString = localTimeAsString.substr(0, localTimeAsString.length() - 7);
+    const auto nowTime = std::chrono::system_clock::now();
+    const auto nowTimeAsSystemTimeString = ed::systemTimeAsStringWithSystemTime(nowTime, "T") + "Z";
 
     const nlohmann::json payload = {
-        {"pnpId", pnpIdUtf8},
-        {"name", nameUtf8},
-        {"flowType", static_cast<const int>(device->GetFlow())},
-        {"renderVolume", static_cast<const int>(device->GetCurrentRenderVolume())},
-        {"captureVolume", static_cast<const int>(device->GetCurrentCaptureVolume())},
-        {"updateDate", localTimeAsString},
-        {"deviceMessageType", static_cast<const int>(eventType)},
+        {"pnpId", device->GetPnpId()},
+        {"name", device->GetName()},
+        {"flowType", device->GetFlow()},
+        {"renderVolume", device->GetCurrentRenderVolume()},
+        {"captureVolume", device->GetCurrentCaptureVolume()},
+        {"updateDate", nowTimeAsSystemTimeString},
+        {"deviceMessageType", eventType},
         {"hostName", hostName}
     };
 
-    // Convert nlohmann::json to cpprestsdk::json::value
-    const web::json::value jsonPayload = web::json::value::parse(payload.dump());
+    // Convert nlohmann::json to string and to value
+    const std::string payloadString = payload.dump();
+    const auto hint = hintPrefix + "Post a device." + device->GetPnpId();
 
-    web::http::http_request request(web::http::methods::POST);
-    request.set_body(jsonPayload);
-    request.headers().set_content_type(U("application/json"));
-
-    const auto hint = hintPrefix + "Post a device: " + pnpIdUtf8;
     SPD_L->info("Enqueueing: {}...", hint);
-    requestProcessor_->EnqueueRequest(request, L"", hint);
-    FormattedOutput::LogAndPrint("Enqueued: " + hint);
+    requestProcessor_->EnqueueRequest(true, nowTime, "", payloadString, {}, hint);
 }
 
-void AudioDeviceApiClient::PutVolumeChangeToApi(const std::wstring & pnpId, bool renderOrCapture, uint16_t volume, const std::string& hintPrefix) const
+void AudioDeviceApiClient::PutVolumeChangeToApi(const std::string & pnpId, bool renderOrCapture, uint16_t volume, const std::string& hintPrefix) const
 {
-	const std::string pnpIdUtf8 = utility::conversions::to_utf8string(pnpId);
-	auto localTimeAsString = ed::getLocalTimeAsString("T");
-	localTimeAsString = localTimeAsString.substr(0, localTimeAsString.length() - 7);
-	const nlohmann::json payload = {
-        {"deviceMessageType", static_cast<const int>(renderOrCapture ? SoundDeviceEventType::VolumeRenderChanged : SoundDeviceEventType::VolumeCaptureChanged)},
-        {"volume", static_cast<const int>(volume)},
-        {"updateDate", localTimeAsString}
+    const auto nowTime = std::chrono::system_clock::now();
+    const auto nowTimeAsSystemTimeString = ed::systemTimeAsStringWithSystemTime(nowTime, "T") + "Z";
+
+    const nlohmann::json payload = {
+        {"deviceMessageType", renderOrCapture ? SoundDeviceEventType::VolumeRenderChanged : SoundDeviceEventType::VolumeCaptureChanged},
+        {"volume", volume},
+        {"updateDate", nowTimeAsSystemTimeString}
 	};
-	// Convert nlohmann::json to cpprestsdk::json::value
-	const web::json::value jsonPayload = web::json::value::parse(payload.dump());
+    const std::string payloadString = payload.dump();
 
-    web::http::http_request request(web::http::methods::PUT);
-	request.set_body(jsonPayload);
-	request.headers().set_content_type(U("application/json"));
-
-    const auto hint = hintPrefix + "Volume change (PUT) for a device: " + pnpIdUtf8;
+    const auto hint = hintPrefix + "Volume change (PUT) for a device: " + pnpId;
     SPD_L->info("Enqueueing: {}...", hint);
 	// Instead of sending directly, enqueue the request in the processor
 
-    const auto urlSuffix = std::format(L"/{}/{}", pnpId, GetHostNameW());
-    requestProcessor_->EnqueueRequest(request, urlSuffix, hint);
-    FormattedOutput::LogAndPrint("Enqueued: " + hint);
-}
-
-std::string AudioDeviceApiClient::GetHostName()
-{
-    static const std::string HOST_NAME = []() -> std::string
-        {
-            wchar_t hostNameBuffer[MAX_COMPUTERNAME_LENGTH + 1];
-            DWORD bufferSize = std::size(hostNameBuffer);
-            GetComputerNameW(hostNameBuffer, &bufferSize);
-            std::wstring hostName(hostNameBuffer);
-            std::ranges::transform(hostName, hostName.begin(),
-                [](wchar_t c) { return std::toupper(c); });
-            return utility::conversions::to_utf8string(hostNameBuffer);
-        }();
-    return HOST_NAME;
-}
-
-std::wstring AudioDeviceApiClient::GetHostNameW()
-{
-    static const std::wstring HOST_NAME = []() -> std::wstring
-        {
-            wchar_t hostNameBuffer[MAX_COMPUTERNAME_LENGTH + 1];
-            DWORD bufferSize = std::size(hostNameBuffer);
-            GetComputerNameW(hostNameBuffer, &bufferSize);
-            return std::wstring(hostNameBuffer);
-        }();
-    return HOST_NAME;
+    const auto urlSuffix = std::format("/{}/{}", pnpId, getHostNameCallback_());
+    requestProcessor_->EnqueueRequest(false, nowTime, urlSuffix, payloadString, {}, hint);
 }
 

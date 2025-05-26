@@ -12,8 +12,6 @@
 #include <vector>
 
 #include "SodiumCrypt.h"
-#include "AudioDeviceApiClient.h"
-#include "FormattedOutput.h"
 #include "ServiceObserver.h"
 
 #include <public/CoInitRaiiHelper.h>
@@ -23,15 +21,16 @@
 class AudioDeviceService final : public Poco::Util::ServerApplication {
 protected:
     int main(const std::vector<std::string>& args) override {
+        if (helpRequested_)
+        {
+            return Application::EXIT_OK;
+        }
+
         try {
-            if (helpRequested_)
-                return Application::EXIT_OK;
+            spdlog::info("Starting Sound Agent...");
 
-            const auto msgStart = "Starting Sound Agent...";
-            FormattedOutput::LogAndPrint(msgStart);
-
-            const auto coll(SoundAgent::CreateDeviceCollection(L"", true));
-            ServiceObserver serviceObserver(*coll, apiBaseUrl_, universalToken_, codespaceName_);
+            const auto coll(SoundAgent::CreateDeviceCollection(true));
+            ServiceObserver serviceObserver(*coll, apiBaseUrl_, universalToken_, codeSpaceName_);
             coll->Subscribe(serviceObserver);
 
             coll->ResetContent();
@@ -41,60 +40,89 @@ protected:
 
             coll->Unsubscribe(serviceObserver);
 
-            const auto msgStop = "Stopping...";
-            FormattedOutput::LogAndPrint(msgStop);
+            spdlog::info("Stopping...");
 
             return EXIT_OK;
         }
         catch (const Poco::Exception& ex) {
-			SPD_L-> error(ex.displayText());
+			spdlog::error(ex.displayText());
             return EXIT_SOFTWARE;
         }
     }
 
-    std::wstring ReadWideStringConfigProperty(const std::string & propertyName) const
+    [[nodiscard]] std::string ReadStringConfigProperty(const std::string & propertyName) const
     {
         if (!config().hasProperty(propertyName))
         {
             const auto msg = std::string("FATAL: No \"") + propertyName + "\" property configured.";
-			FormattedOutput::LogAsErrorPrintAndThrow(msg);
+            spdlog::error(msg);
+            throw std::runtime_error(msg);
         }
 
-        auto narrowVal = config().getString(propertyName);
+        auto returnValue = config().getString(propertyName);
         try
         {
-            narrowVal = SodiumDecrypt(narrowVal, "32-characters-long-secure-key-12");
+            returnValue = SodiumDecrypt(returnValue, "32-characters-long-secure-key-12");
         }
-        catch (const std::exception& ex)
+        catch (const std::exception& ex)  // NOLINT(bugprone-empty-catch)
         {
-            SPD_L->info("Decryption doesn't work: {}.", ex.what());
+            spdlog::info("Decryption doesn't work: {}.", ex.what());
         }
         catch (...)
         {
-            const auto msg = std::string("Unknown error. Propagating...");
-            FormattedOutput::LogAndPrint(msg);
+            spdlog::error("Unknown error. Propagating...");
             throw;
         }
 
-		std::wstring returnValue(narrowVal.length(), L' ');
-        std::ranges::copy(narrowVal, returnValue.begin());
 		return returnValue;
+    }
+
+    static void SetUpLog()
+    {
+        ed::model::Logger::Inst().SetOutputToConsole(true);
+        try
+        {
+            if (std::filesystem::path logFile;
+                ed::utility::AppPath::GetAndValidateLogFileInProgramData(
+                    logFile, RESOURCE_FILENAME_ATTRIBUTE)
+            )
+            {
+                ed::model::Logger::Inst().SetPathName(logFile).Init();
+            }
+            else
+            {
+                ed::model::Logger::Inst().Init();
+                spdlog::warn("Log file can not be written.");
+            }
+        }
+        catch (const std::exception& ex)
+        {
+            ed::model::Logger::Inst().Init();
+            spdlog::warn("Logging set-up partially done; Log file can not be used: {}.", ex.what());
+        }
     }
 
     void initialize(Application& self) override {
         loadConfiguration();
         ServerApplication::initialize(self);
 
+        if (helpRequested_)
+		{
+			return;
+		}
+
+        SetUpLog();
+
         if (apiBaseUrl_.empty())
         {
-            apiBaseUrl_ = ReadWideStringConfigProperty(API_BASE_URL_PROPERTY_KEY);
+            apiBaseUrl_ = ReadStringConfigProperty(API_BASE_URL_PROPERTY_KEY);
         }
        
-        apiBaseUrl_ += L"/api/AudioDevices";
+        apiBaseUrl_ += "/api/AudioDevices";
 
-		universalToken_ = ReadWideStringConfigProperty(UNIVERSAL_TOKEN_PROPERTY_KEY);
+		universalToken_ = ReadStringConfigProperty(UNIVERSAL_TOKEN_PROPERTY_KEY);
 
-		codespaceName_ = ReadWideStringConfigProperty(CODESPACE_NAME_PROPERTY_KEY);
+		codeSpaceName_ = ReadStringConfigProperty(CODESPACE_NAME_PROPERTY_KEY);
 
         setUnixOptions(false);  // Force Windows service behavior
     }
@@ -145,22 +173,20 @@ protected:
     void HandleUrl(const std::string& name, const std::string& value)
     {
         std::cout << "Got Server URL " << value << "\n";
-        apiBaseUrl_ = std::wstring(value.length(), L' ');
-        std::ranges::copy(value, apiBaseUrl_.begin());
+        apiBaseUrl_ = value;
     }
 
-
-
 private:
-	std::wstring apiBaseUrl_;
-	std::wstring universalToken_;
-    std::wstring codespaceName_;
+	std::string apiBaseUrl_;
+	std::string universalToken_;
+    std::string codeSpaceName_;
 
     bool helpRequested_ = false;
 
-
     static constexpr auto API_BASE_URL_PROPERTY_KEY = "custom.apiBaseUrl";
     static constexpr auto UNIVERSAL_TOKEN_PROPERTY_KEY = "custom.universalToken";
+    // ReSharper disable once IdentifierTypo
+    // ReSharper disable once StringLiteralTypo
     static constexpr auto CODESPACE_NAME_PROPERTY_KEY = "custom.codespaceName";
 };
 
@@ -171,14 +197,6 @@ int _tmain(int argc, _TCHAR * argv[])
     _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
     _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);
     _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
-
-    if (std::filesystem::path logFile;
-        ed::utility::AppPath::GetAndValidateLogFileInProgramData(
-            logFile, RESOURCE_FILENAME_ATTRIBUTE)
-        )
-    {
-        ed::model::Logger::Inst().SetPathName(logFile);
-    }
 
     ed::CoInitRaiiHelper coInitHelper;
 

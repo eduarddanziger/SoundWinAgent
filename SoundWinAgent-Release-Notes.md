@@ -11,9 +11,8 @@ Released on $date$
 ~~~
 
 ## Changes
-- Discovery, Confirm, and Sound Change messages 
+- Discovery, Confirm, and Sound Volume messages
 - Latest spdog etc. via vcpkg
-
 
 
 3.2.2
@@ -24,7 +23,6 @@ Released on 20.03.2025
 
 ## Changes
 - Delivers devices to the Audio Repository Rest API (messaging)
-- Sound Agent Service
 - Separate VolumeRenderChanged and VolumeCaptureChanged events
 - README added
 --------
