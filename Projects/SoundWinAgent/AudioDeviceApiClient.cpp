@@ -17,7 +17,7 @@
 namespace ed
 {
     template<typename Char_, typename Clock_, class Duration_ = typename Clock_::duration>
-    std::basic_string<Char_> systemTimeToStringWithSystemTime(const std::chrono::time_point<Clock_, Duration_>& time, const std::basic_string<Char_>& betweenDateAndTime)
+    std::basic_string<Char_> systemTimeToString(const std::chrono::time_point<Clock_, Duration_>& time, const std::basic_string<Char_>& betweenDateAndTime)
     {
         const time_t timeT = to_time_t(time);
 
@@ -56,7 +56,7 @@ namespace ed
     template<typename Clock_, class Duration_ = typename Clock_::duration>
     [[nodiscard]] std::string systemTimeAsStringWithSystemTime(const std::chrono::time_point<Clock_, Duration_>& time, const std::string& betweenDateAndTime = " ")
     {
-        return systemTimeToStringWithSystemTime(time, betweenDateAndTime);
+        return systemTimeToString(time, betweenDateAndTime);
     }
 }
 

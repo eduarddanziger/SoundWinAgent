@@ -59,6 +59,7 @@
     <ClInclude Include="public\generate-uuid.h" />
     <ClInclude Include="public\SoundAgentInterface.h" />
     <ClInclude Include="public\StringUtils.h" />
+    <ClInclude Include="public\TimeUtil.h" />
     <ClInclude Include="SoundDevice.h" />
     <ClInclude Include="SoundDeviceCollection.h" />
     <ClInclude Include="MultipleNotificationClient.h" />

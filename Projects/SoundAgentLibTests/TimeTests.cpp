@@ -6,12 +6,13 @@
 #include <TimeUtils.h>
 
 #include "public/generate-uuid.h"
+#include "public/TimeUtil.h"
 
 namespace ed
 {
 
     template<typename Char_, typename Clock_, class Duration_ = typename Clock_::duration>
-    static std::basic_string<Char_> systemTimeToStringWithSystemTime(const std::chrono::time_point<Clock_, Duration_>& time, const std::basic_string<Char_>& betweenDateAndTime)
+    static std::basic_string<Char_> systemTimeToString(const std::chrono::time_point<Clock_, Duration_>& time, const std::basic_string<Char_>& betweenDateAndTime)
     {
         const time_t timeT = to_time_t(time);
 
@@ -49,7 +50,7 @@ namespace ed
     template<typename Clock_, class Duration_ = typename Clock_::duration>
     [[nodiscard]] std::string systemTimeAsStringWithSystemTime(const std::chrono::time_point<Clock_, Duration_>& time, const std::string& betweenDateAndTime = " ")
     {
-        return systemTimeToStringWithSystemTime(time, betweenDateAndTime);
+        return systemTimeToString(time, betweenDateAndTime);
     }
 
     [[nodiscard]] inline std::string getSystemTimeAsString(const std::string& betweenDateAndTime = " ")
@@ -68,42 +69,42 @@ TEST_CLASS(TimeTests) {
     TEST_METHOD(LocalTimeTest)
     {
 		const auto nowTime = std::chrono::system_clock::now();
-        const auto timeTNow = std::chrono::system_clock::to_time_t(nowTime);
-        const auto localTime = fmt::localtime(timeTNow);
 
-        // Microseconds
-        const auto sinceEpoch = nowTime.time_since_epoch();
-        const auto microSec = std::chrono::duration_cast<std::chrono::microseconds>(sinceEpoch).count() % 1000000;
+		// with T as delimiter
+    	auto fromNuget = systemTimeAsStringWithLocalTime(nowTime, "T");
+		auto fromTimeUtil = ed::TimePointToStringAsLocal(nowTime, true, false);
+        Assert::AreEqual(fromTimeUtil, fromNuget);
 
-        const auto fromLib = fmt::format(
-            "{:%Y-%m-%dT%H:%M:%S}.{:06d}",
-            localTime,
-            microSec
-        );
+        // with space as delimiter
+        fromNuget = systemTimeAsStringWithLocalTime(nowTime, " ");
+        fromTimeUtil = ed::TimePointToStringAsLocal(nowTime, false, false);
+        Assert::AreEqual(fromTimeUtil, fromNuget);
 
-        const auto fromNuget = systemTimeAsStringWithLocalTime(nowTime, "T");
-
-        Assert::AreEqual(fromNuget, fromLib);
+        // with space as delimiter and a time zone
+        fromTimeUtil = ed::TimePointToStringAsLocal(nowTime, false, true);
+        const auto lengthWithTimeZone = fromTimeUtil.size();
+        const auto lengthWithoutTimeZone = fromNuget.size();
+        Assert::AreEqual(5ull, lengthWithTimeZone - lengthWithoutTimeZone );
     }
     TEST_METHOD(SystemTimeTest)
     {
         const auto nowTime = std::chrono::system_clock::now();
-        const auto timeTNow = std::chrono::system_clock::to_time_t(nowTime);
-        const auto localTime = fmt::gmtime(timeTNow);
 
-        // Get microseconds separately
-        const auto sinceEpoch = nowTime.time_since_epoch();
-        const auto microSec = std::chrono::duration_cast<std::chrono::microseconds>(sinceEpoch).count() % 1000000;
+        // with T as delimiter
+        auto fromNuget = systemTimeAsStringWithSystemTime(nowTime, "T");
+        auto fromTimeUtil = ed::TimePointToStringAsUtc(nowTime, true, false);
+        Assert::AreEqual(fromNuget, fromTimeUtil);
 
-        const auto fromLib = fmt::format(
-            "{:%Y-%m-%dT%H:%M:%S}.{:06d}",
-            localTime,
-            microSec
-        );
+        // with space as delimiter
+        fromNuget = systemTimeAsStringWithSystemTime(nowTime, " ");
+        fromTimeUtil = ed::TimePointToStringAsUtc(nowTime, false, false);
+        Assert::AreEqual(fromNuget, fromTimeUtil);
 
-        const auto fromNuget = systemTimeAsStringWithSystemTime(nowTime, "T");
-
-        Assert::AreEqual(fromNuget, fromLib);
+    	// with space as delimiter and a time zone
+        fromTimeUtil = ed::TimePointToStringAsUtc(nowTime, false, true);
+        const auto lengthWithTimeZone = fromTimeUtil.size();
+        const auto lengthWithoutTimeZone = fromNuget.size();
+        Assert::AreEqual("Z"s, fromTimeUtil.substr(lengthWithoutTimeZone, lengthWithTimeZone - lengthWithoutTimeZone));
     }
 
 };
