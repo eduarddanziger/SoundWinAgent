@@ -81,7 +81,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.targets" />
-  <Target Name="RunUnitTests" DependsOnTargets="Build">
+  <Target Name="RunUnitTests" AfterTargets="Build">
     <Exec Command="&quot;$(VSInstallDir)Common7\IDE\Extensions\TestPlatform\vstest.console.exe&quot; &quot;$(TargetPath)&quot; /InIsolation /Logger:trx" />
   </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
