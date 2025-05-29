@@ -3,10 +3,17 @@
 #include <CppUnitTest.h>
 
 #include <fmt/chrono.h>
+
 #include <TimeUtils.h>
 
 #include "public/generate-uuid.h"
 #include "public/TimeUtil.h"
+
+using namespace std::literals;
+using namespace std::chrono;
+using namespace std::literals::string_literals;
+using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+
 
 namespace ed
 {
@@ -61,50 +68,44 @@ namespace ed
 }
 
 
-using namespace std::literals::string_literals;
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
-
 namespace ed::audio {
 TEST_CLASS(TimeTests) {
     TEST_METHOD(LocalTimeTest)
     {
-		const auto nowTime = std::chrono::system_clock::now();
+	    constexpr auto localTimePoint = local_days{ 2025y / 5 / 29 } + 12h + 34min + 56s + 223709us;
+        const zoned_time zt{ current_zone(), localTimePoint };
+		const auto timePoint = zt.get_sys_time();
 
 		// with T as delimiter
-    	auto fromNuget = systemTimeAsStringWithLocalTime(nowTime, "T");
-		auto fromTimeUtil = ed::TimePointToStringAsLocal(nowTime, true, false);
-        Assert::AreEqual(fromTimeUtil, fromNuget);
+		auto fromTimeUtil = ed::TimePointToStringAsLocal(timePoint, true, false);
+        Assert::AreEqual("2025-05-29T12:34:56.223709"s, fromTimeUtil);
 
         // with space as delimiter
-        fromNuget = systemTimeAsStringWithLocalTime(nowTime, " ");
-        fromTimeUtil = ed::TimePointToStringAsLocal(nowTime, false, false);
-        Assert::AreEqual(fromTimeUtil, fromNuget);
+        fromTimeUtil = ed::TimePointToStringAsLocal(timePoint, false, false);
+        Assert::AreEqual("2025-05-29 12:34:56.223709"s, fromTimeUtil);
 
         // with space as delimiter and a time zone
-        fromTimeUtil = ed::TimePointToStringAsLocal(nowTime, false, true);
-        const auto lengthWithTimeZone = fromTimeUtil.size();
-        const auto lengthWithoutTimeZone = fromNuget.size();
-        Assert::AreEqual(5ull, lengthWithTimeZone - lengthWithoutTimeZone );
+        fromTimeUtil = ed::TimePointToStringAsLocal(timePoint, false, true);
+		const auto zoneAsString = fmt::format("{:%z}", localTimePoint);
+        const auto fromFmt = fmt::format("{:%F %T%z}", localTimePoint);
+        Assert::AreEqual("2025-05-29 12:34:56.223709"s + zoneAsString, fromTimeUtil);
+        Assert::AreEqual("2025-05-29 12:34:56.223709"s + zoneAsString, fromFmt);
     }
     TEST_METHOD(SystemTimeTest)
     {
-        const auto nowTime = std::chrono::system_clock::now();
+        constexpr auto timePoint = sys_days{ 2025y / 5 / 29 } + 10h + 34min + 56s + 223709us;
 
         // with T as delimiter
-        auto fromNuget = systemTimeAsStringWithSystemTime(nowTime, "T");
-        auto fromTimeUtil = ed::TimePointToStringAsUtc(nowTime, true, false);
-        Assert::AreEqual(fromNuget, fromTimeUtil);
+        auto fromTimeUtil = ed::TimePointToStringAsUtc(timePoint, true, false);
+        Assert::AreEqual("2025-05-29T10:34:56.223709"s, fromTimeUtil);
 
         // with space as delimiter
-        fromNuget = systemTimeAsStringWithSystemTime(nowTime, " ");
-        fromTimeUtil = ed::TimePointToStringAsUtc(nowTime, false, false);
-        Assert::AreEqual(fromNuget, fromTimeUtil);
+        fromTimeUtil = ed::TimePointToStringAsUtc(timePoint, false, false);
+        Assert::AreEqual("2025-05-29 10:34:56.223709"s, fromTimeUtil);
 
     	// with space as delimiter and a time zone
-        fromTimeUtil = ed::TimePointToStringAsUtc(nowTime, false, true);
-        const auto lengthWithTimeZone = fromTimeUtil.size();
-        const auto lengthWithoutTimeZone = fromNuget.size();
-        Assert::AreEqual("Z"s, fromTimeUtil.substr(lengthWithoutTimeZone, lengthWithTimeZone - lengthWithoutTimeZone));
+        fromTimeUtil = ed::TimePointToStringAsUtc(timePoint, false, true);
+        Assert::AreEqual("2025-05-29 10:34:56.223709Z"s, fromTimeUtil);
     }
 
 };
