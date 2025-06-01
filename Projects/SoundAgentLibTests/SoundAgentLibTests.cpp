@@ -4,9 +4,9 @@
 
 #include <CppUnitTest.h>
 
-#include <public/SoundAgentInterface.h>
+#include "public/SoundAgentInterface.h"
 #include "SoundDevice.h"
-#include <public/generate-uuid.h>
+#include "public/generate-uuid.h"
 
 using namespace std::literals::string_literals;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;

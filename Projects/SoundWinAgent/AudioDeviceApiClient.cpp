@@ -2,7 +2,7 @@
 
 #include "AudioDeviceApiClient.h"
 
-#include <public/SoundAgentInterface.h>
+#include "public/SoundAgentInterface.h"
 #include "public/TimeUtil.h"
 
 #include <SpdLogger.h>

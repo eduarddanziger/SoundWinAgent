@@ -29,9 +29,6 @@
     <ClInclude Include="AudioDeviceApiClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FormattedOutput.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ServiceObserver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -50,9 +47,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AudioDeviceApiClient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FormattedOutput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ServiceObserver.cpp">

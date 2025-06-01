@@ -9,7 +9,7 @@
 #include <chrono>
 #include <unordered_map>
 
-#include <public/ClassDefHelper.h>
+#include "public/ClassDefHelper.h"
 
 class HttpRequestProcessor {
 

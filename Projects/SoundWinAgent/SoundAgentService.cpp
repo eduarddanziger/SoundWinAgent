@@ -14,8 +14,8 @@
 #include "SodiumCrypt.h"
 #include "ServiceObserver.h"
 
-#include <public/CoInitRaiiHelper.h>
-#include <public/SoundAgentInterface.h>
+#include "public/CoInitRaiiHelper.h"
+#include "public/SoundAgentInterface.h"
 
 
 class AudioDeviceService final : public Poco::Util::ServerApplication {

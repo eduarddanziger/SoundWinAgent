@@ -2,7 +2,6 @@
 
 #include "ServiceObserver.h"
 
-#include "FormattedOutput.h"
 #include "AudioDeviceApiClient.h"
 #include "HttpRequestProcessor.h"
 
@@ -37,14 +36,15 @@ void ServiceObserver::PutVolumeChangeToApi(const std::string & pnpId, bool rende
 
 void ServiceObserver::PostAndPrintCollection() const
 {
-    std::string message("Processing device collection...");
-    FormattedOutput::LogAndPrint(message);
+    spdlog::info("Processing device collection...");
 
     for (size_t i = 0; i < collection_.GetSize(); ++i)
     {
         const auto deviceSmartPtr(collection_.CreateItem(i));
 
-        FormattedOutput::PrintDeviceInfo(deviceSmartPtr.get());
+        spdlog::info(R"({}, "{}", {}, Volume {} / {})", deviceSmartPtr->GetPnpId(), deviceSmartPtr->GetName(),
+                     magic_enum::enum_name(deviceSmartPtr->GetFlow()), deviceSmartPtr->GetCurrentRenderVolume(),
+                     deviceSmartPtr->GetCurrentCaptureVolume());
         if (!apiBaseUrl_.empty())
         {
             PostDeviceToApi(SoundDeviceEventType::Confirmed, deviceSmartPtr.get(), "(by iteration on device collection) ");
@@ -54,8 +54,7 @@ void ServiceObserver::PostAndPrintCollection() const
             SPD_L->info("No API base URL configured. Skipping API call.");
         }
     }
-    message = "...Processing device collection finished.";
-    FormattedOutput::LogAndPrint(message);
+    spdlog::info("...Processing device collection finished.");
 }
 
 void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std::string & devicePnpId)

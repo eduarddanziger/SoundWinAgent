@@ -16,8 +16,7 @@
 
 #include <SpdLogger.h>
 
-#include "FormattedOutput.h"
-#include <public/SoundAgentInterface.h>
+#include "public/SoundAgentInterface.h"
 
 #include <cstdio>
 #include <tchar.h>

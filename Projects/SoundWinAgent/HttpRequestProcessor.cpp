@@ -2,8 +2,6 @@
 
 #include "HttpRequestProcessor.h"
 
-#include "FormattedOutput.h"
-
 #include <nlohmann/json.hpp>
 #include <format>
 
@@ -82,8 +80,7 @@ bool HttpRequestProcessor::SendRequest(const RequestItem & requestItem, const st
             statusCode == web::http::status_codes::OK ||
             statusCode == web::http::status_codes::NoContent)
         {
-            const auto msg = "Sent successfully: " + messageDeviceAppendix;
-            FormattedOutput::LogAndPrint(msg);
+            spdlog::info("Sent successfully: {}", messageDeviceAppendix);
         }
         else
         {
@@ -94,21 +91,17 @@ bool HttpRequestProcessor::SendRequest(const RequestItem & requestItem, const st
     }
     catch (const web::http::http_exception & ex)
     {
-        const auto msg = "HTTP exception: " + messageDeviceAppendix + ": " + std::string(ex.what());
-        FormattedOutput::LogAndPrint(msg);
+        spdlog::info("HTTP exception: {}: {}", messageDeviceAppendix, ex.what());
         return false;
     }
     catch (const std::exception & ex)
     {
-        const auto msg = "Common exception while sending HTTP request: " + messageDeviceAppendix + ": " +
-            std::string(ex.what());
-        FormattedOutput::LogAndPrint(msg);
+        spdlog::info("Common exception while sending HTTP request: {}: {}", messageDeviceAppendix, ex.what());
         return false;
     }
     catch (...)
     {
-        const auto msg = "Unspecified exception while sending HTTP request: " + messageDeviceAppendix;
-        FormattedOutput::LogAndPrint(msg);
+        spdlog::info("Unspecified exception while sending HTTP request: {}", messageDeviceAppendix);
     }
     return true;
 }
@@ -150,14 +143,12 @@ void HttpRequestProcessor::ProcessingWorker()
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
             continue;
         }
-
+				
 		// Check if base url is on GitHub codespace. If not , we don't need to wake up
         if (apiBaseUrlNoTrailingSlash_.find(".github.") == std::string::npos)
         {// NOT a GitHub codespace, no wake up
-            const auto msg = std::string("Request sending to \"") + apiBaseUrlNoTrailingSlash_ +
-                "\" unsuccessful. Waking up makes no sense. Skipping request.";
-			FormattedOutput::LogAndPrint(msg);
-			continue;
+            spdlog::info(R"(Request sending to "{}" unsuccessful. Waking up makes no sense. Skipping request.)", apiBaseUrlNoTrailingSlash_);
+            continue;
         }
 
 		if (++retryAwakingCount_ <= MAX_AWAKING_RETRIES)
@@ -175,8 +166,7 @@ void HttpRequestProcessor::ProcessingWorker()
         }
 		else
 		{   // Retries exhausted
-			const auto msg = std::string("Request sending to \"") + apiBaseUrlNoTrailingSlash_ + "\" unsuccessful. Retries exhausted. Skipping request's sending.";
-			FormattedOutput::LogAndPrint(msg);
+            spdlog::info(R"(Request sending to "{}" unsuccessful. Retries exhausted. Skipping request's sending.)", apiBaseUrlNoTrailingSlash_);
     		retryAwakingCount_ = 0;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
