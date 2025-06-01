@@ -7,6 +7,8 @@
 #include "HttpRequestProcessor.h"
 
 #include <SpdLogger.h>
+#include <magic_enum/magic_enum.hpp>
+
 #include "public/StringUtils.h"
 
 ServiceObserver::ServiceObserver(SoundDeviceCollectionInterface& collection,
@@ -54,15 +56,11 @@ void ServiceObserver::PostAndPrintCollection() const
     }
     message = "...Processing device collection finished.";
     FormattedOutput::LogAndPrint(message);
-    std::cout
-        << '\n'
-        << FormattedOutput::CurrentLocalTimeWithoutDate << "Press Ctrl-C to stop and finish the application\n"
-        << FormattedOutput::CurrentLocalTimeWithoutDate << "-----------------------------------------------\n";
 }
 
 void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std::string & devicePnpId)
 {
-    FormattedOutput::PrintEvent(event, devicePnpId);
+    spdlog::info("Event caught: {}, device PnP id: {}.", magic_enum::enum_name(event), devicePnpId);
 
 	//There is no (event == SoundDeviceEventType::Confirmed). "Confirmed" is sent by collection initialization
     if (event == SoundDeviceEventType::Discovered)
