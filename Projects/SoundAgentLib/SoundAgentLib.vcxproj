@@ -19,9 +19,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-    <Import Project="..\..\packages\CommonCppModules.2.2.1\build\native\CommonCppModules.targets" Condition="Exists('..\..\packages\CommonCppModules.2.2.1\build\native\CommonCppModules.targets')" />
-  </ImportGroup>
+  <ImportGroup Label="ExtensionSettings" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
@@ -76,15 +74,6 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.targets" />
   <Target Name="RunUnitTests" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\CommonCppModules.2.2.1\build\native\CommonCppModules.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\CommonCppModules.2.2.1\build\native\CommonCppModules.targets'))" />
-  </Target>
 </Project>
