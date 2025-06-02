@@ -2,6 +2,7 @@
 
 #include "SodiumCrypt.h"
 
+#include <algorithm>
 #include <sodium.h>
 
 #include <iomanip>
