@@ -43,6 +43,7 @@
     <ClCompile>
       <PreprocessorDefinitions>WIN32;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.;$(SolutionDir)Projects\SoundAgentLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <!-- Enable release-version debugging (optimization off, etc.) -->
       <Optimization Condition="'$(Configuration)'=='Release'">Disabled</Optimization>
@@ -51,8 +52,8 @@
       <FunctionLevelLinking Condition="'$(Configuration)'=='Release'" />
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MultiThreaded</RuntimeLibrary>
-      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary Condition="'$(Configuration)'=='Release'">MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary Condition="'$(Configuration)'=='Debug'">MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -61,19 +62,17 @@
       <EnableCOMDATFolding Condition="'$(Configuration)'=='Release'" />
       <LinkTimeCodeGeneration Condition="'$(Configuration)'=='Release'" />
       <AdditionalLibraryDirectories>$(SolutionDir)\x64\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">crypt32.lib;winhttp.lib;iphlpapi.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">crypt32.lib;winhttp.lib;iphlpapi.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>crypt32.lib;winhttp.lib;iphlpapi.lib;bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\SoundAgentLib\generate-uuid.h" />
     <ClInclude Include="SodiumCrypt.h" />
     <ClInclude Include="AssemblyInformation.h" />
     <ClInclude Include="AudioDeviceApiClient.h" />
     <ClInclude Include="HttpRequestProcessor.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ServiceObserver.h" />
-    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="os-dependencies.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
@@ -82,9 +81,6 @@
     <ClCompile Include="HttpRequestProcessor.cpp" />
     <ClCompile Include="ServiceObserver.cpp" />
     <ClCompile Include="SoundAgentService.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader>Create</PrecompiledHeader>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="GenerateCertificate.ps1" />

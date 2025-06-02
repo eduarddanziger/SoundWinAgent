@@ -1,21 +1,21 @@
-#include "stdafx.h"
+#include "os-dependencies.h"
 
-#include <SpdLogger.h>
+#include "SpdLogger.h"
+
+#include "SodiumCrypt.h"
+#include "ServiceObserver.h"
+#include "public/CoInitRaiiHelper.h"
+#include "public/SoundAgentInterface.h"
 
 #include <filesystem>
+#include <iostream>
 #include <memory>
 #include <tchar.h>
+#include <vector>
 
 #include <Poco/Util/ServerApplication.h>
 #include <Poco/UnicodeConverter.h>
 #include <Poco/Util/HelpFormatter.h>
-#include <vector>
-
-#include "SodiumCrypt.h"
-#include "ServiceObserver.h"
-
-#include "public/CoInitRaiiHelper.h"
-#include "public/SoundAgentInterface.h"
 
 
 class AudioDeviceService final : public Poco::Util::ServerApplication {

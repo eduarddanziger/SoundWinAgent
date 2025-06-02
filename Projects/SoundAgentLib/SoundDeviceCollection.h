@@ -2,6 +2,7 @@
 
 #include <endpointvolume.h>
 #include <set>
+#include <map>
 #include <atlbase.h>
 #include <functional>
 

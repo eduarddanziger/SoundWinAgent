@@ -1,11 +1,11 @@
-﻿#include "stdafx.h"
+﻿#include "os-dependencies.h"
 
 #include "AudioDeviceApiClient.h"
 
 #include "public/SoundAgentInterface.h"
 #include "public/TimeUtil.h"
 
-#include <SpdLogger.h>
+#include "SpdLogger.h"
 
 #include <string>
 #include <sstream>

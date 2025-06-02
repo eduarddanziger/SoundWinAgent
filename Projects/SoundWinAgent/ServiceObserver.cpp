@@ -1,11 +1,12 @@
-﻿#include "stdafx.h"
+﻿#include "os-dependencies.h"
+
+#include "SpdLogger.h"
 
 #include "ServiceObserver.h"
 
 #include "AudioDeviceApiClient.h"
 #include "HttpRequestProcessor.h"
 
-#include <SpdLogger.h>
 #include <magic_enum/magic_enum.hpp>
 
 #include "public/StringUtils.h"
