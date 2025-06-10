@@ -8,8 +8,6 @@
 
 #include "public/StringUtils.h"
 
-#include "public/generate-uuid.h"
-
 #include <iostream>
 #include <cstddef>
 #include <mmdeviceapi.h>

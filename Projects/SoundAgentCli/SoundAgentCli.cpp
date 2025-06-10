@@ -91,7 +91,7 @@ public:
             const std::unique_ptr<SoundDeviceInterface> deviceSmartPtr(collection_.CreateItem(i));
             PrintDeviceInfo(deviceSmartPtr.get(), i);
         }
-        std::cout << '\n' << CurrentLocalTimeAsStringShort << "Press Enter to regenerate device list; To stop, type S or Q and press Enter\n";
+        std::cout << CurrentLocalTimeAsStringShort << "...Collection print finished.";
     }
 
     void ResetCollectionContentAndPrintIt() const
@@ -99,6 +99,7 @@ public:
         std::cout << CurrentLocalTimeAsStringShort << "Regenerating device list.\n";
         collection_.ResetContent();
         PrintCollection();
+        std::cout << '\n' << CurrentLocalTimeAsStringShort << "Press Enter to regenerate device list; To stop, type S or Q and press Enter\n";
     }
 
     void OnCollectionChanged(SoundDeviceEventType event, const std::string& devicePnpId) override
@@ -108,7 +109,9 @@ public:
         std::cout << '\n' << CurrentLocalTimeAsStringShort << "Event caught: " << event << "."
             <<  " Device PnP id: " << devicePnpId << '\n';
 
+        std::cout << '\n' << CurrentLocalTimeAsStringShort << "Print collection...\n";
         PrintCollection();
+        std::cout << '\n' << CurrentLocalTimeAsStringShort << "Press Enter to regenerate device list; To stop, type S or Q and press Enter\n";
     }
 
 private:
@@ -165,6 +168,9 @@ int _tmain(int argc, _TCHAR * argv[])
 
         continueLoop = StopAndWaitForInput();
     }
+
+    std::cout << '\n' << CurrentLocalTimeAsStringShort << "Print collection final state...\n";
+    o.PrintCollection();
 
     coll->Unsubscribe(o);
 
