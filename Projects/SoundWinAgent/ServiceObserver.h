@@ -24,6 +24,7 @@ public:
 
 private:
     static std::string GetHostName();
+    static std::string GetOperationSystemName();
 
 private:
     SoundDeviceCollectionInterface& collection_;

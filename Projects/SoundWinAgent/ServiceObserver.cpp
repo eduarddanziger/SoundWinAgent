@@ -10,6 +10,7 @@
 #include <magic_enum/magic_enum.hpp>
 
 #include "public/StringUtils.h"
+#include <winternl.h>
 
 ServiceObserver::ServiceObserver(SoundDeviceCollectionInterface& collection,
     std::string apiBaseUrl,
@@ -25,13 +26,13 @@ ServiceObserver::ServiceObserver(SoundDeviceCollectionInterface& collection,
 
 void ServiceObserver::PostDeviceToApi(const SoundDeviceEventType messageType, const SoundDeviceInterface* devicePtr, const std::string & hintPrefix) const
 {
-    const AudioDeviceApiClient apiClient(requestProcessorSmartPtr_, GetHostName);
+    const AudioDeviceApiClient apiClient(requestProcessorSmartPtr_, GetHostName, GetOperationSystemName);
     apiClient.PostDeviceToApi(messageType, devicePtr, hintPrefix);
 }
 
 void ServiceObserver::PutVolumeChangeToApi(const std::string & pnpId, bool renderOrCapture, uint16_t volume, const std::string & hintPrefix) const
 {
-	const AudioDeviceApiClient apiClient(requestProcessorSmartPtr_, GetHostName);
+	const AudioDeviceApiClient apiClient(requestProcessorSmartPtr_, GetHostName, GetOperationSystemName);
 	apiClient.PutVolumeChangeToApi(pnpId, renderOrCapture, volume, hintPrefix);
 }
 
@@ -98,4 +99,61 @@ std::string ServiceObserver::GetHostName()
             return utility::conversions::to_utf8string(hostNameBuffer);
         }();
     return HOST_NAME;
+}
+
+std::string ServiceObserver::GetOperationSystemName()
+{
+	static const std::string OS_NAME = []() -> std::string
+	{
+		OSVERSIONINFOEX osVersionInfo{};
+		osVersionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+
+		typedef NTSTATUS (WINAPI *RtlGetVersionFuncT)(OSVERSIONINFOEX*);
+		const auto ntDllHandle = GetModuleHandleA("ntdll.dll");
+		if (ntDllHandle == nullptr)
+		{
+			return "Unknown Windows version";
+		}
+
+		if (const auto rtlGetVersionFuncPtr =
+				reinterpret_cast<RtlGetVersionFuncT>(GetProcAddress(ntDllHandle, "RtlGetVersion"));  // NOLINT(clang-diagnostic-cast-function-type-strict)
+			rtlGetVersionFuncPtr == nullptr || rtlGetVersionFuncPtr(&osVersionInfo) != 0)
+		{
+			return "Unknown Windows version";
+		}
+
+		DWORD productType = 0;
+		if (!GetProductInfo(osVersionInfo.dwMajorVersion, osVersionInfo.dwMinorVersion, 0, 0, &productType))
+		{
+			productType = PRODUCT_UNDEFINED;
+		}
+
+		std::string edition;
+		switch (productType)
+		{
+		case PRODUCT_PROFESSIONAL:
+			edition = "Pro";
+			break;
+		case PRODUCT_HOME_PREMIUM:
+		case PRODUCT_HOME_BASIC:
+			edition = "Home";
+			break;
+		case PRODUCT_ENTERPRISE:
+			edition = "Enterprise";
+			break;
+		case PRODUCT_EDUCATION:
+			edition = "Education";
+			break;
+		default:
+			edition = "";
+			break;
+		}
+
+		return std::format("Windows {}.{} {}, Build {}",
+		                   osVersionInfo.dwMajorVersion,
+		                   osVersionInfo.dwMinorVersion,
+		                   edition,
+		                   osVersionInfo.dwBuildNumber);
+	}();
+	return OS_NAME;
 }
