@@ -112,47 +112,19 @@ std::string ServiceObserver::GetOperationSystemName()
 		const auto ntDllHandle = GetModuleHandleA("ntdll.dll");
 		if (ntDllHandle == nullptr)
 		{
-			return "Unknown Windows version";
+			return "Windows, no version info";
 		}
 
 		if (const auto rtlGetVersionFuncPtr =
 				reinterpret_cast<RtlGetVersionFuncT>(GetProcAddress(ntDllHandle, "RtlGetVersion"));  // NOLINT(clang-diagnostic-cast-function-type-strict)
 			rtlGetVersionFuncPtr == nullptr || rtlGetVersionFuncPtr(&osVersionInfo) != 0)
 		{
-			return "Unknown Windows version";
+			return "Windows, no version info";
 		}
 
-		DWORD productType = 0;
-		if (!GetProductInfo(osVersionInfo.dwMajorVersion, osVersionInfo.dwMinorVersion, 0, 0, &productType))
-		{
-			productType = PRODUCT_UNDEFINED;
-		}
-
-		std::string edition;
-		switch (productType)
-		{
-		case PRODUCT_PROFESSIONAL:
-			edition = "Pro";
-			break;
-		case PRODUCT_HOME_PREMIUM:
-		case PRODUCT_HOME_BASIC:
-			edition = "Home";
-			break;
-		case PRODUCT_ENTERPRISE:
-			edition = "Enterprise";
-			break;
-		case PRODUCT_EDUCATION:
-			edition = "Education";
-			break;
-		default:
-			edition = "";
-			break;
-		}
-
-		return std::format("Windows {}.{} {}, Build {}",
+		return std::format("Windows {}.{} Build {}",
 		                   osVersionInfo.dwMajorVersion,
 		                   osVersionInfo.dwMinorVersion,
-		                   edition,
 		                   osVersionInfo.dwBuildNumber);
 	}();
 	return OS_NAME;
