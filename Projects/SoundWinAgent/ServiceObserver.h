@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <public/SoundAgentInterface.h>
+#include "public/SoundAgentInterface.h"
 
 class HttpRequestProcessor;
 
@@ -24,6 +24,7 @@ public:
 
 private:
     static std::string GetHostName();
+    static std::string GetOperationSystemName();
 
 private:
     SoundDeviceCollectionInterface& collection_;

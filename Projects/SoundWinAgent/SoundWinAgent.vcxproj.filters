@@ -11,7 +11,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="os-dependencies.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
@@ -23,13 +23,7 @@
     <ClInclude Include="AssemblyInformation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\SoundAgentLib\generate-uuid.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AudioDeviceApiClient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FormattedOutput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ServiceObserver.h">
@@ -43,16 +37,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SoundAgentService.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AudioDeviceApiClient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FormattedOutput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ServiceObserver.cpp">

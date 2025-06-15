@@ -1,5 +1,5 @@
 ﻿// ReSharper disable CppClangTidyClangDiagnosticLanguageExtensionToken
-#include "stdafx.h"
+#include "os-dependencies.h"
 
 #include "SoundDeviceCollection.h"
 
@@ -7,8 +7,6 @@
 #include "Utilities.h"
 
 #include "public/StringUtils.h"
-
-#include "public/generate-uuid.h"
 
 #include <iostream>
 #include <cstddef>

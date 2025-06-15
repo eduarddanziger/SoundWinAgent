@@ -2,6 +2,7 @@
 
 #include <endpointvolume.h>
 #include <set>
+#include <map>
 #include <atlbase.h>
 #include <functional>
 
@@ -32,6 +33,7 @@ public:
     [[nodiscard]] size_t GetSize() const override;
     [[nodiscard]] std::unique_ptr<SoundDeviceInterface> CreateItem(size_t deviceNumber) const override;
     [[nodiscard]] std::unique_ptr<SoundDeviceInterface> CreateItem(const std::string& devicePnpId) const override;
+
     void Subscribe(SoundDeviceObserverInterface & observer) override;
     void Unsubscribe(SoundDeviceObserverInterface & observer) override;
 

@@ -1,9 +1,8 @@
 #include "stdafx.h"
 
-#include "TimeUtils.h"
-
-#include <public/CoInitRaiiHelper.h>
-#include <public/SoundAgentInterface.h>
+#include "public/TimeUtil.h"
+#include "public/CoInitRaiiHelper.h"
+#include "public/SoundAgentInterface.h"
 
 #include <filesystem>
 #include <memory>
@@ -15,8 +14,12 @@
 
 namespace
 {
-    std::ostream& CurrentLocalTimeWithoutDate(std::ostream& os) {
-        const std::string currentTime = ed::getLocalTimeAsString();
+    std::ostream& CurrentLocalTimeAsStringShort(std::ostream& os) {
+        const std::string currentTime = ed::TimePointToStringAsLocal(
+            std::chrono::system_clock::now(),
+            false, // insertTBetweenDateAndTime
+            false // addTimeZone
+        );
         if
         (
             constexpr int beginOfTimeCountingFromTheEnd = 15;
@@ -73,7 +76,7 @@ public:
         using magic_enum::iostream_operators::operator<<;
 
         const auto idString = device->GetPnpId();
-        std::cout << CurrentLocalTimeWithoutDate << "[" << i << "]: " << idString
+        std::cout << CurrentLocalTimeAsStringShort << "[" << i << "]: " << idString
             << ", \"" << device->GetName()
             << "\", " << device->GetFlow() // magic to string
             << ", Volume " << device->GetCurrentRenderVolume()
@@ -88,24 +91,27 @@ public:
             const std::unique_ptr<SoundDeviceInterface> deviceSmartPtr(collection_.CreateItem(i));
             PrintDeviceInfo(deviceSmartPtr.get(), i);
         }
-        std::cout << '\n' << CurrentLocalTimeWithoutDate << "Press Enter to regenerate device list; To stop, type S or Q and press Enter\n";
+        std::cout << CurrentLocalTimeAsStringShort << "...Collection print finished.";
     }
 
     void ResetCollectionContentAndPrintIt() const
     {
-        std::cout << CurrentLocalTimeWithoutDate << "Regenerating device list.\n";
+        std::cout << CurrentLocalTimeAsStringShort << "Regenerating device list.\n";
         collection_.ResetContent();
         PrintCollection();
+        std::cout << '\n' << CurrentLocalTimeAsStringShort << "Press Enter to regenerate device list; To stop, type S or Q and press Enter\n";
     }
 
     void OnCollectionChanged(SoundDeviceEventType event, const std::string& devicePnpId) override
     {
         using magic_enum::iostream_operators::operator<<; // out-of-the-box stream operators for enums
 
-        std::cout << '\n' << CurrentLocalTimeWithoutDate << "Event caught: " << event << "."
+        std::cout << '\n' << CurrentLocalTimeAsStringShort << "Event caught: " << event << "."
             <<  " Device PnP id: " << devicePnpId << '\n';
 
+        std::cout << '\n' << CurrentLocalTimeAsStringShort << "Print collection...\n";
         PrintCollection();
+        std::cout << '\n' << CurrentLocalTimeAsStringShort << "Press Enter to regenerate device list; To stop, type S or Q and press Enter\n";
     }
 
 private:
@@ -129,7 +135,7 @@ namespace
 				return true;
 			}
 
-			std::cout << '\n' << CurrentLocalTimeWithoutDate << "Input " << line << " not recognized.\n";
+			std::cout << '\n' << CurrentLocalTimeAsStringShort << "Input " << line << " not recognized.\n";
 		}
 	}
 }
@@ -162,6 +168,9 @@ int _tmain(int argc, _TCHAR * argv[])
 
         continueLoop = StopAndWaitForInput();
     }
+
+    std::cout << '\n' << CurrentLocalTimeAsStringShort << "Print collection final state...\n";
+    o.PrintCollection();
 
     coll->Unsubscribe(o);
 

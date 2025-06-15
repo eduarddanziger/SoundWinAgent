@@ -19,9 +19,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-    <Import Project="..\..\packages\CommonCppModules.2.2.1\build\native\CommonCppModules.targets" Condition="Exists('..\..\packages\CommonCppModules.2.2.1\build\native\CommonCppModules.targets')" />
-  </ImportGroup>
+  <ImportGroup Label="ExtensionSettings" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
@@ -31,7 +29,7 @@
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)DeviceGeneric\CIMGeneric\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <!-- Enable release-version debugging (optimization off, etc.) -->
       <Optimization Condition="'$(Configuration)'=='Release'">Disabled</Optimization>
@@ -59,10 +57,11 @@
     <ClInclude Include="public\generate-uuid.h" />
     <ClInclude Include="public\SoundAgentInterface.h" />
     <ClInclude Include="public\StringUtils.h" />
+    <ClInclude Include="public\TimeUtil.h" />
     <ClInclude Include="SoundDevice.h" />
     <ClInclude Include="SoundDeviceCollection.h" />
     <ClInclude Include="MultipleNotificationClient.h" />
-    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="os-dependencies.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utilities.h" />
   </ItemGroup>
@@ -70,20 +69,8 @@
     <ClCompile Include="SoundAgent.cpp" />
     <ClCompile Include="SoundDevice.cpp" />
     <ClCompile Include="SoundDeviceCollection.cpp" />
-    <ClCompile Include="MultipleNotificationClient.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader>Create</PrecompiledHeader>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <ClCompile Include="StringUtils.cpp" />
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.targets" />
   <Target Name="RunUnitTests" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\CommonCppModules.2.2.1\build\native\CommonCppModules.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\CommonCppModules.2.2.1\build\native\CommonCppModules.targets'))" />
-  </Target>
 </Project>
