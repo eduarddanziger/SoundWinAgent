@@ -11,7 +11,7 @@ Released on $date$
 ~~~
 
 ## Changes
-- opertaion system name tranferred to the Rest API
+- Operation system name included into the Rest API
 - Discovery, Confirm, and Sound Volume messages
 - Latest spdog etc. via vcpkg
 
