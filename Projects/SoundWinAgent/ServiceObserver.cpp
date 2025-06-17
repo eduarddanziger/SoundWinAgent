@@ -122,10 +122,67 @@ std::string ServiceObserver::GetOperationSystemName()
 			return "Windows, no version info";
 		}
 
-		return std::format("Windows {}.{} Build {}",
-		                   osVersionInfo.dwMajorVersion,
-		                   osVersionInfo.dwMinorVersion,
-		                   osVersionInfo.dwBuildNumber);
+        HKEY hKey;
+        if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, R"(SOFTWARE\Microsoft\Windows NT\CurrentVersion)", 0, KEY_READ, &hKey) != ERROR_SUCCESS)
+        {
+            return "Windows, no version info";
+        }
+        char productName[256] = { 0 };
+        DWORD osRevision = 0;
+        char displayVersion[256] = { 0 };
+        char editionId[256] = { 0 };
+
+        // Get Product Name
+        DWORD size = sizeof(productName);
+        if (RegQueryValueExA(hKey, "ProductName", nullptr, nullptr,
+            reinterpret_cast<LPBYTE>(productName), &size) == ERROR_SUCCESS) {
+            // Successfully got product name
+        }
+
+        // Get UBR (Update Build Revision)
+        size = sizeof(osRevision);
+        RegQueryValueExA(hKey, "UBR", nullptr, nullptr,
+            reinterpret_cast<LPBYTE>(&osRevision), &size);
+
+        // Get DisplayVersion (for Win11 22H2+)
+        size = sizeof(displayVersion);
+        RegQueryValueExA(hKey, "DisplayVersion", nullptr, nullptr,
+            reinterpret_cast<LPBYTE>(displayVersion), &size);
+
+        // Get EditionID (Pro, Home, etc.)
+        size = sizeof(editionId);
+        RegQueryValueExA(hKey, "EditionID", nullptr, nullptr,
+            reinterpret_cast<LPBYTE>(editionId), &size);
+
+		RegCloseKey(hKey);
+
+        // Windows 11 detection (build 22000+ or product name contains "Windows 11")
+        bool isWindows11 = false;
+        if (osVersionInfo.dwBuildNumber >= 22000 ||
+            strstr(productName, "Windows 11") != nullptr)
+        {
+            isWindows11 = true;
+        }
+
+        // Format the version string
+        std::string versionString;
+        if (isWindows11)
+        {
+            versionString = std::string("Windows 11 ") + editionId;
+        }
+        else
+        {
+            versionString = std::string(productName);
+        }
+
+        // Add display version if available (e.g., "22H2")
+        if (strlen(displayVersion) > 0) {
+            versionString += " " + std::string(displayVersion);
+        }
+
+        versionString += " Build " + std::to_string(osVersionInfo.dwBuildNumber) + "." + std::to_string(osRevision);
+
+		return versionString;
 	}();
 	return OS_NAME;
 }
