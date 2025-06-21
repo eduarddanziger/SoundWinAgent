@@ -4,8 +4,8 @@
 
 #include "ServiceObserver.h"
 
-#include "AudioDeviceApiClient.h"
-#include "HttpRequestProcessor.h"
+#include "../../ApiClient/AudioDeviceApiClient.h"
+#include "../../ApiClient/HttpRequestProcessor.h"
 
 #include <magic_enum/magic_enum.hpp>
 
