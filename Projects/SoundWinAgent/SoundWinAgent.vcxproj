@@ -76,6 +76,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CollectionFactoryImpl.cpp" />
     <ClCompile Include="SodiumCrypt.cpp" />
     <ClCompile Include="../../ApiClient/AudioDeviceApiClient.cpp" />
     <ClCompile Include="../../ApiClient/HttpRequestProcessor.cpp" />

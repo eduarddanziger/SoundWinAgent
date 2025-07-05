@@ -28,7 +28,7 @@ public:
     ~SoundDeviceCollection() override;
 
 public:
-    explicit SoundDeviceCollection(bool bothHeadsetAndMicro);
+    explicit SoundDeviceCollection(bool bothHeadsetAndMicro, std::function<void()> wainFunc);
 
     [[nodiscard]] size_t GetSize() const override;
     [[nodiscard]] std::unique_ptr<SoundDeviceInterface> CreateItem(size_t deviceNumber) const override;
@@ -76,13 +76,15 @@ private:
 
 public:
     void ResetContent() override;
-
+    void ActivateAndStartLoop() override;
+    void DeactivateAndStopLoop() override;
 
 private:
     std::map<std::string, SoundDevice> pnpToDeviceMap_;
     std::set<SoundDeviceObserverInterface*> observers_;
     IMMDeviceEnumerator * enumerator_ = nullptr;
     bool bothHeadsetAndMicro_;
+    std::function<void()> wainFunc_;
     const std::string noPlugAndPlayGuid_ = "00000000-0000-0000-FFFF-FFFFFFFFFFFF";
 
     std::map<std::wstring, CComPtr<IAudioEndpointVolume>> devIdToEndpointVolumes_;

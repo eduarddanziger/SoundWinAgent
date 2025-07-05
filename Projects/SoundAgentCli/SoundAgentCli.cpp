@@ -148,15 +148,10 @@ int _tmain(int argc, _TCHAR * argv[])
     _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);
     _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 
-    bool bothHeadsetAndMicro = true;
-    if (argc > 1)
-    {
-        bothHeadsetAndMicro = argv[1][0] != L'0';
-    }
-
-
     ed::CoInitRaiiHelper coInitHelper;
-    const auto coll(SoundAgent::CreateDeviceCollection(bothHeadsetAndMicro));
+
+	const auto coll(SoundAgent::CreateDeviceCollection());
+
     ServiceObserver o(*coll);
     coll->Subscribe(o);
 

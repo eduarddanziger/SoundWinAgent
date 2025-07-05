@@ -64,6 +64,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CollectionFactoryImpl.cpp" />
     <ClCompile Include="SoundAgentLibTests.cpp" />
     <ClCompile Include="SoundDeviceCollectionTests.cpp" />
     <ClCompile Include="stdafx.cpp">

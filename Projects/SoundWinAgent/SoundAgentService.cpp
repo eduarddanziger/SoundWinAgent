@@ -16,6 +16,7 @@
 #include <Poco/Util/ServerApplication.h>
 #include <Poco/UnicodeConverter.h>
 #include <Poco/Util/HelpFormatter.h>
+#include <spdlog/spdlog.h>
 
 
 class AudioDeviceService final : public Poco::Util::ServerApplication {
@@ -29,7 +30,8 @@ protected:
         try {
             spdlog::info("Starting Sound Agent...");
 
-            const auto coll(SoundAgent::CreateDeviceCollection(true));
+            const auto coll(SoundAgent::CreateDeviceCollection());
+
             ServiceObserver serviceObserver(*coll, apiBaseUrl_, universalToken_, codeSpaceName_);
             coll->Subscribe(serviceObserver);
 

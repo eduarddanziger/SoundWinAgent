@@ -49,10 +49,10 @@ ed::audio::SoundDeviceCollection::~SoundDeviceCollection()
     SAFE_RELEASE(enumerator_)
 }
 
-// ReSharper disable once CppParameterNeverUsed
-ed::audio::SoundDeviceCollection::SoundDeviceCollection(bool bothHeadsetAndMicro)
+ed::audio::SoundDeviceCollection::SoundDeviceCollection(bool bothHeadsetAndMicro, std::function<void()> wainFunc)
     : MultipleNotificationClient()
       , bothHeadsetAndMicro_(bothHeadsetAndMicro)
+      , wainFunc_(std::move(wainFunc))
 {
     const auto hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, IID_PPV_ARGS(&enumerator_));
     assert(SUCCEEDED(hr));
@@ -63,6 +63,14 @@ ed::audio::SoundDeviceCollection::SoundDeviceCollection(bool bothHeadsetAndMicro
 void ed::audio::SoundDeviceCollection::ResetContent()
 {
     RecreateActiveDeviceList();
+}
+
+void ed::audio::SoundDeviceCollection::ActivateAndStartLoop()
+{
+}
+
+void ed::audio::SoundDeviceCollection::DeactivateAndStopLoop()
+{
 }
 
 size_t ed::audio::SoundDeviceCollection::GetSize() const
