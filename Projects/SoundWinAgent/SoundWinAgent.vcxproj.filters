@@ -32,7 +32,7 @@
     <ClInclude Include="../../ApiClient/HttpRequestProcessor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SodiumCrypt.h">
+    <ClInclude Include="../../ApiClient/SodiumCrypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -49,7 +49,7 @@
     <ClCompile Include="../../ApiClient/HttpRequestProcessor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SodiumCrypt.cpp">
+    <ClCompile Include="../../ApiClient/SodiumCrypt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CollectionFactoryImpl.cpp">
