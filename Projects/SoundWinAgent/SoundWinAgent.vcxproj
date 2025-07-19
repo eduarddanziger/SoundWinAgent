@@ -26,7 +26,7 @@
   </ImportGroup>
   <ImportGroup Label="Shared">
     <Import Project="..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets" Condition="Exists('..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" />
-    <Import Project="..\..\packages\SpdLogger.2.2.1\build\native\SpdLogger.targets" Condition="Exists('..\..\packages\SpdLogger.2.2.1\build\native\SpdLogger.targets')" />
+    <Import Project="..\..\packages\SpdLogger.2.2.2-RC006\build\native\SpdLogger.targets" Condition="Exists('..\..\packages\SpdLogger.2.2.2-RC006\build\native\SpdLogger.targets')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -146,6 +146,6 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\MSBuildTasks.1.5.0.235\build\MSBuildTasks.targets'))" />
-    <Error Condition="!Exists('..\..\packages\SpdLogger.2.2.1\build\native\SpdLogger.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SpdLogger.2.2.1\build\native\SpdLogger.targets'))" />
+    <Error Condition="!Exists('..\..\packages\SpdLogger.2.2.2-RC006\build\native\SpdLogger.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SpdLogger.2.2.2-RC006\build\native\SpdLogger.targets'))" />
   </Target>
 </Project>

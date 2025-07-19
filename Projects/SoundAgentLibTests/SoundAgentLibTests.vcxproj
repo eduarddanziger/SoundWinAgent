@@ -21,7 +21,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="..\..\packages\SpdLogger.2.2.1\build\native\SpdLogger.targets" Condition="Exists('..\..\packages\SpdLogger.2.2.1\build\native\SpdLogger.targets')" />
+    <Import Project="..\..\packages\SpdLogger.2.2.2-RC006\build\native\SpdLogger.targets" Condition="Exists('..\..\packages\SpdLogger.2.2.2-RC006\build\native\SpdLogger.targets')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -80,7 +80,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.targets" />                                                                                
   <Target Name="RunUnitTests" AfterTargets="Build">
     <Exec Command="&quot;$(VSInstallDir)Common7\IDE\Extensions\TestPlatform\vstest.console.exe&quot; &quot;$(TargetPath)&quot; /InIsolation /Logger:trx" />
   </Target>
@@ -88,6 +88,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\SpdLogger.2.2.1\build\native\SpdLogger.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SpdLogger.2.2.1\build\native\SpdLogger.targets'))" />
+    <Error Condition="!Exists('..\..\packages\SpdLogger.2.2.2-RC006\build\native\SpdLogger.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SpdLogger.2.2.2-RC006\build\native\SpdLogger.targets'))" />
   </Target>
 </Project>

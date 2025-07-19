@@ -35,7 +35,7 @@ public:
 
         TEST_METHOD_INITIALIZE(MyInit)
         {
-            model::Logger::Inst().SetOutputToConsole(true).Init();
+            model::Logger::Inst().SetOutputToConsole(true);
 
             _CrtMemCheckpoint(&sOld_); //take a snapshot
         }

@@ -53,7 +53,7 @@ void ServiceObserver::PostAndPrintCollection() const
         }
         else
         {
-            SPD_L->info("No API base URL configured. Skipping API call.");
+            spdlog::info("No API base URL configured. Skipping API call.");
         }
     }
     spdlog::info("...Processing device collection finished.");
@@ -81,7 +81,7 @@ void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std:
     }
     else
 	{
-		SPD_L->warn("Unexpected event type: {}", static_cast<int>(event));
+        spdlog::warn("Unexpected event type: {}", static_cast<int>(event));
 	}
 
 }
