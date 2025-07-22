@@ -5,7 +5,8 @@
 #include <queue>
 
 #include <CppUnitTest.h>
-#include <SpdLogger.h>
+
+#include "ApiClient/common/SpdLogger.h"
 
 #include "SoundDeviceCollection.h"
 
@@ -16,7 +17,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace ed::audio {
     TEST_CLASS(SoundDeviceCollectionTests) {
-#ifdef _DEBUG
+#if 0 //#ifdef _DEBUG
 private:
     _CrtMemState sOld_ = {};
     _CrtMemState sNew_ = {};

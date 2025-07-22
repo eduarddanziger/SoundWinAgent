@@ -1,6 +1,6 @@
 #include "os-dependencies.h"
 
-#include "SpdLogger.h"
+#include "ApiClient/common/SpdLogger.h"
 
 #include "ApiClient/SodiumCrypt.h"
 #include "ServiceObserver.h"

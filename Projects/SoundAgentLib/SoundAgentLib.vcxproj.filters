@@ -60,6 +60,18 @@
     <ClInclude Include="ApiClient\SodiumCrypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ApiClient\common\SpdLogger\AppPath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ApiClient\common\SpdLogger\LogBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ApiClient\common\SpdLogger\Logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ApiClient\common\SpdLogger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ApiClient\common\StringUtils.cpp">

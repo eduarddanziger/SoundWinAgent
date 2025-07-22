@@ -53,6 +53,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ApiClient\AudioDeviceApiClient.h" />
+    <ClInclude Include="ApiClient\common\SpdLogger.h" />
+    <ClInclude Include="ApiClient\common\SpdLogger\AppPath.h" />
+    <ClInclude Include="ApiClient\common\SpdLogger\LogBuffer.h" />
+    <ClInclude Include="ApiClient\common\SpdLogger\Logger.h" />
     <ClInclude Include="ApiClient\HttpRequestProcessor.h" />
     <ClInclude Include="ApiClient\SodiumCrypt.h" />
     <ClInclude Include="ApiClient\common\ClassDefHelper.h" />

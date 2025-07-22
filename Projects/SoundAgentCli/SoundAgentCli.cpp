@@ -10,7 +10,7 @@
 #include <tchar.h>
 #include <magic_enum/magic_enum_iostream.hpp>
 
-#include <SpdLogger.h>
+#include "ApiClient/common/SpdLogger.h"
 
 
 namespace
