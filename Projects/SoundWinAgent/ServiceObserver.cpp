@@ -1,21 +1,20 @@
 ﻿#include "os-dependencies.h"
 
-#include "SpdLogger.h"
-
 #include "ServiceObserver.h"
 
-#include "../../ApiClient/AudioDeviceApiClient.h"
-#include "../../ApiClient/HttpRequestProcessor.h"
+#include "ApiClient/AudioDeviceApiClient.h"
+#include "ApiClient/HttpRequestProcessor.h"
 
 #include <magic_enum/magic_enum.hpp>
 
-#include "public/StringUtils.h"
+#include <spdlog/spdlog.h>
 #include <winternl.h>
+#include <cpprest/asyncrt_utils.h>
 
 ServiceObserver::ServiceObserver(SoundDeviceCollectionInterface& collection,
-    std::string apiBaseUrl,
-    std::string universalToken,
-    std::string codeSpaceName)
+                                 std::string apiBaseUrl,
+                                 std::string universalToken,
+                                 std::string codeSpaceName)
     : collection_(collection)
     , apiBaseUrl_(std::move(apiBaseUrl))
     , universalToken_(std::move(universalToken))

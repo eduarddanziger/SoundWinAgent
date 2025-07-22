@@ -23,16 +23,7 @@
     <ClInclude Include="AssemblyInformation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="../../ApiClient/AudioDeviceApiClient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ServiceObserver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="../../ApiClient/HttpRequestProcessor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="../../ApiClient/SodiumCrypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -40,16 +31,7 @@
     <ClCompile Include="SoundAgentService.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="../../ApiClient/AudioDeviceApiClient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ServiceObserver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="../../ApiClient/HttpRequestProcessor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="../../ApiClient/SodiumCrypt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CollectionFactoryImpl.cpp">

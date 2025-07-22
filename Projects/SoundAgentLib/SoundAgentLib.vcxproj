@@ -28,7 +28,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)DeviceGeneric\CIMGeneric\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <!-- Enable release-version debugging (optimization off, etc.) -->
@@ -52,6 +52,9 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ApiClient\AudioDeviceApiClient.h" />
+    <ClInclude Include="ApiClient\HttpRequestProcessor.h" />
+    <ClInclude Include="ApiClient\SodiumCrypt.h" />
     <ClInclude Include="public\ClassDefHelper.h" />
     <ClInclude Include="public\CoInitRaiiHelper.h" />
     <ClInclude Include="public\generate-uuid.h" />
@@ -66,6 +69,9 @@
     <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ApiClient\AudioDeviceApiClient.cpp" />
+    <ClCompile Include="ApiClient\HttpRequestProcessor.cpp" />
+    <ClCompile Include="ApiClient\SodiumCrypt.cpp" />
     <ClCompile Include="SoundDevice.cpp" />
     <ClCompile Include="SoundDeviceCollection.cpp" />
     <ClCompile Include="StringUtils.cpp" />

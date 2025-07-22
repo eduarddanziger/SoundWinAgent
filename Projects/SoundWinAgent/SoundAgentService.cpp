@@ -2,7 +2,7 @@
 
 #include "SpdLogger.h"
 
-#include "../../ApiClient/SodiumCrypt.h"
+#include "ApiClient/SodiumCrypt.h"
 #include "ServiceObserver.h"
 #include "public/CoInitRaiiHelper.h"
 #include "public/SoundAgentInterface.h"

@@ -66,10 +66,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="../../ApiClient/SodiumCrypt.h" />
     <ClInclude Include="AssemblyInformation.h" />
-    <ClInclude Include="../../ApiClient/AudioDeviceApiClient.h" />
-    <ClInclude Include="../../ApiClient/HttpRequestProcessor.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ServiceObserver.h" />
     <ClInclude Include="os-dependencies.h" />
@@ -77,9 +74,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CollectionFactoryImpl.cpp" />
-    <ClCompile Include="../../ApiClient/SodiumCrypt.cpp" />
-    <ClCompile Include="../../ApiClient/AudioDeviceApiClient.cpp" />
-    <ClCompile Include="../../ApiClient/HttpRequestProcessor.cpp" />
     <ClCompile Include="ServiceObserver.cpp" />
     <ClCompile Include="SoundAgentService.cpp" />
   </ItemGroup>
