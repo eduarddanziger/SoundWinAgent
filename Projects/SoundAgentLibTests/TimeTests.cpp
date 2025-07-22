@@ -5,7 +5,8 @@
 #include <fmt/chrono.h>
 
 #include "public/generate-uuid.h"
-#include "public/TimeUtil.h"
+
+#include "ApiClient/common/TimeUtil.h"
 
 using namespace std::literals;
 using namespace std::chrono;

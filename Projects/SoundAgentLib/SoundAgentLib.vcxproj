@@ -55,12 +55,12 @@
     <ClInclude Include="ApiClient\AudioDeviceApiClient.h" />
     <ClInclude Include="ApiClient\HttpRequestProcessor.h" />
     <ClInclude Include="ApiClient\SodiumCrypt.h" />
-    <ClInclude Include="public\ClassDefHelper.h" />
+    <ClInclude Include="ApiClient\common\ClassDefHelper.h" />
     <ClInclude Include="public\CoInitRaiiHelper.h" />
     <ClInclude Include="public\generate-uuid.h" />
     <ClInclude Include="public\SoundAgentInterface.h" />
-    <ClInclude Include="public\StringUtils.h" />
-    <ClInclude Include="public\TimeUtil.h" />
+    <ClInclude Include="ApiClient\common\StringUtils.h" />
+    <ClInclude Include="ApiClient\common\TimeUtil.h" />
     <ClInclude Include="SoundDevice.h" />
     <ClInclude Include="SoundDeviceCollection.h" />
     <ClInclude Include="MultipleNotificationClient.h" />
@@ -74,7 +74,7 @@
     <ClCompile Include="ApiClient\SodiumCrypt.cpp" />
     <ClCompile Include="SoundDevice.cpp" />
     <ClCompile Include="SoundDeviceCollection.cpp" />
-    <ClCompile Include="StringUtils.cpp" />
+    <ClCompile Include="ApiClient\common\StringUtils.cpp" />
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.targets" />
   <Target Name="RunUnitTests" />

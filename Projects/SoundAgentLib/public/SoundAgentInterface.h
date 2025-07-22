@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "ClassDefHelper.h"
+#include <ApiClient/common/ClassDefHelper.h>
 
 class SoundDeviceCollectionInterface;
 class DeviceCollectionObserver;

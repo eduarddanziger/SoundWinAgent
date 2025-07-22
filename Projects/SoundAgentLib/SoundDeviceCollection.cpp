@@ -6,7 +6,7 @@
 #include "SoundDevice.h"
 #include "Utilities.h"
 
-#include "public/StringUtils.h"
+#include "ApiClient/common/StringUtils.h"
 
 #include <iostream>
 #include <cstddef>

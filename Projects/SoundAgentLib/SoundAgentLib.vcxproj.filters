@@ -33,7 +33,7 @@
     <ClInclude Include="Utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="public\ClassDefHelper.h">
+    <ClInclude Include="ApiClient\common\ClassDefHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="public\CoInitRaiiHelper.h">
@@ -45,10 +45,10 @@
     <ClInclude Include="public\SoundAgentInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="public\StringUtils.h">
+    <ClInclude Include="ApiClient\common\StringUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="public\TimeUtil.h">
+    <ClInclude Include="ApiClient\common\TimeUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ApiClient\AudioDeviceApiClient.h">
@@ -62,7 +62,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="StringUtils.cpp">
+    <ClCompile Include="ApiClient\common\StringUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SoundDeviceCollection.cpp">
