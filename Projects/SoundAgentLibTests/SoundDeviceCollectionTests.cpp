@@ -56,7 +56,7 @@ public:
                 _CrtMemDumpAllObjectsSince(&sOld_);
                 _CrtDbgReportW(_CRT_WARN, __WFILE__, __LINE__, nullptr, L"\n----------- _CrtDumpMemoryLeaks ---------\n");
                 _CrtDumpMemoryLeaks();
-				Assert::IsTrue(false, L"Memory leak detected");
+                Assert::IsTrue(false, L"Memory leak detected");
             }
             else
             {
@@ -78,7 +78,7 @@ public:
         TEST_METHOD(ResetContentMemoryLeakTest)
         {
             SoundDeviceCollection devColl(false, nullptr);
-			devColl.ResetContent();
+            devColl.ResetContent();
         }
 #endif
     };

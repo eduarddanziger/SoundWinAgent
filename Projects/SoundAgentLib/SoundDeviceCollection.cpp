@@ -98,11 +98,11 @@ std::unique_ptr<SoundDeviceInterface> ed::audio::SoundDeviceCollection::CreateIt
 std::unique_ptr<SoundDeviceInterface> ed::audio::SoundDeviceCollection::CreateItem(
     const std::string & devicePnpId) const
 {
-	if (!pnpToDeviceMap_.contains(devicePnpId))
-	{
-		throw std::runtime_error("Device pnpId not found");
-	}
-	return std::make_unique<SoundDevice>(pnpToDeviceMap_.at(devicePnpId));
+    if (!pnpToDeviceMap_.contains(devicePnpId))
+    {
+        throw std::runtime_error("Device pnpId not found");
+    }
+    return std::make_unique<SoundDevice>(pnpToDeviceMap_.at(devicePnpId));
 }
 
 void ed::audio::SoundDeviceCollection::Subscribe(SoundDeviceObserverInterface & observer)
@@ -258,8 +258,8 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
         volume = static_cast<uint16_t>(lround(currVolume * 1000.0f));
         spdlog::info(R"(The end point device {}, id "{}", has a volume "{}".)", i, WString2StringTruncate(deviceId), volume);
     }
-	uint16_t renderVolume = 0;
-	uint16_t captureVolume = 0;
+    uint16_t renderVolume = 0;
+    uint16_t captureVolume = 0;
 
     switch (flow)
     {
@@ -273,7 +273,7 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
     case SoundDeviceFlowType::RenderAndCapture:
         break;
     }
-	device = SoundDevice(pnpGuid, name, flow, renderVolume, captureVolume);
+    device = SoundDevice(pnpGuid, name, flow, renderVolume, captureVolume);
     return true;
 }
 
@@ -326,7 +326,7 @@ ed::audio::SoundDevice ed::audio::SoundDeviceCollection::MergeDeviceWithExisting
     {
         auto flow = device.GetFlow();
         uint16_t renderVolume = device.GetCurrentRenderVolume();
-		uint16_t captureVolume = device.GetCurrentCaptureVolume();
+        uint16_t captureVolume = device.GetCurrentCaptureVolume();
 
         const auto & foundDev = foundPair->second;
         if (foundDev.GetFlow() != device.GetFlow())
@@ -351,7 +351,7 @@ ed::audio::SoundDevice ed::audio::SoundDeviceCollection::MergeDeviceWithExisting
 
         foundDevNameAsSet.insert(device.GetName());
         return {
-			device.GetPnpId(), Merge(foundDevNameAsSet, '/'), flow, renderVolume, captureVolume
+            device.GetPnpId(), Merge(foundDevNameAsSet, '/'), flow, renderVolume, captureVolume
         };
     }
     return device;
@@ -360,53 +360,53 @@ ed::audio::SoundDevice ed::audio::SoundDeviceCollection::MergeDeviceWithExisting
 // ReSharper disable once CppPassValueParameterByConstReference
 void ed::audio::SoundDeviceCollection::ProcessActiveDeviceList(ProcessDeviceFunctionT processDeviceFunc)
 {
-	HRESULT hr;
-	CComPtr<IMMDeviceCollection> deviceCollectionSmartPtr;
-	{
-		IMMDeviceCollection* deviceCollection = nullptr;
-		hr = enumerator_->EnumAudioEndpoints(
-			bothHeadsetAndMicro_ ? eAll : eRender, DEVICE_STATE_ACTIVE,
-			&deviceCollection);
-		if (FAILED(hr))
-		{
+    HRESULT hr;
+    CComPtr<IMMDeviceCollection> deviceCollectionSmartPtr;
+    {
+        IMMDeviceCollection* deviceCollection = nullptr;
+        hr = enumerator_->EnumAudioEndpoints(
+            bothHeadsetAndMicro_ ? eAll : eRender, DEVICE_STATE_ACTIVE,
+            &deviceCollection);
+        if (FAILED(hr))
+        {
             spdlog::warn("EnumAudioEndpoints failed");
-		    return;
-		}
+            return;
+        }
         spdlog::info("Audio devices enumerated.");
-	    deviceCollectionSmartPtr.Attach(deviceCollection);
-	}
-	UINT count = 0;
-	hr = deviceCollectionSmartPtr->GetCount(&count);
-	assert(SUCCEEDED(hr));
-	for (ULONG i = 0; i < count; i++)
-	{
-		SoundDevice device;
-		EndPointVolumeSmartPtr endPointVolumeSmartPtr;
-		bool isDeviceCreated;
-		std::wstring deviceId;
-		{
-			CComPtr<IMMDevice> endpointDeviceSmartPtr;
-			{
-				IMMDevice* pEndpointDevice = nullptr;
-				hr = deviceCollectionSmartPtr->Item(i, &pEndpointDevice);
-				if (FAILED(hr))
-				{
+        deviceCollectionSmartPtr.Attach(deviceCollection);
+    }
+    UINT count = 0;
+    hr = deviceCollectionSmartPtr->GetCount(&count);
+    assert(SUCCEEDED(hr));
+    for (ULONG i = 0; i < count; i++)
+    {
+        SoundDevice device;
+        EndPointVolumeSmartPtr endPointVolumeSmartPtr;
+        bool isDeviceCreated;
+        std::wstring deviceId;
+        {
+            CComPtr<IMMDevice> endpointDeviceSmartPtr;
+            {
+                IMMDevice* pEndpointDevice = nullptr;
+                hr = deviceCollectionSmartPtr->Item(i, &pEndpointDevice);
+                if (FAILED(hr))
+                {
                     spdlog::warn("Collection::Item failed.");
                     continue;
-				}
-				endpointDeviceSmartPtr.Attach(pEndpointDevice);
-			}
-			isDeviceCreated = TryCreateDeviceAndGetVolumeEndpoint(i, endpointDeviceSmartPtr, device, deviceId, endPointVolumeSmartPtr);
-		}
-		if (!isDeviceCreated)
-		{
-			continue;
-		}
-		if (!IsDeviceApplicable(device))
-		{
-			continue;
-		}
-		processDeviceFunc(this, deviceId, device, endPointVolumeSmartPtr);
+                }
+                endpointDeviceSmartPtr.Attach(pEndpointDevice);
+            }
+            isDeviceCreated = TryCreateDeviceAndGetVolumeEndpoint(i, endpointDeviceSmartPtr, device, deviceId, endPointVolumeSmartPtr);
+        }
+        if (!isDeviceCreated)
+        {
+            continue;
+        }
+        if (!IsDeviceApplicable(device))
+        {
+            continue;
+        }
+        processDeviceFunc(this, deviceId, device, endPointVolumeSmartPtr);
         spdlog::info(R"(End point {} with plug-and-play id {} processed.)", i, device.GetPnpId());
     }
 }
@@ -539,7 +539,7 @@ bool ed::audio::SoundDeviceCollection::CheckRemovalAndUnmergeDeviceFromExistingO
     const SoundDevice & device, SoundDevice & unmergedDev) const
 {
     unmergedDev = {
-		device.GetPnpId(), device.GetName(), SoundDeviceFlowType::None, device.GetCurrentRenderVolume(), device.GetCurrentCaptureVolume()
+        device.GetPnpId(), device.GetName(), SoundDeviceFlowType::None, device.GetCurrentRenderVolume(), device.GetCurrentCaptureVolume()
     };
 
     if
@@ -566,7 +566,7 @@ bool ed::audio::SoundDeviceCollection::CheckRemovalAndUnmergeDeviceFromExistingO
         )
         {
             uint16_t renderVolume = foundDev.GetCurrentRenderVolume();
-			uint16_t captureVolume = foundDev.GetCurrentCaptureVolume();
+            uint16_t captureVolume = foundDev.GetCurrentCaptureVolume();
 
             switch (flow)
             {
@@ -593,7 +593,7 @@ bool ed::audio::SoundDeviceCollection::CheckRemovalAndUnmergeDeviceFromExistingO
                     break;
                 }
             }
-			unmergedDev = { device.GetPnpId(), name, flow, renderVolume, captureVolume };
+            unmergedDev = { device.GetPnpId(), name, flow, renderVolume, captureVolume };
             return true;
         }
     }

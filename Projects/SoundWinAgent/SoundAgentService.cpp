@@ -47,7 +47,7 @@ protected:
             return EXIT_OK;
         }
         catch (const Poco::Exception& ex) {
-			spdlog::error(ex.displayText());
+            spdlog::error(ex.displayText());
             return EXIT_SOFTWARE;
         }
     }
@@ -76,7 +76,7 @@ protected:
             throw;
         }
 
-		return returnValue;
+        return returnValue;
     }
 
     static void SetUpLog()
@@ -107,9 +107,9 @@ protected:
         ServerApplication::initialize(self);
 
         if (helpRequested_)
-		{
-			return;
-		}
+        {
+            return;
+        }
 
         SetUpLog();
 
@@ -120,9 +120,9 @@ protected:
        
         apiBaseUrl_ += "/api/AudioDevices";
 
-		universalToken_ = ReadStringConfigProperty(UNIVERSAL_TOKEN_PROPERTY_KEY);
+        universalToken_ = ReadStringConfigProperty(UNIVERSAL_TOKEN_PROPERTY_KEY);
 
-		codeSpaceName_ = ReadStringConfigProperty(CODESPACE_NAME_PROPERTY_KEY);
+        codeSpaceName_ = ReadStringConfigProperty(CODESPACE_NAME_PROPERTY_KEY);
 
         setUnixOptions(false);  // Force Windows service behavior
     }
@@ -177,8 +177,8 @@ protected:
     }
 
 private:
-	std::string apiBaseUrl_;
-	std::string universalToken_;
+    std::string apiBaseUrl_;
+    std::string universalToken_;
     std::string codeSpaceName_;
 
     bool helpRequested_ = false;
@@ -200,7 +200,7 @@ int _tmain(int argc, _TCHAR * argv[])
 
     ed::CoInitRaiiHelper coInitHelper;
 
-	// Transform Unicode command line arguments to UTF-8
+    // Transform Unicode command line arguments to UTF-8
     std::vector<std::string> args;
     std::vector<char*> charPointers;
 

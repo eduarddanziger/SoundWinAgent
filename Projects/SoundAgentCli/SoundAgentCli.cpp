@@ -79,7 +79,7 @@ public:
             << ", \"" << device->GetName()
             << "\", " << device->GetFlow() // magic to string
             << ", Volume " << device->GetCurrentRenderVolume()
-			<< " / " << device->GetCurrentCaptureVolume()
+            << " / " << device->GetCurrentCaptureVolume()
             << '\n';
     }
 
@@ -119,24 +119,24 @@ private:
 
 namespace
 {
-	bool StopAndWaitForInput()
-	{
-		for (;;)
-		{
-			std::string line;
-			std::getline(std::cin, line);
-			if (line == "S" || line == "s" || line == "Q" || line == "q")
-			{
-				return false;
-			}
-			if (line.empty())
-			{
-				return true;
-			}
+    bool StopAndWaitForInput()
+    {
+        for (;;)
+        {
+            std::string line;
+            std::getline(std::cin, line);
+            if (line == "S" || line == "s" || line == "Q" || line == "q")
+            {
+                return false;
+            }
+            if (line.empty())
+            {
+                return true;
+            }
 
-			std::cout << '\n' << CurrentLocalTimeAsStringShort << "Input " << line << " not recognized.\n";
-		}
-	}
+            std::cout << '\n' << CurrentLocalTimeAsStringShort << "Input " << line << " not recognized.\n";
+        }
+    }
 }
 
 int _tmain(int argc, _TCHAR * argv[])
@@ -149,7 +149,7 @@ int _tmain(int argc, _TCHAR * argv[])
 
     ed::CoInitRaiiHelper coInitHelper;
 
-	const auto coll(SoundAgent::CreateDeviceCollection());
+    const auto coll(SoundAgent::CreateDeviceCollection());
 
     ServiceObserver o(*coll);
     coll->Subscribe(o);
