@@ -11,6 +11,15 @@ Released on $date$
 ~~~
 
 ## Changes
+- ...
+
+3.2.5
+--------
+~~~
+Released on 23.07.2025
+~~~
+
+## Changes
 - Operation system name included into the Rest API
 - Discovery, Confirm, and Sound Volume messages
 - Latest spdog etc. via vcpkg
