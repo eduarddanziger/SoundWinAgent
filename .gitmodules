@@ -2,3 +2,7 @@
 	path = msbuildLibCpp
 	url = https://github.com/eduarddanziger/msbuildLibCpp.git
 	branch = main
+[submodule "Projects/SoundAgentLib/ApiClient"]
+	path = Projects/SoundAgentLib/ApiClient
+	url = https://github.com/eduarddanziger/SoundAgentLib.git
+	branch = main

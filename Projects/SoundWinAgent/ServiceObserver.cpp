@@ -1,21 +1,20 @@
 ﻿#include "os-dependencies.h"
 
-#include "SpdLogger.h"
-
 #include "ServiceObserver.h"
 
-#include "AudioDeviceApiClient.h"
-#include "HttpRequestProcessor.h"
+#include "ApiClient/AudioDeviceApiClient.h"
+#include "ApiClient/HttpRequestProcessor.h"
 
 #include <magic_enum/magic_enum.hpp>
 
-#include "public/StringUtils.h"
+#include <spdlog/spdlog.h>
 #include <winternl.h>
+#include <cpprest/asyncrt_utils.h>
 
 ServiceObserver::ServiceObserver(SoundDeviceCollectionInterface& collection,
-    std::string apiBaseUrl,
-    std::string universalToken,
-    std::string codeSpaceName)
+                                 std::string apiBaseUrl,
+                                 std::string universalToken,
+                                 std::string codeSpaceName)
     : collection_(collection)
     , apiBaseUrl_(std::move(apiBaseUrl))
     , universalToken_(std::move(universalToken))
@@ -53,7 +52,7 @@ void ServiceObserver::PostAndPrintCollection() const
         }
         else
         {
-            SPD_L->info("No API base URL configured. Skipping API call.");
+            spdlog::info("No API base URL configured. Skipping API call.");
         }
     }
     spdlog::info("...Processing device collection finished.");
@@ -81,7 +80,7 @@ void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std:
     }
     else
 	{
-		SPD_L->warn("Unexpected event type: {}", static_cast<int>(event));
+        spdlog::warn("Unexpected event type: {}", static_cast<int>(event));
 	}
 
 }

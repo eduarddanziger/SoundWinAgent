@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
-#include "public/TimeUtil.h"
+#include "ApiClient/common/TimeUtil.h"
+
 #include "public/CoInitRaiiHelper.h"
 #include "public/SoundAgentInterface.h"
 
@@ -9,7 +10,7 @@
 #include <tchar.h>
 #include <magic_enum/magic_enum_iostream.hpp>
 
-#include <SpdLogger.h>
+#include "ApiClient/common/SpdLogger.h"
 
 
 namespace
@@ -47,21 +48,19 @@ public:
         try
         {
             if (std::filesystem::path logFile;
-                ed::utility::AppPath::GetAndValidateLogFileInProgramData(
+                ed::utility::AppPath::GetAndValidateLogFilePathName(
                     logFile, RESOURCE_FILENAME_ATTRIBUTE)
                 )
             {
-                ed::model::Logger::Inst().SetPathName(logFile).Init();
+                ed::model::Logger::Inst().SetPathName(logFile);
             }
             else
             {
-                ed::model::Logger::Inst().Init();
                 spdlog::warn("Log file can not be written.");
             }
         }
         catch (const std::exception& ex)
         {
-            ed::model::Logger::Inst().Init();
             spdlog::warn("Logging set-up partially done; Log file can not be used: {}.", ex.what());
         }
     }
@@ -80,7 +79,7 @@ public:
             << ", \"" << device->GetName()
             << "\", " << device->GetFlow() // magic to string
             << ", Volume " << device->GetCurrentRenderVolume()
-			<< " / " << device->GetCurrentCaptureVolume()
+            << " / " << device->GetCurrentCaptureVolume()
             << '\n';
     }
 
@@ -120,24 +119,24 @@ private:
 
 namespace
 {
-	bool StopAndWaitForInput()
-	{
-		for (;;)
-		{
-			std::string line;
-			std::getline(std::cin, line);
-			if (line == "S" || line == "s" || line == "Q" || line == "q")
-			{
-				return false;
-			}
-			if (line.empty())
-			{
-				return true;
-			}
+    bool StopAndWaitForInput()
+    {
+        for (;;)
+        {
+            std::string line;
+            std::getline(std::cin, line);
+            if (line == "S" || line == "s" || line == "Q" || line == "q")
+            {
+                return false;
+            }
+            if (line.empty())
+            {
+                return true;
+            }
 
-			std::cout << '\n' << CurrentLocalTimeAsStringShort << "Input " << line << " not recognized.\n";
-		}
-	}
+            std::cout << '\n' << CurrentLocalTimeAsStringShort << "Input " << line << " not recognized.\n";
+        }
+    }
 }
 
 int _tmain(int argc, _TCHAR * argv[])
@@ -148,15 +147,10 @@ int _tmain(int argc, _TCHAR * argv[])
     _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);
     _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
 
-    bool bothHeadsetAndMicro = true;
-    if (argc > 1)
-    {
-        bothHeadsetAndMicro = argv[1][0] != L'0';
-    }
-
-
     ed::CoInitRaiiHelper coInitHelper;
-    const auto coll(SoundAgent::CreateDeviceCollection(bothHeadsetAndMicro));
+
+    const auto coll(SoundAgent::CreateDeviceCollection());
+
     ServiceObserver o(*coll);
     coll->Subscribe(o);
 

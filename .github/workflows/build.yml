@@ -71,15 +71,6 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1
 
-    - name: Add GitHub Packages NuGet source
-      shell: pwsh
-      run: |
-        dotnet nuget add source https://nuget.pkg.github.com/eduarddanziger/index.json `
-          --name github `
-          --username eduarddanziger `
-          --password ${{ secrets.NUGET_AUTH_TOKEN }} `
-          --store-password-in-clear-text
-
     - name: Restore NuGets
       run: nuget restore SoundWinAgent.sln
 

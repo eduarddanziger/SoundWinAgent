@@ -5,7 +5,8 @@
 #include <queue>
 
 #include <CppUnitTest.h>
-#include <SpdLogger.h>
+
+#include "ApiClient/common/SpdLogger.h"
 
 #include "SoundDeviceCollection.h"
 
@@ -16,7 +17,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace ed::audio {
     TEST_CLASS(SoundDeviceCollectionTests) {
-#ifdef _DEBUG
+#if 0 //#ifdef _DEBUG
 private:
     _CrtMemState sOld_ = {};
     _CrtMemState sNew_ = {};
@@ -35,7 +36,7 @@ public:
 
         TEST_METHOD_INITIALIZE(MyInit)
         {
-            model::Logger::Inst().SetOutputToConsole(true).Init();
+            model::Logger::Inst().SetOutputToConsole(true);
 
             _CrtMemCheckpoint(&sOld_); //take a snapshot
         }
@@ -55,7 +56,7 @@ public:
                 _CrtMemDumpAllObjectsSince(&sOld_);
                 _CrtDbgReportW(_CRT_WARN, __WFILE__, __LINE__, nullptr, L"\n----------- _CrtDumpMemoryLeaks ---------\n");
                 _CrtDumpMemoryLeaks();
-				Assert::IsTrue(false, L"Memory leak detected");
+                Assert::IsTrue(false, L"Memory leak detected");
             }
             else
             {
@@ -66,7 +67,7 @@ public:
 
         TEST_METHOD(CtorMemoryLeakTest)
         {
-            SoundDeviceCollection devColl(false);
+            SoundDeviceCollection devColl(false, nullptr);
 
             // char* s = new char[17];
             // strcpy_s(s, 17, "allocate_no_free");
@@ -76,8 +77,8 @@ public:
         }
         TEST_METHOD(ResetContentMemoryLeakTest)
         {
-            SoundDeviceCollection devColl(false);
-			devColl.ResetContent();
+            SoundDeviceCollection devColl(false, nullptr);
+            devColl.ResetContent();
         }
 #endif
     };

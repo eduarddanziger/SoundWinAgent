@@ -1,8 +1,8 @@
 #include "os-dependencies.h"
 
-#include "SpdLogger.h"
+#include "ApiClient/common/SpdLogger.h"
 
-#include "SodiumCrypt.h"
+#include "ApiClient/SodiumCrypt.h"
 #include "ServiceObserver.h"
 #include "public/CoInitRaiiHelper.h"
 #include "public/SoundAgentInterface.h"
@@ -16,6 +16,7 @@
 #include <Poco/Util/ServerApplication.h>
 #include <Poco/UnicodeConverter.h>
 #include <Poco/Util/HelpFormatter.h>
+#include <spdlog/spdlog.h>
 
 
 class AudioDeviceService final : public Poco::Util::ServerApplication {
@@ -29,7 +30,8 @@ protected:
         try {
             spdlog::info("Starting Sound Agent...");
 
-            const auto coll(SoundAgent::CreateDeviceCollection(true));
+            const auto coll(SoundAgent::CreateDeviceCollection());
+
             ServiceObserver serviceObserver(*coll, apiBaseUrl_, universalToken_, codeSpaceName_);
             coll->Subscribe(serviceObserver);
 
@@ -45,7 +47,7 @@ protected:
             return EXIT_OK;
         }
         catch (const Poco::Exception& ex) {
-			spdlog::error(ex.displayText());
+            spdlog::error(ex.displayText());
             return EXIT_SOFTWARE;
         }
     }
@@ -74,7 +76,7 @@ protected:
             throw;
         }
 
-		return returnValue;
+        return returnValue;
     }
 
     static void SetUpLog()
@@ -83,21 +85,19 @@ protected:
         try
         {
             if (std::filesystem::path logFile;
-                ed::utility::AppPath::GetAndValidateLogFileInProgramData(
+                ed::utility::AppPath::GetAndValidateLogFilePathName(
                     logFile, RESOURCE_FILENAME_ATTRIBUTE)
             )
             {
-                ed::model::Logger::Inst().SetPathName(logFile).Init();
+                ed::model::Logger::Inst().SetPathName(logFile);
             }
             else
             {
-                ed::model::Logger::Inst().Init();
                 spdlog::warn("Log file can not be written.");
             }
         }
         catch (const std::exception& ex)
         {
-            ed::model::Logger::Inst().Init();
             spdlog::warn("Logging set-up partially done; Log file can not be used: {}.", ex.what());
         }
     }
@@ -107,9 +107,9 @@ protected:
         ServerApplication::initialize(self);
 
         if (helpRequested_)
-		{
-			return;
-		}
+        {
+            return;
+        }
 
         SetUpLog();
 
@@ -120,9 +120,9 @@ protected:
        
         apiBaseUrl_ += "/api/AudioDevices";
 
-		universalToken_ = ReadStringConfigProperty(UNIVERSAL_TOKEN_PROPERTY_KEY);
+        universalToken_ = ReadStringConfigProperty(UNIVERSAL_TOKEN_PROPERTY_KEY);
 
-		codeSpaceName_ = ReadStringConfigProperty(CODESPACE_NAME_PROPERTY_KEY);
+        codeSpaceName_ = ReadStringConfigProperty(CODESPACE_NAME_PROPERTY_KEY);
 
         setUnixOptions(false);  // Force Windows service behavior
     }
@@ -177,8 +177,8 @@ protected:
     }
 
 private:
-	std::string apiBaseUrl_;
-	std::string universalToken_;
+    std::string apiBaseUrl_;
+    std::string universalToken_;
     std::string codeSpaceName_;
 
     bool helpRequested_ = false;
@@ -200,7 +200,7 @@ int _tmain(int argc, _TCHAR * argv[])
 
     ed::CoInitRaiiHelper coInitHelper;
 
-	// Transform Unicode command line arguments to UTF-8
+    // Transform Unicode command line arguments to UTF-8
     std::vector<std::string> args;
     std::vector<char*> charPointers;
 

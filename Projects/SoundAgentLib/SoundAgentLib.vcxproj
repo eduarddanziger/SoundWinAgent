@@ -28,7 +28,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)DeviceGeneric\CIMGeneric\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <!-- Enable release-version debugging (optimization off, etc.) -->
@@ -52,12 +52,19 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="public\ClassDefHelper.h" />
+    <ClInclude Include="ApiClient\AudioDeviceApiClient.h" />
+    <ClInclude Include="ApiClient\common\SpdLogger.h" />
+    <ClInclude Include="ApiClient\common\SpdLogger\AppPath.h" />
+    <ClInclude Include="ApiClient\common\SpdLogger\LogBuffer.h" />
+    <ClInclude Include="ApiClient\common\SpdLogger\Logger.h" />
+    <ClInclude Include="ApiClient\HttpRequestProcessor.h" />
+    <ClInclude Include="ApiClient\SodiumCrypt.h" />
+    <ClInclude Include="ApiClient\common\ClassDefHelper.h" />
     <ClInclude Include="public\CoInitRaiiHelper.h" />
     <ClInclude Include="public\generate-uuid.h" />
     <ClInclude Include="public\SoundAgentInterface.h" />
-    <ClInclude Include="public\StringUtils.h" />
-    <ClInclude Include="public\TimeUtil.h" />
+    <ClInclude Include="ApiClient\common\StringUtils.h" />
+    <ClInclude Include="ApiClient\common\TimeUtil.h" />
     <ClInclude Include="SoundDevice.h" />
     <ClInclude Include="SoundDeviceCollection.h" />
     <ClInclude Include="MultipleNotificationClient.h" />
@@ -66,10 +73,15 @@
     <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SoundAgent.cpp" />
+    <ClCompile Include="ApiClient\AudioDeviceApiClient.cpp" />
+    <ClCompile Include="ApiClient\HttpRequestProcessor.cpp" />
+    <ClCompile Include="ApiClient\SodiumCrypt.cpp" />
     <ClCompile Include="SoundDevice.cpp" />
     <ClCompile Include="SoundDeviceCollection.cpp" />
-    <ClCompile Include="StringUtils.cpp" />
+    <ClCompile Include="ApiClient\common\StringUtils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ApiClient\README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.targets" />
   <Target Name="RunUnitTests" />

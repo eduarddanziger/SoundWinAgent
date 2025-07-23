@@ -12,24 +12,26 @@ using namespace std::literals::string_literals;
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 
-namespace ed::audio {
-TEST_CLASS(SoundAgentLibTests) {
-    // TEST_METHOD(CollectionEmpty)
-    // {
-    //     SoundAgent ac;
-    //     const std::unique_ptr<SoundDeviceCollectionInterface> coll(ac.CreateDeviceCollection(L"Nothing At All"));
-    //     Assert::IsTrue(coll->GetSize() == 0);
-    // }
-
-    TEST_METHOD(DeviceCtorTest)
+namespace ed::audio
+{
+    TEST_CLASS(SoundAgentLibTests)
     {
-        const auto nameExpected = "name01"s;
-        const auto pnpIdExpected = generate_uuid();
+        // TEST_METHOD(CollectionEmpty)
+        // {
+        //     SoundAgent ac;
+        //     const std::unique_ptr<SoundDeviceCollectionInterface> coll(ac.CreateDeviceCollection(L"Nothing At All"));
+        //     Assert::IsTrue(coll->GetSize() == 0);
+        // }
 
-        const SoundDevice dv(pnpIdExpected, nameExpected, SoundDeviceFlowType::Capture, 0, 200);
+        TEST_METHOD(DeviceCtorTest)
+        {
+            const auto nameExpected = "name01"s;
+            const auto pnpIdExpected = generate_uuid();
 
-        Assert::AreEqual(nameExpected, dv.GetName());
-        Assert::AreEqual(pnpIdExpected, dv.GetPnpId());
-    }
-};
+            const SoundDevice dv(pnpIdExpected, nameExpected, SoundDeviceFlowType::Capture, 0, 200);
+
+            Assert::AreEqual(nameExpected, dv.GetName());
+            Assert::AreEqual(pnpIdExpected, dv.GetPnpId());
+        }
+    };
 }

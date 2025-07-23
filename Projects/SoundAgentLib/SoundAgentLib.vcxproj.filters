@@ -33,7 +33,7 @@
     <ClInclude Include="Utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="public\ClassDefHelper.h">
+    <ClInclude Include="ApiClient\common\ClassDefHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="public\CoInitRaiiHelper.h">
@@ -45,15 +45,36 @@
     <ClInclude Include="public\SoundAgentInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="public\StringUtils.h">
+    <ClInclude Include="ApiClient\common\StringUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="public\TimeUtil.h">
+    <ClInclude Include="ApiClient\common\TimeUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ApiClient\AudioDeviceApiClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ApiClient\HttpRequestProcessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ApiClient\SodiumCrypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ApiClient\common\SpdLogger\AppPath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ApiClient\common\SpdLogger\LogBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ApiClient\common\SpdLogger\Logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ApiClient\common\SpdLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="StringUtils.cpp">
+    <ClCompile Include="ApiClient\common\StringUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SoundDeviceCollection.cpp">
@@ -62,8 +83,17 @@
     <ClCompile Include="SoundDevice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SoundAgent.cpp">
+    <ClCompile Include="ApiClient\AudioDeviceApiClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ApiClient\HttpRequestProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ApiClient\SodiumCrypt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ApiClient\README.md" />
   </ItemGroup>
 </Project>

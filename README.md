@@ -28,13 +28,13 @@ SoundWinAgent.exe /url=http://localhost:5027
 6. SoundWinAgent.exe /help brings a command line help screen with all available options.
 
 ## How to Build
-1. Install Visual Studio 2022, download [Nuget.exe](https://dist.nuget.org/win-x86-commandline/latest/nuget.exe) and set a NuGet environment variable to the path of the NuGet executable.
-3. Go to the repository [commonLibsCpp](https://github.com/eduarddanziger/commonLibsCpp/) and download both NuGets from the latest release's assets
-4. Add to NuGet sources the local path to the downloaded NuGet packages, e.g.:
-	- `nuget sources add -name localSource -source <path to the downloaded NuGet packages>`
-4. Build the solution, e.g. if you use Visual Studio Community Edition
-	- %NuGet% restore SoundAgent.sln
-	- "c:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin\MSBuild.exe" SoundWinAgent.sln /p:Configuration=Release /target:Rebuild -restore
+1. Install Visual Studio 2022
+2. download [Nuget.exe](https://dist.nuget.org/win-x86-commandline/latest/nuget.exe) and set a NuGet environment variable to the path of the NuGet executable.
+3. Build the solution, e.g. if you use Visual Studio Community Edition:
+```powershell
+%NuGet% restore SoundWinAgent.sln
+"c:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin\MSBuild.exe" SoundWinAgent.sln /p:Configuration=Release /target:Rebuild -restore
+```
 
 ## License
 

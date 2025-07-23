@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "ClassDefHelper.h"
+#include <ApiClient/common/ClassDefHelper.h>
 
 class SoundDeviceCollectionInterface;
 class DeviceCollectionObserver;
@@ -28,8 +28,7 @@ enum class SoundDeviceFlowType : uint8_t {
 
 class SoundAgent final {
 public:
-    static std::unique_ptr<SoundDeviceCollectionInterface> CreateDeviceCollection(
-        bool bothHeadsetAndMicro = false);
+    static std::unique_ptr<SoundDeviceCollectionInterface> CreateDeviceCollection();
 
     DISALLOW_COPY_MOVE(SoundAgent);
     SoundAgent() = delete;
@@ -41,6 +40,9 @@ public:
     virtual size_t GetSize() const = 0;
     virtual std::unique_ptr<SoundDeviceInterface> CreateItem(size_t deviceNumber) const = 0;
     virtual std::unique_ptr<SoundDeviceInterface> CreateItem(const std::string& devicePnpId) const = 0;
+
+    virtual void ActivateAndStartLoop() = 0;
+    virtual void DeactivateAndStopLoop() = 0;
 
     virtual void Subscribe(SoundDeviceObserverInterface & observer) = 0;
     virtual void Unsubscribe(SoundDeviceObserverInterface & observer) = 0;
