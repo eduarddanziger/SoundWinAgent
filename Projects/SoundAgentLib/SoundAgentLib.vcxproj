@@ -80,6 +80,9 @@
     <ClCompile Include="SoundDeviceCollection.cpp" />
     <ClCompile Include="ApiClient\common\StringUtils.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ApiClient\README.md" />
+  </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.targets" />
   <Target Name="RunUnitTests" />
 </Project>

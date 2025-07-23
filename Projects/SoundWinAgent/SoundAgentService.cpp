@@ -85,7 +85,7 @@ protected:
         try
         {
             if (std::filesystem::path logFile;
-                ed::utility::AppPath::GetAndValidateLogFileInProgramData(
+                ed::utility::AppPath::GetAndValidateLogFilePathName(
                     logFile, RESOURCE_FILENAME_ATTRIBUTE)
             )
             {
