@@ -1,8 +1,8 @@
 # Sound Windows Agent
 
-Sound Agent detects and visualizes plug-and-play audio endpoint devices under Windows. It handles audio notifications and device changes.
+Sound Agent detects and outputs plug-and-play audio endpoint devices under Windows. It handles audio notifications and device changes.
 
-The Sound Agent Service collects audio device information and sends it to a remote backend ASP.Net Core REST API Server (Audio Device Repository Service)
+The Sound Agent registers audio device information on a backend server via REST API, see the backend Audio Device Repository Server (ASP.Net Core) [audio-device-repo-server](https://github.com/eduarddanziger/audio-device-repo-server/) with a React / TypeScript frontend: [list-audio-react-app](https://github.com/eduarddanziger/list-audio-react-app/)
 
 ## Executables Generated
 - **SoundWinAgent**: Windows Service collects audio device information and sends it to a remote server.
