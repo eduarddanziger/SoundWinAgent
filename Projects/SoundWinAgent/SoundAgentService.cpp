@@ -79,6 +79,11 @@ protected:
         return returnValue;
     }
 
+    static void FreeLog()
+    {
+        ed::model::Logger::Inst().Free();
+    }
+
     static void SetUpLog()
     {
         ed::model::Logger::Inst().SetOutputToConsole(true);
@@ -102,7 +107,8 @@ protected:
         }
     }
 
-    void initialize(Application& self) override {
+    void initialize(Application& self) override
+	{
         loadConfiguration();
         ServerApplication::initialize(self);
 
@@ -125,6 +131,12 @@ protected:
         codeSpaceName_ = ReadStringConfigProperty(CODESPACE_NAME_PROPERTY_KEY);
 
         setUnixOptions(false);  // Force Windows service behavior
+    }
+
+    void uninitialize() override
+	{
+        FreeLog();
+        ServerApplication::uninitialize();
     }
 
     void defineOptions(Poco::Util::OptionSet& options) override
