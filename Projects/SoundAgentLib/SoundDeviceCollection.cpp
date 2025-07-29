@@ -105,6 +105,16 @@ std::unique_ptr<SoundDeviceInterface> ed::audio::SoundDeviceCollection::CreateIt
     return std::make_unique<SoundDevice>(pnpToDeviceMap_.at(devicePnpId));
 }
 
+std::optional<std::string> ed::audio::SoundDeviceCollection::GetDefaultRenderDevicePnpId() const
+{
+    return std::nullopt;  // Not implemented yet
+}
+
+std::optional<std::string> ed::audio::SoundDeviceCollection::GetDefaultCaptureDevicePnpId() const
+{
+    return std::nullopt;  // Not implemented yet
+}
+
 void ed::audio::SoundDeviceCollection::Subscribe(SoundDeviceObserverInterface & observer)
 {
     observers_.insert(&observer);
@@ -653,9 +663,12 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceOnId(
     // Retrieve the device using the device ID
     {
         IMMDevice* devicePtr = nullptr;
-        const auto hr = enumerator_->GetDevice(deviceId, &devicePtr);
-        if (FAILED(hr)) {
-            return false; // Return false on failure
+        if (
+            const auto hr = enumerator_->GetDevice(deviceId, &devicePtr)
+            ; FAILED(hr)
+        )
+        {
+            return false;
         }
         deviceSmartPtr.Attach(devicePtr);
     }

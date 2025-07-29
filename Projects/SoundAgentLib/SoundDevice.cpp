@@ -98,3 +98,13 @@ void ed::audio::SoundDevice::SetCurrentCaptureVolume(uint16_t volume)
 {
     captureVolume_ = volume;
 }
+
+bool ed::audio::SoundDevice::IsCaptureCurrentlyDefault() const
+{
+    return false;
+}
+
+bool ed::audio::SoundDevice::IsRenderCurrentlyDefault() const
+{
+    return false;
+}

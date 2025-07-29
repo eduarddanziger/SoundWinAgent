@@ -34,6 +34,9 @@ public:
     [[nodiscard]] std::unique_ptr<SoundDeviceInterface> CreateItem(size_t deviceNumber) const override;
     [[nodiscard]] std::unique_ptr<SoundDeviceInterface> CreateItem(const std::string& devicePnpId) const override;
 
+    [[nodiscard]] std::optional<std::string> GetDefaultRenderDevicePnpId() const override;
+    [[nodiscard]] std::optional<std::string> GetDefaultCaptureDevicePnpId() const override;
+
     void Subscribe(SoundDeviceObserverInterface & observer) override;
     void Unsubscribe(SoundDeviceObserverInterface & observer) override;
 

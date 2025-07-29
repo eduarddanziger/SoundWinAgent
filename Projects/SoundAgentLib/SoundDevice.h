@@ -25,6 +25,8 @@ public:
     [[nodiscard]] uint16_t GetCurrentCaptureVolume() const override; // 0 to 1000
     void SetCurrentRenderVolume(uint16_t volume); // 0 to 1000
     void SetCurrentCaptureVolume(uint16_t volume); // 0 to 1000
+    [[nodiscard]] bool IsCaptureCurrentlyDefault() const override;
+    [[nodiscard]] bool IsRenderCurrentlyDefault() const override;
 
 private:
     std::string pnpId_;
