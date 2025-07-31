@@ -11,7 +11,7 @@ public:
 
 public:
     SoundDevice();
-    SoundDevice(std::string pnpId, std::string name, SoundDeviceFlowType flow, uint16_t renderVolume, uint16_t captureVolume);
+    SoundDevice(std::string pnpId, std::string name, SoundDeviceFlowType flow, uint16_t renderVolume, uint16_t captureVolume, bool renderIsDefault, bool captureIsDefault);
     SoundDevice(const SoundDevice & toCopy);
     SoundDevice(SoundDevice && toMove) noexcept;
     SoundDevice & operator=(const SoundDevice & toCopy);
@@ -27,6 +27,8 @@ public:
     void SetCurrentCaptureVolume(uint16_t volume); // 0 to 1000
     [[nodiscard]] bool IsCaptureCurrentlyDefault() const override;
     [[nodiscard]] bool IsRenderCurrentlyDefault() const override;
+    void SetCaptureCurrentlyDefault(bool value);
+    void SetRenderCurrentlyDefault(bool value);
 
 private:
     std::string pnpId_;
@@ -34,5 +36,8 @@ private:
     SoundDeviceFlowType flow_;
     uint16_t renderVolume_; // 0 to 1000
     uint16_t captureVolume_; // 0 to 1000
+    bool renderIsDefault_ = false;
+    bool captureIsDefault_ = false;
+public:
 };
 }

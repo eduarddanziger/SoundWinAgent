@@ -127,7 +127,6 @@ void ed::audio::SoundDeviceCollection::Unsubscribe(SoundDeviceObserverInterface 
 
 
 bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
-    ULONG i,
     CComPtr<IMMDevice> deviceEndpointSmartPtr,  // NOLINT(performance-unnecessary-value-param)
     SoundDevice & device,
     std::wstring & deviceId,
@@ -143,7 +142,7 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
             return false;
         }
         deviceId = deviceIdPtr;
-        spdlog::info(R"(Id of the current point device {} is "{}".)", i, WString2StringTruncate(deviceId));
+        spdlog::info(R"(Id of the current device is "{}".)", WString2StringTruncate(deviceId));
         CoTaskMemFree(deviceIdPtr);
     }
     // Get flow direction via IMMEndpoint
@@ -161,7 +160,7 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
             return false;
         }
         flow = ConvertFromLowLevelFlow(lowLevelFlow);
-        spdlog::info(R"(The end point device {}, id "{}", has a data flow "{}".)", i, WString2StringTruncate(deviceId),
+        spdlog::info(R"(The end point device "{}", has a data flow "{}".)", WString2StringTruncate(deviceId),
                      magic_enum::enum_name(flow));
     }
     // Read device PnP Class id property
@@ -184,17 +183,15 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
             if (propVarForName.vt == VT_LPWSTR)
             {
                 name = Utf16ToUtf8(propVarForName.pwszVal);
-                spdlog::info(R"(The end point device {}, id "{}", got a name "{}".)",
-                             i, WString2StringTruncate(deviceId), name);
+                spdlog::info(R"(The end point device "{}" got a name "{}".)",
+                             WString2StringTruncate(deviceId), name);
             }
             else
             {
-                std::stringstream os;
-                os << "UnknownDeviceName" << i;
-                name = os.str();
+                name = "UnknownDeviceName";
                 spdlog::warn(
-                    R"(The end point device {}, id "{}", has no friendly name not of expected type VT_LPWSTR. Assigning "{}".)",
-                    i, WString2StringTruncate(deviceId), name);
+                    R"(The end point device "{}" has no friendly name not of expected type VT_LPWSTR. Assigning "{}".)",
+                    WString2StringTruncate(deviceId), name);
             }
             // ReSharper disable once CppFunctionResultShouldBeUsed
             PropVariantClear(&propVarForName);
@@ -226,8 +223,8 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
                     }
                 }
             }
-            spdlog::info(R"(The end point device {}, id "{}", got a PnPid name "{}".)",
-                i, WString2StringTruncate(deviceId), pnpGuid);
+            spdlog::info(R"(The end point device "{}", got a PnP id "{}".)",
+                WString2StringTruncate(deviceId), pnpGuid);
 
                 // ReSharper disable once CppFunctionResultShouldBeUsed
             PropVariantClear(&propVarForGuid);
@@ -251,7 +248,7 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
     }
     // Check mute and possibly correct volume
     if (outVolumeEndpoint == nullptr) {
-        spdlog::warn(R"(The end point device {}, id "{}", has no volume property.)", i, WString2StringTruncate(deviceId));
+        spdlog::warn(R"(The end point device "{}" has no volume property.)", WString2StringTruncate(deviceId));
         return false;
     }
     BOOL mute;
@@ -266,7 +263,7 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
             return false;
         }
         volume = static_cast<uint16_t>(lround(currVolume * 1000.0f));
-        spdlog::info(R"(The end point device {}, id "{}", has a volume "{}".)", i, WString2StringTruncate(deviceId), volume);
+        spdlog::info(R"(The end point device "{}" has a volume "{}".)", WString2StringTruncate(deviceId), volume);
     }
     uint16_t renderVolume = 0;
     uint16_t captureVolume = 0;
@@ -283,7 +280,7 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
     case SoundDeviceFlowType::RenderAndCapture:
         break;
     }
-    device = SoundDevice(pnpGuid, name, flow, renderVolume, captureVolume);
+    device = SoundDevice(pnpGuid, name, flow, renderVolume, captureVolume, false, false);
     return true;
 }
 
@@ -337,6 +334,9 @@ ed::audio::SoundDevice ed::audio::SoundDeviceCollection::MergeDeviceWithExisting
         auto flow = device.GetFlow();
         uint16_t renderVolume = device.GetCurrentRenderVolume();
         uint16_t captureVolume = device.GetCurrentCaptureVolume();
+        bool captureIsDefault = device.IsCaptureCurrentlyDefault();
+        bool renderIsDefault = device.IsRenderCurrentlyDefault();
+
 
         const auto & foundDev = foundPair->second;
         if (foundDev.GetFlow() != device.GetFlow())
@@ -346,9 +346,11 @@ ed::audio::SoundDevice ed::audio::SoundDeviceCollection::MergeDeviceWithExisting
             {
             case SoundDeviceFlowType::Capture:
                 renderVolume = foundDev.GetCurrentRenderVolume();
+                renderIsDefault = foundDev.IsRenderCurrentlyDefault();
                 break;
             case SoundDeviceFlowType::Render:
                 captureVolume = foundDev.GetCurrentCaptureVolume();
+                captureIsDefault = foundDev.IsCaptureCurrentlyDefault();
             case SoundDeviceFlowType::None:
             case SoundDeviceFlowType::RenderAndCapture:
             default:  // NOLINT(clang-diagnostic-covered-switch-default)
@@ -361,7 +363,9 @@ ed::audio::SoundDevice ed::audio::SoundDeviceCollection::MergeDeviceWithExisting
 
         foundDevNameAsSet.insert(device.GetName());
         return {
-            device.GetPnpId(), Merge(foundDevNameAsSet, '/'), flow, renderVolume, captureVolume
+            device.GetPnpId(), Merge(foundDevNameAsSet, '/'),
+            flow, renderVolume, captureVolume,
+            renderIsDefault, captureIsDefault
         };
     }
     return device;
@@ -406,7 +410,7 @@ void ed::audio::SoundDeviceCollection::ProcessActiveDeviceList(ProcessDeviceFunc
                 }
                 endpointDeviceSmartPtr.Attach(pEndpointDevice);
             }
-            isDeviceCreated = TryCreateDeviceAndGetVolumeEndpoint(i, endpointDeviceSmartPtr, device, deviceId, endPointVolumeSmartPtr);
+            isDeviceCreated = TryCreateDeviceAndGetVolumeEndpoint(endpointDeviceSmartPtr, device, deviceId, endPointVolumeSmartPtr);
         }
         if (!isDeviceCreated)
         {
@@ -461,7 +465,7 @@ void ed::audio::SoundDeviceCollection::UpdateDeviceVolume(SoundDeviceCollection*
     const auto pnpGuid = device.GetPnpId();
     if
     (
-        auto foundPair = self->pnpToDeviceMap_.find(pnpGuid)
+        const auto foundPair = self->pnpToDeviceMap_.find(pnpGuid)
         ; foundPair != self->pnpToDeviceMap_.end()
     )
     {
@@ -549,7 +553,9 @@ bool ed::audio::SoundDeviceCollection::CheckRemovalAndUnmergeDeviceFromExistingO
     const SoundDevice & device, SoundDevice & unmergedDev) const
 {
     unmergedDev = {
-        device.GetPnpId(), device.GetName(), SoundDeviceFlowType::None, device.GetCurrentRenderVolume(), device.GetCurrentCaptureVolume()
+        device.GetPnpId(), device.GetName(),
+        SoundDeviceFlowType::None, device.GetCurrentRenderVolume(), device.GetCurrentCaptureVolume(),
+        device.IsRenderCurrentlyDefault(), device.IsCaptureCurrentlyDefault()
     };
 
     if
@@ -577,16 +583,20 @@ bool ed::audio::SoundDeviceCollection::CheckRemovalAndUnmergeDeviceFromExistingO
         {
             uint16_t renderVolume = foundDev.GetCurrentRenderVolume();
             uint16_t captureVolume = foundDev.GetCurrentCaptureVolume();
+            bool renderIsDefault = foundDev.IsRenderCurrentlyDefault();
+            bool captureIsDefault = foundDev.IsCaptureCurrentlyDefault();
 
             switch (flow)
             {
             case SoundDeviceFlowType::Capture:
                 flow = SoundDeviceFlowType::Render;
                 captureVolume = 0;
+                captureIsDefault = false;
                 break;
             case SoundDeviceFlowType::Render:
                 flow = SoundDeviceFlowType::Capture;
                 renderVolume = 0;
+                renderIsDefault = false;
                 break;
             case SoundDeviceFlowType::None:
             case SoundDeviceFlowType::RenderAndCapture:
@@ -603,7 +613,9 @@ bool ed::audio::SoundDeviceCollection::CheckRemovalAndUnmergeDeviceFromExistingO
                     break;
                 }
             }
-            unmergedDev = { device.GetPnpId(), name, flow, renderVolume, captureVolume };
+            unmergedDev = { device.GetPnpId(), name, flow,
+                renderVolume, captureVolume,
+                renderIsDefault, captureIsDefault };
             return true;
         }
     }
@@ -673,7 +685,7 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceOnId(
         deviceSmartPtr.Attach(devicePtr);
     }
     std::wstring devId;
-    return TryCreateDeviceAndGetVolumeEndpoint(0, deviceSmartPtr, device, devId, outVolumeEndpoint);
+    return TryCreateDeviceAndGetVolumeEndpoint(deviceSmartPtr, device, devId, outVolumeEndpoint);
 }
 
 std::pair<std::vector<std::string>, std::vector<std::string>>

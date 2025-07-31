@@ -28,7 +28,7 @@ namespace ed::audio
             const auto nameExpected = "name01"s;
             const auto pnpIdExpected = generate_uuid();
 
-            const SoundDevice dv(pnpIdExpected, nameExpected, SoundDeviceFlowType::Capture, 0, 200);
+            const SoundDevice dv(pnpIdExpected, nameExpected, SoundDeviceFlowType::Capture, 0, 200,false,false);
 
             Assert::AreEqual(nameExpected, dv.GetName());
             Assert::AreEqual(pnpIdExpected, dv.GetPnpId());

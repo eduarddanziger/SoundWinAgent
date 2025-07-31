@@ -56,8 +56,8 @@ private:
 
     void NotifyObservers(SoundDeviceEventType action, const std::string & devicePNpId) const;
     [[nodiscard]] bool IsDeviceApplicable(const SoundDevice & device) const;
-    static bool TryCreateDeviceAndGetVolumeEndpoint(ULONG i,
-                                                    CComPtr<IMMDevice> deviceEndpointSmartPtr,
+    static bool TryCreateDeviceAndGetVolumeEndpoint(
+        CComPtr<IMMDevice> deviceEndpointSmartPtr,
                                                     SoundDevice & device,
                                                     std::wstring & deviceId,
                                                     EndPointVolumeSmartPtr & outVolumeEndpoint
