@@ -100,7 +100,7 @@ std::unique_ptr<SoundDeviceInterface> ed::audio::SoundDeviceCollection::CreateIt
 {
     if (!pnpToDeviceMap_.contains(devicePnpId))
     {
-        throw std::runtime_error("Device pnpId not found");
+        return nullptr;
     }
     return std::make_unique<SoundDevice>(pnpToDeviceMap_.at(devicePnpId));
 }
@@ -839,12 +839,89 @@ HRESULT ed::audio::SoundDeviceCollection::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DA
     return hResult;
 }
 
-void ed::audio::SoundDeviceCollection::SetDefaultRenderDevicePnpId(const std::string& pnpId)
+HRESULT ed::audio::SoundDeviceCollection::OnDefaultDeviceChanged(EDataFlow flow, ERole role, LPCWSTR defaultDeviceId)
+{
+    const HRESULT hr = MultipleNotificationClient::OnDefaultDeviceChanged(flow, role, defaultDeviceId);
+    assert(SUCCEEDED(hr));
+
+    if (role != eConsole)
+    {
+        return hr;
+    }
+
+    // clear previous default device
+    if (flow == eRender && defaultRenderDevicePnpId_.has_value())
+    {
+        const auto pnpGuid = *defaultRenderDevicePnpId_;
+        const auto foundPair = pnpToDeviceMap_.find(pnpGuid);
+        if (SoundDevice* foundDevicePtr = foundPair != pnpToDeviceMap_.end() ? &(foundPair->second) : nullptr
+            ; foundDevicePtr != nullptr)
+        {
+            foundDevicePtr->SetRenderCurrentlyDefault(false);
+        }
+    }
+    else if (flow == eCapture && defaultCaptureDevicePnpId_.has_value())
+    {
+        const auto pnpGuid = *defaultCaptureDevicePnpId_;
+        const auto foundPair = pnpToDeviceMap_.find(pnpGuid);
+        if (SoundDevice* foundDevicePtr = foundPair != pnpToDeviceMap_.end() ? &(foundPair->second) : nullptr
+            ; foundDevicePtr != nullptr)
+        {
+            foundDevicePtr->SetCaptureCurrentlyDefault(false);
+        }
+    }
+
+    if (defaultDeviceId == nullptr)
+    {
+        if (flow == eRender)
+        {
+            SetDefaultRenderDevicePnpId(std::nullopt);
+            NotifyObservers(SoundDeviceEventType::DefaultRenderChanged, "");
+        }
+        else
+        {
+            SetDefaultCaptureDevicePnpId(std::nullopt);
+            NotifyObservers(SoundDeviceEventType::DefaultCaptureChanged, "");
+        }
+        return hr;
+    }
+
+    SoundDevice device;
+    if (
+        EndPointVolumeSmartPtr endPointVolumeSmartPtr;
+        TryCreateDeviceOnId(defaultDeviceId, device, endPointVolumeSmartPtr)
+    )
+    {
+        const auto pnpGuid = device.GetPnpId();
+        const auto foundPair = pnpToDeviceMap_.find(pnpGuid);
+
+        if (SoundDevice* foundDevicePtr = foundPair != pnpToDeviceMap_.end() ? &(foundPair->second) : nullptr
+            ; foundDevicePtr != nullptr)
+        {
+            if (flow == eRender)
+            {
+                foundDevicePtr->SetRenderCurrentlyDefault(true);
+                SetDefaultRenderDevicePnpId(pnpGuid);
+                NotifyObservers(SoundDeviceEventType::DefaultRenderChanged, pnpGuid);
+            }
+            else
+            {
+                foundDevicePtr->SetCaptureCurrentlyDefault(true);
+                SetDefaultCaptureDevicePnpId(pnpGuid);
+                NotifyObservers(SoundDeviceEventType::DefaultCaptureChanged, pnpGuid);
+            }
+        }
+    }
+
+    return hr;
+}
+
+void ed::audio::SoundDeviceCollection::SetDefaultRenderDevicePnpId(const std::optional<std::string>& pnpId)
 {
     defaultRenderDevicePnpId_ = pnpId;
 }
 
-void ed::audio::SoundDeviceCollection::SetDefaultCaptureDevicePnpId(const std::string& pnpId)
+void ed::audio::SoundDeviceCollection::SetDefaultCaptureDevicePnpId(const std::optional<std::string>& pnpId)
 {
     defaultCaptureDevicePnpId_ = pnpId;
 }

@@ -45,10 +45,11 @@ public:
     HRESULT OnDeviceRemoved(LPCWSTR deviceId) override;
     HRESULT OnDeviceStateChanged(LPCWSTR deviceId, DWORD dwNewState) override;
     HRESULT OnNotify(PAUDIO_VOLUME_NOTIFICATION_DATA pNotify) override;
+    HRESULT OnDefaultDeviceChanged(EDataFlow flow, ERole role, LPCWSTR defaultDeviceId) override;
 
 private:
-    void SetDefaultRenderDevicePnpId(const std::string& pnpId);
-    void SetDefaultCaptureDevicePnpId(const std::string& pnpId);
+    void SetDefaultRenderDevicePnpId(const std::optional<std::string>& pnpId);
+    void SetDefaultCaptureDevicePnpId(const std::optional<std::string>& pnpId);
 
     void ProcessActiveDeviceList(const ProcessDeviceFunctionT& processDeviceFunc);
     [[nodiscard]] std::pair<std::optional<std::wstring>, std::optional<std::wstring>> TryGetRenderAndCaptureDefaultDeviceIds() const;
