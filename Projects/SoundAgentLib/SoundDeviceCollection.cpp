@@ -107,12 +107,12 @@ std::unique_ptr<SoundDeviceInterface> ed::audio::SoundDeviceCollection::CreateIt
 
 std::optional<std::string> ed::audio::SoundDeviceCollection::GetDefaultRenderDevicePnpId() const
 {
-    return std::nullopt;  // Not implemented yet
+    return defaultRenderDevicePnpId_;
 }
 
 std::optional<std::string> ed::audio::SoundDeviceCollection::GetDefaultCaptureDevicePnpId() const
 {
-    return std::nullopt;  // Not implemented yet
+    return defaultCaptureDevicePnpId_;
 }
 
 void ed::audio::SoundDeviceCollection::Subscribe(SoundDeviceObserverInterface & observer)
@@ -126,6 +126,22 @@ void ed::audio::SoundDeviceCollection::Unsubscribe(SoundDeviceObserverInterface 
 }
 
 
+std::optional<std::wstring> ed::audio::SoundDeviceCollection::GetDeviceId(CComPtr<IMMDevice> deviceEndpointSmartPtr)
+{
+    if (!deviceEndpointSmartPtr)
+        return std::nullopt;
+
+    LPWSTR deviceIdPtr = nullptr;
+    if (const HRESULT hr = deviceEndpointSmartPtr->GetId(&deviceIdPtr);
+        FAILED(hr) || !deviceIdPtr)
+    {
+        return std::nullopt;
+    }
+    std::wstring deviceId(deviceIdPtr);
+    CoTaskMemFree(deviceIdPtr);
+    return deviceId;
+}
+
 bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
     CComPtr<IMMDevice> deviceEndpointSmartPtr,  // NOLINT(performance-unnecessary-value-param)
     SoundDevice & device,
@@ -133,18 +149,15 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
     EndPointVolumeSmartPtr & outVolumeEndpoint
 )
 {
-    HRESULT hr;
-    // Get device id
-    {
-        LPWSTR deviceIdPtr = nullptr;
-        hr = deviceEndpointSmartPtr->GetId(&deviceIdPtr);
-        if (FAILED(hr)) {
-            return false;
-        }
-        deviceId = deviceIdPtr;
-        spdlog::info(R"(Id of the current device is "{}".)", WString2StringTruncate(deviceId));
-        CoTaskMemFree(deviceIdPtr);
+    const auto deviceIdOpt = GetDeviceId(deviceEndpointSmartPtr);
+    if (!deviceIdOpt.has_value()) {
+        spdlog::warn("Failed to get device ID from IMMDevice.");
+        return false;
     }
+    deviceId = deviceIdOpt.value();
+
+    HRESULT hr;
+    spdlog::info(R"(Id of the current device is "{}".)", WString2StringTruncate(deviceId));
     // Get flow direction via IMMEndpoint
     auto flow = SoundDeviceFlowType::None;
     {
@@ -284,6 +297,47 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
     return true;
 }
 
+
+std::pair<std::optional<std::wstring>, std::optional<std::wstring>>
+ed::audio::SoundDeviceCollection::TryGetRenderAndCaptureDefaultDeviceIds() const
+{
+    IMMDevice* devicePtr;
+
+    CComPtr<IMMDevice> renderDeviceSmartPtr;
+    CComPtr<IMMDevice> captureDeviceSmartPtr;
+    if (
+        const auto hr = enumerator_->GetDefaultAudioEndpoint(
+            eRender,
+            eConsole,
+            &devicePtr)
+        ; SUCCEEDED(hr)
+    )
+    {
+        renderDeviceSmartPtr.Attach(devicePtr);
+    }
+    else
+    {
+        spdlog::warn("Failed to get default render audio endpoint.");
+    }
+
+    if (
+        const auto hr = enumerator_->GetDefaultAudioEndpoint(
+            eCapture,
+            eConsole,
+            &devicePtr)
+        ; SUCCEEDED(hr)
+    )
+    {
+        captureDeviceSmartPtr.Attach(devicePtr);
+    }
+    else
+    {
+        spdlog::warn("Failed to get default capture audio endpoint.");
+    }
+
+    return {GetDeviceId(renderDeviceSmartPtr), GetDeviceId(captureDeviceSmartPtr)};
+}
+
 void ed::audio::SoundDeviceCollection::UnregisterAllEndpointsVolumes()
 {
     for (const auto & endpointVolume : devIdToEndpointVolumes_ | std::views::values)
@@ -372,7 +426,7 @@ ed::audio::SoundDevice ed::audio::SoundDeviceCollection::MergeDeviceWithExisting
 }
 
 // ReSharper disable once CppPassValueParameterByConstReference
-void ed::audio::SoundDeviceCollection::ProcessActiveDeviceList(ProcessDeviceFunctionT processDeviceFunc)
+void ed::audio::SoundDeviceCollection::ProcessActiveDeviceList(const ProcessDeviceFunctionT& processDeviceFunc)
 {
     HRESULT hr;
     CComPtr<IMMDeviceCollection> deviceCollectionSmartPtr;
@@ -434,7 +488,32 @@ void ed::audio::SoundDeviceCollection::RecreateActiveDeviceList()
     UnregisterAllEndpointsVolumes();
     devIdToEndpointVolumes_.clear();
 
-    ProcessActiveDeviceList(&SoundDeviceCollection::RegisterDevice);
+    auto [renderDefaultDeviceId, captureDefaultDeviceId] = TryGetRenderAndCaptureDefaultDeviceIds();
+
+    // ReSharper disable once CppPassValueParameterByConstReference
+    auto setActiveAndRegisterDeviceClosure = [renderDefaultDeviceId, captureDefaultDeviceId, this](ed::audio::SoundDeviceCollection* self, const std::wstring& deviceId, const SoundDevice& device, EndPointVolumeSmartPtr endpointVolume)
+        {
+            SoundDeviceCollection::RegisterDevice(self, deviceId, device, endpointVolume);  // NOLINT(performance-unnecessary-value-param)
+
+            const auto pnpGuid = device.GetPnpId();
+            const auto foundPair = self->pnpToDeviceMap_.find(pnpGuid);
+
+            if (SoundDevice* foundDevicePtr = foundPair != self->pnpToDeviceMap_.end() ? &(foundPair->second) : nullptr
+                ; foundDevicePtr != nullptr)
+            {
+                if (device.GetFlow() == SoundDeviceFlowType::Render && renderDefaultDeviceId.has_value() && *renderDefaultDeviceId == deviceId)
+                {
+                    foundDevicePtr->SetRenderCurrentlyDefault(true);
+                    this->SetDefaultRenderDevicePnpId(pnpGuid);
+                }
+                else if (device.GetFlow() == SoundDeviceFlowType::Capture && captureDefaultDeviceId.has_value() && *captureDefaultDeviceId == deviceId)
+                {
+                    foundDevicePtr->SetCaptureCurrentlyDefault(true);
+                    this->SetDefaultCaptureDevicePnpId(pnpGuid);
+                }
+            }
+        };
+    ProcessActiveDeviceList(setActiveAndRegisterDeviceClosure);
 }
 
 void ed::audio::SoundDeviceCollection::RefreshVolumes()
@@ -459,7 +538,9 @@ void ed::audio::SoundDeviceCollection::RegisterDevice(ed::audio::SoundDeviceColl
     self->pnpToDeviceMap_[device.GetPnpId()] = self->MergeDeviceWithExistingOneBasedOnPnpIdAndFlow(device);
 }
 
-void ed::audio::SoundDeviceCollection::UpdateDeviceVolume(SoundDeviceCollection* self, const std::wstring& deviceId, const SoundDevice& device, EndPointVolumeSmartPtr)
+void ed::audio::SoundDeviceCollection::UpdateDeviceVolume(SoundDeviceCollection* self,
+                                                          [[maybe_unused]] const std::wstring& deviceId,
+                                                          const SoundDevice& device, EndPointVolumeSmartPtr)
 {
     // ReSharper restore CppPassValueParameterByConstReference
     const auto pnpGuid = device.GetPnpId();
@@ -756,4 +837,14 @@ HRESULT ed::audio::SoundDeviceCollection::OnNotify(PAUDIO_VOLUME_NOTIFICATION_DA
     }
 
     return hResult;
+}
+
+void ed::audio::SoundDeviceCollection::SetDefaultRenderDevicePnpId(const std::string& pnpId)
+{
+    defaultRenderDevicePnpId_ = pnpId;
+}
+
+void ed::audio::SoundDeviceCollection::SetDefaultCaptureDevicePnpId(const std::string& pnpId)
+{
+    defaultCaptureDevicePnpId_ = pnpId;
 }
