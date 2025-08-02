@@ -28,19 +28,19 @@
         );
 
     SAA_EXPORT_IMPORT_DECL
-        SaaResult __stdcall AcInitialize(
+        SaaResult __stdcall SaaInitialize(
         _Out_ SaaHandle* handle,
         _In_opt_ TSaaDiscover discoverCallback
     );
 
     SAA_EXPORT_IMPORT_DECL
-        SaaResult __stdcall AcGetAttached(
+        SaaResult __stdcall SaaGetAttached(
             _In_ SaaHandle handle,
             _Out_  SaaDescription* description
         );
 
     SAA_EXPORT_IMPORT_DECL
-        SaaResult __stdcall AcUnInitialize(
+        SaaResult __stdcall SaaUnInitialize(
             _In_ SaaHandle handle
         );
 

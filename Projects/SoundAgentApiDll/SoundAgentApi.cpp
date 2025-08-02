@@ -48,7 +48,7 @@ namespace  {
     std::unique_ptr<SoundDeviceObserverInterface> device_collection_observer;
 }
 
-SaaResult AcInitialize(SaaHandle* handle, TSaaDiscover discoverCallback)
+SaaResult SaaInitialize(SaaHandle* handle, TSaaDiscover discoverCallback)
 {
     device_collection = SoundAgent::CreateDeviceCollection();
     device_collection_observer = std::make_unique<DllObserver>(discoverCallback);
@@ -57,7 +57,7 @@ SaaResult AcInitialize(SaaHandle* handle, TSaaDiscover discoverCallback)
     return 0;
 }
 
-SaaResult AcGetAttached(SaaHandle handle, SaaDescription* description)
+SaaResult SaaGetAttached(SaaHandle handle, SaaDescription* description)
 {
     if(description == nullptr)
     {
@@ -78,7 +78,7 @@ SaaResult AcGetAttached(SaaHandle handle, SaaDescription* description)
     return 0;
 }
 
-SaaResult AcUnInitialize(SaaHandle handle)
+SaaResult SaaUnInitialize(SaaHandle handle)
 {
     if(device_collection != nullptr)
     {
