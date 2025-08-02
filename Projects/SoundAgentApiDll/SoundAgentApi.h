@@ -1,30 +1,26 @@
-﻿#ifndef SOUND_AGENT_API_H
-#define SOUND_AGENT_API_H
+﻿#pragma once
 
 #include <Windows.h>
 
 #ifdef ED_EXPORTS
 #define SAA_EXPORT_IMPORT_DECL __declspec(dllexport)
 #else
-#define AC_EXPORT_IMPORT_DECL __declspec(dllimport)
+#define SAA_EXPORT_IMPORT_DECL __declspec(dllimport)
 #endif
 
 #ifdef __cplusplus
     extern "C" {
 #endif
 
-    /**
-     * @typedef AcHandle
-     * @brief Handle type used to identify a specific audio control session.
-     */
+    
     typedef DWORD64 SaaHandle;
 
     typedef INT32 SaaResult;
 
     typedef struct {
-        CHAR Guid[40];
+        CHAR PnPId[90];
         CHAR Name[128];
-        UINT16 Volume;
+        UINT16 RenderVolume;
     } SaaDescription;
 
     typedef void(__stdcall* TSaaDiscover)(
@@ -51,5 +47,3 @@
 #ifdef __cplusplus
 }
 #endif
-
-#endif // SOUND_AGENT_API_H

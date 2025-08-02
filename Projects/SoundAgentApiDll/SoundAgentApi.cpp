@@ -67,14 +67,14 @@ SaaResult AcGetAttached(SaaHandle handle, SaaDescription* description)
     if (device_collection != nullptr && device_collection->GetSize() > 0)
     {
         const auto device = device_collection->CreateItem(0);
-        strncpy_s(description->Guid, _countof(description->Guid), device->GetPnpId().c_str(), device->GetPnpId().size());
+        strncpy_s(description->PnPId, _countof(description->PnPId), device->GetPnpId().c_str(), device->GetPnpId().size());
         strncpy_s(description->Name, _countof(description->Name), device->GetName().c_str(), device->GetName().size());
-        description->Volume = device->GetCurrentRenderVolume();
+        description->RenderVolume = device->GetCurrentRenderVolume();
         return 0;
     }
-    description->Guid[0] = '\0';
+    description->PnPId[0] = '\0';
     description->Name[0] = '\0';
-    description->Volume = 0;
+    description->RenderVolume = 0;
     return 0;
 }
 
