@@ -340,10 +340,12 @@ ed::audio::SoundDeviceCollection::TryGetRenderAndCaptureDefaultDeviceIds() const
 
 void ed::audio::SoundDeviceCollection::UnregisterAllEndpointsVolumes()
 {
-    for (const auto & endpointVolume : devIdToEndpointVolumes_ | std::views::values)
+    for (const auto& [deviceId, endpointVolume] : devIdToEndpointVolumes_)
     {
         // ReSharper disable once CppFunctionResultShouldBeUsed
         endpointVolume->UnregisterControlChangeNotify(this);
+        spdlog::info(R"(The next end point device "{}" unregistered for notifications.)",
+            WString2StringTruncate(deviceId));
     }
 }
 
@@ -370,6 +372,9 @@ void ed::audio::SoundDeviceCollection::UnregisterAndRemoveEndpointsVolumes(const
         auto audioEndpointVolume = foundPair->second;
         // ReSharper disable once CppFunctionResultShouldBeUsed
         audioEndpointVolume->UnregisterControlChangeNotify(this);
+        spdlog::info(R"(The end point device "{}" unregistered for notifications before removal.)",
+            WString2StringTruncate(deviceId));
+
         //        const auto ii = CountRef(static_cast<IAudioEndpointVolume*>(audioEndpointVolume));
         audioEndpointVolume.Detach();
         devIdToEndpointVolumes_.erase(foundPair);
@@ -505,11 +510,21 @@ void ed::audio::SoundDeviceCollection::RecreateActiveDeviceList()
                 {
                     foundDevicePtr->SetRenderCurrentlyDefault(true);
                     this->SetDefaultRenderDevicePnpId(pnpGuid);
+                    spdlog::info(R"(Device "{}", PnPId "{}", name "{}" detected as Render-Default and set respectively.)"
+                        , WString2StringTruncate(deviceId)
+                        , pnpGuid
+                        , foundDevicePtr->GetName()
+                    );
                 }
                 else if (device.GetFlow() == SoundDeviceFlowType::Capture && captureDefaultDeviceId.has_value() && *captureDefaultDeviceId == deviceId)
                 {
                     foundDevicePtr->SetCaptureCurrentlyDefault(true);
                     this->SetDefaultCaptureDevicePnpId(pnpGuid);
+                    spdlog::info(R"(Device "{}", PnPId "{}", name "{}" detected as Capture-Default and set respectively..)"
+                        , WString2StringTruncate(deviceId)
+                        , pnpGuid
+                        , foundDevicePtr->GetName()
+                    );
                 }
             }
         };
@@ -526,16 +541,27 @@ void ed::audio::SoundDeviceCollection::RefreshVolumes()
 
 // ReSharper disable CppPassValueParameterByConstReference
 /*static*/
-void ed::audio::SoundDeviceCollection::RegisterDevice(ed::audio::SoundDeviceCollection* self, const std::wstring& deviceId, const SoundDevice& device, EndPointVolumeSmartPtr endpointVolume)
+void ed::audio::SoundDeviceCollection::RegisterDevice(ed::audio::SoundDeviceCollection* self, const std::wstring& deviceId, const SoundDevice& device, EndPointVolumeSmartPtr endpointVolume)  // NOLINT(performance-unnecessary-value-param)
 {
     if (endpointVolume != nullptr)
     {
         // ReSharper disable once CppFunctionResultShouldBeUsed
         endpointVolume->RegisterControlChangeNotify(self);
         self->devIdToEndpointVolumes_[deviceId] = endpointVolume;
+        spdlog::info(R"(The end point device "{}" registered for notifications.)",
+            WString2StringTruncate(deviceId));
     }
 
-    self->pnpToDeviceMap_[device.GetPnpId()] = self->MergeDeviceWithExistingOneBasedOnPnpIdAndFlow(device);
+    const auto possiblyMergedDevice = self->MergeDeviceWithExistingOneBasedOnPnpIdAndFlow(device);
+
+    self->pnpToDeviceMap_[device.GetPnpId()] = possiblyMergedDevice;
+
+    spdlog::info(R"(Device "{}", PnPId "{}", name "{}", flow {} merged and added to the list.)"
+        , WString2StringTruncate(deviceId)
+        , possiblyMergedDevice.GetPnpId()
+        , possiblyMergedDevice.GetName()
+        , magic_enum::enum_name(possiblyMergedDevice.GetFlow())
+    );
 }
 
 void ed::audio::SoundDeviceCollection::UpdateDeviceVolume(SoundDeviceCollection* self,
@@ -597,7 +623,7 @@ HRESULT ed::audio::SoundDeviceCollection::OnDeviceAdded(LPCWSTR deviceId)
     const HRESULT onDeviceAdded = MultipleNotificationClient::OnDeviceAdded(deviceId);
     if (onDeviceAdded == S_OK)
     {
-        spdlog::info(R"(ADDED INFO: device id "{}".)", WString2StringTruncate(deviceId));
+        spdlog::info(R"(Device added: id "{}".)", WString2StringTruncate(deviceId));
 
         SoundDevice device;
         if
@@ -606,26 +632,11 @@ HRESULT ed::audio::SoundDeviceCollection::OnDeviceAdded(LPCWSTR deviceId)
             TryCreateDeviceOnId(deviceId, device, endPointVolumeSmartPtr) && IsDeviceApplicable(device)
         )
         {
-            spdlog::info(R"(ADDED ADDITIONAL INFO: device name: "{}", flow: {}, plug-and-play id {}.)", device.GetName(),
-                         magic_enum::enum_name(device.GetFlow()), device.GetPnpId());
-
-            const auto possiblyMergedDevice = MergeDeviceWithExistingOneBasedOnPnpIdAndFlow(device);
-
-            spdlog::info(R"(ADDED MERGED: device name: "{}", flow: {}.)", possiblyMergedDevice.GetName(),
-                         magic_enum::enum_name(possiblyMergedDevice.GetFlow()));
-
-            pnpToDeviceMap_[device.GetPnpId()] = possiblyMergedDevice;
-
-            // ReSharper disable once CppFunctionResultShouldBeUsed
-            if (endPointVolumeSmartPtr != nullptr)
-            {
-                endPointVolumeSmartPtr->RegisterControlChangeNotify(this);
-                devIdToEndpointVolumes_[deviceId] = endPointVolumeSmartPtr;
-            }
+            RegisterDevice(this, deviceId, device, endPointVolumeSmartPtr);
 
             NotifyObservers(SoundDeviceEventType::Discovered, device.GetPnpId());
         }
-        spdlog::info(R"(ADDING FINISHED: device id "{}".)", WString2StringTruncate(deviceId));
+        spdlog::info(R"(Device adding finished: id "{}".)", WString2StringTruncate(deviceId));
     }
     return onDeviceAdded;
 }
@@ -711,7 +722,7 @@ HRESULT ed::audio::SoundDeviceCollection::OnDeviceRemoved(LPCWSTR deviceId)
     const HRESULT hr = MultipleNotificationClient::OnDeviceRemoved(deviceId);
     if (hr == S_OK)
     {
-        spdlog::info(R"(REMOVED INFO: device id "{}".)", WString2StringTruncate(deviceId));
+        spdlog::info(R"(Device to remove: id "{}".)", WString2StringTruncate(deviceId));
 
         SoundDevice removedDeviceToUnmerge;
         if
@@ -720,7 +731,7 @@ HRESULT ed::audio::SoundDeviceCollection::OnDeviceRemoved(LPCWSTR deviceId)
             && IsDeviceApplicable(removedDeviceToUnmerge)
         )
         {
-            spdlog::info(R"(REMOVED ADDITIONAL INFO: device name "{}", flow: {}, plug-and-play id: {}.)",
+            spdlog::info(R"(Device to remove, more info: name "{}", flow: {}, plug-and-play id: {}.)",
                          removedDeviceToUnmerge.GetName(), magic_enum::enum_name(removedDeviceToUnmerge.GetFlow()),
                          removedDeviceToUnmerge.GetPnpId());
 
@@ -729,12 +740,11 @@ HRESULT ed::audio::SoundDeviceCollection::OnDeviceRemoved(LPCWSTR deviceId)
             {
                 if (possiblyUnmergedDevice.GetFlow() == SoundDeviceFlowType::None)
                 {
-                    spdlog::info("REMOVED UNMERGED: nothing.");
                     pnpToDeviceMap_.erase(possiblyUnmergedDevice.GetPnpId());
                 }
                 else
                 {
-                    spdlog::info(R"(REMOVED UNMERGED: device name "{}", flow: {}.)", possiblyUnmergedDevice.GetName(), magic_enum::enum_name(possiblyUnmergedDevice.GetFlow()));
+                    spdlog::info(R"(Removed device unmerged: name "{}", flow: {}.)", possiblyUnmergedDevice.GetName(), magic_enum::enum_name(possiblyUnmergedDevice.GetFlow()));
 
                     pnpToDeviceMap_[possiblyUnmergedDevice.GetPnpId()] = possiblyUnmergedDevice;
                 }
@@ -742,7 +752,7 @@ HRESULT ed::audio::SoundDeviceCollection::OnDeviceRemoved(LPCWSTR deviceId)
                 NotifyObservers(SoundDeviceEventType::Detached, removedDeviceToUnmerge.GetPnpId());
             }
         }
-        spdlog::info(R"(REMOVED FINISHED: device id "{}".)", WString2StringTruncate(deviceId));
+        spdlog::info(R"(Device removal finished: id "{}".)", WString2StringTruncate(deviceId));
     }
     return hr;
 }
@@ -877,11 +887,13 @@ HRESULT ed::audio::SoundDeviceCollection::OnDefaultDeviceChanged(EDataFlow flow,
         {
             SetDefaultRenderDevicePnpId(std::nullopt);
             NotifyObservers(SoundDeviceEventType::DefaultRenderChanged, "");
+            spdlog::info("Render-Default device removed.");
         }
-        else
+        else if (flow == eCapture)
         {
             SetDefaultCaptureDevicePnpId(std::nullopt);
             NotifyObservers(SoundDeviceEventType::DefaultCaptureChanged, "");
+            spdlog::info("Capture-Default device removed.");
         }
         return hr;
     }
@@ -903,12 +915,22 @@ HRESULT ed::audio::SoundDeviceCollection::OnDefaultDeviceChanged(EDataFlow flow,
                 foundDevicePtr->SetRenderCurrentlyDefault(true);
                 SetDefaultRenderDevicePnpId(pnpGuid);
                 NotifyObservers(SoundDeviceEventType::DefaultRenderChanged, pnpGuid);
+                spdlog::info(R"(Device "{}", PnPId "{}", name "{}" set as Render-Default according to Default-Change-Event)"
+                    , WString2StringTruncate(defaultDeviceId)
+                    , pnpGuid
+                    , foundDevicePtr->GetName()
+                );
             }
-            else
+            else if (flow == eCapture)
             {
                 foundDevicePtr->SetCaptureCurrentlyDefault(true);
                 SetDefaultCaptureDevicePnpId(pnpGuid);
                 NotifyObservers(SoundDeviceEventType::DefaultCaptureChanged, pnpGuid);
+                spdlog::info(R"(Device "{}", PnPId "{}", name "{}" set as Capture-Default according to Default-Change-Event.)"
+                    , WString2StringTruncate(defaultDeviceId)
+                    , pnpGuid
+                    , foundDevicePtr->GetName()
+                );
             }
         }
     }
