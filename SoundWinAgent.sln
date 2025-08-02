@@ -22,6 +22,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundAgentLibTests", "Proje
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundWinAgent", "Projects\SoundWinAgent\SoundWinAgent.vcxproj", "{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundAgentApiDll", "Projects\SoundAgentApiDll\SoundAgentApiDll.vcxproj", "{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -52,6 +54,12 @@ Global
 		{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}.Release|x64.ActiveCfg = Release|x64
 		{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}.Release|x64.Build.0 = Release|x64
 		{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}.Release|x64.Deploy.0 = Release|x64
+		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Debug|x64.ActiveCfg = Debug|x64
+		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Debug|x64.Build.0 = Debug|x64
+		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Debug|x64.Deploy.0 = Debug|x64
+		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Release|x64.ActiveCfg = Release|x64
+		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Release|x64.Build.0 = Release|x64
+		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Release|x64.Deploy.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
