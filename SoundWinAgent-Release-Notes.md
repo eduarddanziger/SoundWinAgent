@@ -11,7 +11,7 @@ Released on $date$
 ~~~
 
 ## Changes
-- ...
+- Device properties and events are extended to include the operating defaults for render and capture.
 
 3.2.5
 --------
