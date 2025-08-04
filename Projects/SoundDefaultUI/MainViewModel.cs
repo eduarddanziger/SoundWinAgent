@@ -11,12 +11,12 @@ using System.Windows.Threading;
 
 public class MainViewModel : INotifyPropertyChanged
 {
-    private AudioDeviceService AudioDeviceService { get; }
+    private SoundDeviceService SoundDeviceService { get; }
 
     private static Dispatcher? MyDispatcher { get; set; }
-    private AudioDeviceInfo? _device;
+    private SoundDeviceInfo? _device;
 
-    public AudioDeviceInfo? Device
+    public SoundDeviceInfo? Device
     {
         get => _device;
         set
@@ -46,12 +46,12 @@ public class MainViewModel : INotifyPropertyChanged
 
         WindowTitle = "Default Render Sound Device";
 
-        AudioDeviceService = new AudioDeviceService(_onDefaultRenderPresentOrAbsent);
+        SoundDeviceService = new SoundDeviceService(_onDefaultRenderPresentOrAbsent);
 
         var app = (App)Application.Current;
-        app.AudioDeviceService = AudioDeviceService;
+        app.SoundDeviceService = SoundDeviceService;
 
-        var audioDeviceInfo = AudioDeviceService.GetAudioDevice();
+        var audioDeviceInfo = SoundDeviceService.GetSoundDevice();
         Device = audioDeviceInfo.PnpId.Length != 0 ? audioDeviceInfo : null;
 
         RefreshCommand = new RelayCommand(Refresh, () => Device != null);
@@ -67,7 +67,7 @@ public class MainViewModel : INotifyPropertyChanged
             // ReSharper disable once InvertIf
             if (mainWindow?.DataContext is MainViewModel mainViewModel)
             {
-                mainViewModel.Device = attach ? mainViewModel.AudioDeviceService.GetAudioDevice() : null;
+                mainViewModel.Device = attach ? mainViewModel.SoundDeviceService.GetSoundDevice() : null;
                 CommandManager.InvalidateRequerySuggested();
             }
         });
@@ -88,7 +88,7 @@ public class MainViewModel : INotifyPropertyChanged
         {
             if (Device != null)
             {
-                Device = AudioDeviceService.GetAudioDevice();
+                Device = SoundDeviceService.GetSoundDevice();
             }
         });
     }

@@ -9,7 +9,7 @@ namespace SoundDefaultUI
     /// </summary>
     public partial class App : Application
     {
-        public AudioDeviceService? AudioDeviceService { private get; set; }
+        public SoundDeviceService? SoundDeviceService { private get; set; }
 
         public App()
         {
@@ -20,7 +20,7 @@ namespace SoundDefaultUI
         {
             base.OnExit(e);
 
-            AudioDeviceService?.Dispose();
+            SoundDeviceService?.Dispose();
         }
     }
 
