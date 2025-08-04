@@ -46,7 +46,8 @@ SaaResult SaaInitialize(SaaHandle* handle, TSaaDefaultRenderChangedCallback defa
     device_collection_observer = std::make_unique<DllObserver>(defaultRenderChangedCallback);
     device_collection->Subscribe(*device_collection_observer);
     device_collection->ResetContent();
-
+    
+    *handle = reinterpret_cast<SaaHandle>(device_collection.get());
 
     return 0;
 }

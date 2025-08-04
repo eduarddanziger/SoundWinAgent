@@ -11,9 +11,9 @@ using System.Windows.Threading;
 
 public class MainViewModel : INotifyPropertyChanged
 {
-    public AudioDeviceService AudioDeviceService { get; }
+    private AudioDeviceService AudioDeviceService { get; }
 
-    public static Dispatcher? MyDispatcher { get; private set; }
+    private static Dispatcher? MyDispatcher { get; set; }
     private AudioDeviceInfo? _device;
 
     public AudioDeviceInfo? Device
@@ -62,6 +62,10 @@ public class MainViewModel : INotifyPropertyChanged
         }
 
         AudioDeviceService = new AudioDeviceService(_onDefaultRenderPresentOrAbsent);
+
+        var app = (App)Application.Current;
+        app.AudioDeviceService = AudioDeviceService;
+
         var audioDeviceInfo = AudioDeviceService.GetAudioDevice();
         Device = audioDeviceInfo.PnpId.Length != 0 ? audioDeviceInfo : null;
 

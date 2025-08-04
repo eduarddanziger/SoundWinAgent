@@ -25,6 +25,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundAgentApiDll", "Projects\SoundAgentApiDll\SoundAgentApiDll.vcxproj", "{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundDefaultUI", "Projects\SoundDefaultUI\SoundDefaultUI.csproj", "{5B7BBF93-1CE3-7A17-DC7A-432D3575AFB6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E} = {92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
