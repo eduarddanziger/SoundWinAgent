@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿#ifndef SOUND_AGENT_API_H
+#define SOUND_AGENT_API_H
 
 #include <Windows.h>
 
@@ -18,24 +19,26 @@
     typedef INT32 SaaResult;
 
     typedef struct {
-        CHAR PnPId[90];
+        CHAR PnpId[80];
         CHAR Name[128];
         UINT16 RenderVolume;
+        UINT16 CaptureVolume;
     } SaaDescription;
 
-    typedef void(__stdcall* TSaaDiscover)(
-        _In_  BOOL  attach
+    typedef void(__stdcall* TSaaDefaultRenderChangedCallback)(
+        _In_ CONST CHAR *pnpId
         );
 
     SAA_EXPORT_IMPORT_DECL
         SaaResult __stdcall SaaInitialize(
         _Out_ SaaHandle* handle,
-        _In_opt_ TSaaDiscover discoverCallback
+        _In_opt_ TSaaDefaultRenderChangedCallback defaultRenderChangedCallback
     );
 
     SAA_EXPORT_IMPORT_DECL
-        SaaResult __stdcall SaaGetAttached(
+        SaaResult __stdcall SaaGetDevice(
             _In_ SaaHandle handle,
+            _In_ CONST CHAR* pnpId,
             _Out_  SaaDescription* description
         );
 
@@ -47,3 +50,5 @@
 #ifdef __cplusplus
 }
 #endif
+
+#endif // SOUND_AGENT_API_H

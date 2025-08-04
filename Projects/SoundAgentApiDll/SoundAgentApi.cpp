@@ -5,10 +5,11 @@
 #include "public/SoundAgentInterface.h"
 #include "ApiClient/common/ClassDefHelper.h"
 
+
 class DllObserver final : public SoundDeviceObserverInterface {
 public:
-    explicit DllObserver(TSaaDiscover discoverCallback)
-        : discoverCallback_(discoverCallback)
+    explicit DllObserver(TSaaDefaultRenderChangedCallback defaultRenderChangedCallback)
+        : defaultRenderChangedCallback_(defaultRenderChangedCallback)
     {
     }
     DISALLOW_COPY_MOVE(DllObserver);
@@ -17,27 +18,18 @@ public:
     void OnCollectionChanged(SoundDeviceEventType event, const std::string& devicePnpId) override;
 
 private:
-    TSaaDiscover discoverCallback_;
+    TSaaDefaultRenderChangedCallback defaultRenderChangedCallback_;
 };
 
 DllObserver::~DllObserver() = default;
 
 void DllObserver::OnCollectionChanged(SoundDeviceEventType event, const std::string& devicePnpId)
 {
-    if(discoverCallback_ != nullptr)
+    if(defaultRenderChangedCallback_ != nullptr)
     {
-        const bool attached = event == SoundDeviceEventType::Discovered;
-        // ReSharper disable once CppTooWideScopeInitStatement
-        const bool detached = event == SoundDeviceEventType::Detached;
-
-        if (attached || detached)
+        if (event == SoundDeviceEventType::DefaultRenderChanged)
         {
-            // SaaDescription description; // only for logging
-            // strncpy_s(description.Guid, _countof(description.Guid), device->GetPnpId().c_str(), device->GetPnpId().size());
-            // strncpy_s(description.Name, _countof(description.Name), device->GetName().c_str(), device->GetName().size());
-            // description.Volume = 100;
-            //
-            discoverCallback_(attached ? TRUE : FALSE);
+            defaultRenderChangedCallback_(devicePnpId.c_str());
         }
     }
 }
@@ -48,33 +40,35 @@ namespace  {
     std::unique_ptr<SoundDeviceObserverInterface> device_collection_observer;
 }
 
-SaaResult SaaInitialize(SaaHandle* handle, TSaaDiscover discoverCallback)
+SaaResult SaaInitialize(SaaHandle* handle, TSaaDefaultRenderChangedCallback defaultRenderChangedCallback)
 {
     device_collection = SoundAgent::CreateDeviceCollection();
-    device_collection_observer = std::make_unique<DllObserver>(discoverCallback);
+    device_collection_observer = std::make_unique<DllObserver>(defaultRenderChangedCallback);
     device_collection->Subscribe(*device_collection_observer);
 
     return 0;
 }
 
-SaaResult SaaGetAttached(SaaHandle handle, SaaDescription* description)
+SaaResult SaaGetDevice(SaaHandle handle, CONST CHAR* pnpId, SaaDescription* description)
 {
     if(description == nullptr)
     {
         return 0;
     }
 
-    if (device_collection != nullptr && device_collection->GetSize() > 0)
+    if (pnpId != nullptr)
     {
-        const auto device = device_collection->CreateItem(0);
-        strncpy_s(description->PnPId, _countof(description->PnPId), device->GetPnpId().c_str(), device->GetPnpId().size());
+        const auto device = device_collection->CreateItem(pnpId);
+        strncpy_s(description->PnpId, _countof(description->PnpId), device->GetPnpId().c_str(), device->GetPnpId().size());
         strncpy_s(description->Name, _countof(description->Name), device->GetName().c_str(), device->GetName().size());
         description->RenderVolume = device->GetCurrentRenderVolume();
+        description->CaptureVolume = device->GetCurrentCaptureVolume();
         return 0;
     }
-    description->PnPId[0] = '\0';
+    description->PnpId[0] = '\0';
     description->Name[0] = '\0';
     description->RenderVolume = 0;
+    description->CaptureVolume = 0;
     return 0;
 }
 
