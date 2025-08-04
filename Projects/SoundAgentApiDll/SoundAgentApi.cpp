@@ -29,7 +29,7 @@ void DllObserver::OnCollectionChanged(SoundDeviceEventType event, const std::str
     {
         if (event == SoundDeviceEventType::DefaultRenderChanged)
         {
-            defaultRenderChangedCallback_(devicePnpId.c_str());
+            defaultRenderChangedCallback_(devicePnpId.empty() ? FALSE : TRUE);
         }
     }
 }
@@ -45,20 +45,23 @@ SaaResult SaaInitialize(SaaHandle* handle, TSaaDefaultRenderChangedCallback defa
     device_collection = SoundAgent::CreateDeviceCollection();
     device_collection_observer = std::make_unique<DllObserver>(defaultRenderChangedCallback);
     device_collection->Subscribe(*device_collection_observer);
+    device_collection->ResetContent();
+
 
     return 0;
 }
 
-SaaResult SaaGetDevice(SaaHandle handle, CONST CHAR* pnpId, SaaDescription* description)
+SaaResult SaaGetDefaultRender(SaaHandle handle, SaaDescription* description)
 {
     if(description == nullptr)
     {
         return 0;
     }
 
-    if (pnpId != nullptr)
+    if (const auto pnpId = device_collection->GetDefaultRenderDevicePnpId()
+        ; pnpId.has_value())
     {
-        const auto device = device_collection->CreateItem(pnpId);
+        const auto device = device_collection->CreateItem(*pnpId);
         strncpy_s(description->PnpId, _countof(description->PnpId), device->GetPnpId().c_str(), device->GetPnpId().size());
         strncpy_s(description->Name, _countof(description->Name), device->GetName().c_str(), device->GetName().size());
         description->RenderVolume = device->GetCurrentRenderVolume();

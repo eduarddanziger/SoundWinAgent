@@ -26,7 +26,7 @@
     } SaaDescription;
 
     typedef void(__stdcall* TSaaDefaultRenderChangedCallback)(
-        _In_ CONST CHAR *pnpId
+        _In_ BOOL presentOrAbsent
         );
 
     SAA_EXPORT_IMPORT_DECL
@@ -36,11 +36,10 @@
     );
 
     SAA_EXPORT_IMPORT_DECL
-        SaaResult __stdcall SaaGetDevice(
-            _In_ SaaHandle handle,
-            _In_ CONST CHAR* pnpId,
-            _Out_  SaaDescription* description
-        );
+        SaaResult __stdcall SaaGetDefaultRender(
+        _In_ SaaHandle handle,
+        _Out_ SaaDescription* description
+    );
 
     SAA_EXPORT_IMPORT_DECL
         SaaResult __stdcall SaaUnInitialize(
