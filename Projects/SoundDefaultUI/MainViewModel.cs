@@ -39,27 +39,12 @@ public class MainViewModel : INotifyPropertyChanged
         MyDispatcher = Dispatcher.CurrentDispatcher;
 
         var logger = LogManager.GetCurrentClassLogger();
-        var filter = "";
         var args = Environment.GetCommandLineArgs();
-        if (args.Length > 1)
-        {
-            filter = args[1];
-            logger.Info($"Command line parameter(s) detected. The first one is {(filter.Length == 0 ? "empty string" : filter)}.");
-        }
-        else
-        {
-            logger.Info("No command line parameters detected");
-        }
+        logger.Info(args.Length > 1
+            ? $"Command line parameter(s) detected. They are currently ignored."
+            : "No command line parameters detected");
 
-        WindowTitle = "Audio Control, ";
-        if (!string.IsNullOrEmpty(filter))
-        {
-            WindowTitle += $"filter substring: \"{filter}\"";
-        }
-        else
-        {
-            WindowTitle += "no filter. You can set filter via command line";
-        }
+        WindowTitle = "Default Render Sound Device";
 
         AudioDeviceService = new AudioDeviceService(_onDefaultRenderPresentOrAbsent);
 
@@ -88,12 +73,13 @@ public class MainViewModel : INotifyPropertyChanged
         });
     }
     public event PropertyChangedEventHandler? PropertyChanged;
-    protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
+
+    private void OnPropertyChanged([CallerMemberName] string propertyName = "")
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    public ICommand RefreshCommand { get; }
+    private ICommand RefreshCommand { get; }
 
 
     private void Refresh()
