@@ -71,8 +71,7 @@
           <ZipFileName>$(ArtifactsDirectory)$(AssemblyName)$(ZipFileNameSuffix)-$(Version).zip</ZipFileName>
       </PropertyGroup>
       <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(ArtifactsDirectory)$(ReleaseNotesFileName)" />
-      <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(OutputPath)\AudioController.dll" />
-      <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(BaseDirectory)x64\$(Configuration)\AudioControllerCli.exe" />
+      <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(OutputPath)\SoundAgentApiDll.dll" />
       <ZipDirectory Overwrite="true" SourceDirectory="$(PublishFullDirectory)" DestinationFile="$(ZipFileName)" />
   </Target>
 </Project>
