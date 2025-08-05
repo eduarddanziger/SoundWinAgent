@@ -44,7 +44,7 @@ public class MainViewModel : INotifyPropertyChanged
             ? $"Command line parameter(s) detected. They are currently ignored."
             : "No command line parameters detected");
 
-        WindowTitle = "Default Render Sound Device";
+        WindowTitle = "System Default Render Sound Device";
 
         SoundDeviceService = new SoundDeviceService(_onDefaultRenderPresentOrAbsent);
 
@@ -79,7 +79,7 @@ public class MainViewModel : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private ICommand RefreshCommand { get; }
+    public ICommand RefreshCommand { get; }
 
 
     private void Refresh()

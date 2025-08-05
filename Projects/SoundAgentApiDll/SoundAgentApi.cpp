@@ -27,11 +27,12 @@ void DllObserver::OnCollectionChanged(SoundDeviceEventType event, const std::str
 {
     if(defaultRenderChangedCallback_ != nullptr)
     {
-        if (event == SoundDeviceEventType::DefaultRenderChanged
-            || event == SoundDeviceEventType::VolumeRenderChanged)
-        {
-            defaultRenderChangedCallback_(devicePnpId.empty() ? FALSE : TRUE);
-        }
+	    if (event == SoundDeviceEventType::DefaultRenderChanged
+		    || event == SoundDeviceEventType::VolumeRenderChanged
+		    || event == SoundDeviceEventType::VolumeCaptureChanged)
+	    {
+		    defaultRenderChangedCallback_(devicePnpId.empty() ? FALSE : TRUE);
+	    }
     }
 }
 

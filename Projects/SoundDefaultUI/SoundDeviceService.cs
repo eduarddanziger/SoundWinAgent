@@ -24,7 +24,10 @@ public class SoundDeviceService
         SaaGetDefaultRender(_serviceHandle, out var device);
 #pragma warning restore CA1806
         return new SoundDeviceInfo
-            { PnpId = device.PnpId, DeviceName = device.Name, VolumeLevel = device.RenderVolume };
+        {
+            PnpId = device.PnpId, DeviceName = device.Name,
+            RenderVolumeLevel = device.RenderVolume, CaptureVolumeLevel = device.CaptureVolume
+        };
         ;
     }
 
