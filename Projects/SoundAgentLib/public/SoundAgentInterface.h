@@ -3,6 +3,8 @@
 
 #include <memory>
 #include <string>
+#include <optional>
+
 
 #include <ApiClient/common/ClassDefHelper.h>
 
@@ -16,7 +18,9 @@ enum class SoundDeviceEventType : uint8_t {
     Discovered,
     Detached,
     VolumeRenderChanged,
-    VolumeCaptureChanged
+    VolumeCaptureChanged,
+    DefaultRenderChanged,
+    DefaultCaptureChanged
 };
 
 enum class SoundDeviceFlowType : uint8_t {
@@ -40,6 +44,9 @@ public:
     virtual size_t GetSize() const = 0;
     virtual std::unique_ptr<SoundDeviceInterface> CreateItem(size_t deviceNumber) const = 0;
     virtual std::unique_ptr<SoundDeviceInterface> CreateItem(const std::string& devicePnpId) const = 0;
+
+    virtual std::optional<std::string> GetDefaultRenderDevicePnpId() const = 0;
+    virtual std::optional<std::string> GetDefaultCaptureDevicePnpId() const = 0;
 
     virtual void ActivateAndStartLoop() = 0;
     virtual void DeactivateAndStopLoop() = 0;
@@ -69,6 +76,8 @@ public:
     virtual SoundDeviceFlowType GetFlow() const = 0;
     virtual uint16_t GetCurrentRenderVolume() const = 0; // 0 to 1000
     virtual uint16_t GetCurrentCaptureVolume() const = 0;
+    virtual bool IsCaptureCurrentlyDefault() const = 0;
+    virtual bool IsRenderCurrentlyDefault() const = 0;
 
     AS_INTERFACE(SoundDeviceInterface);
     DISALLOW_COPY_MOVE(SoundDeviceInterface);

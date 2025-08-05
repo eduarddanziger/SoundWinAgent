@@ -62,15 +62,20 @@ void ServiceObserver::OnCollectionChanged(SoundDeviceEventType event, const std:
 {
     spdlog::info("Event caught: {}, device PnP id: {}.", magic_enum::enum_name(event), devicePnpId);
 
-	//There is no (event == SoundDeviceEventType::Confirmed). "Confirmed" is sent by collection initialization
+    const auto soundDeviceInterface = collection_.CreateItem(devicePnpId);
+    if (!soundDeviceInterface)
+    {
+        spdlog::warn("Sound device with PnP id cannot be initialized.", devicePnpId);
+        return;
+    }
+
+	//There is no SoundDeviceEventType::Confirmed processing. "Confirmed" is sent by collection initialization only
     if (event == SoundDeviceEventType::Discovered)
     {
-        const auto soundDeviceInterface = collection_.CreateItem(devicePnpId);
         PostDeviceToApi(event, soundDeviceInterface.get(), "(by device discovery) ");
     }
     else if (event == SoundDeviceEventType::VolumeRenderChanged || event == SoundDeviceEventType::VolumeCaptureChanged)
     {
-        const auto soundDeviceInterface = collection_.CreateItem(devicePnpId);
 		const bool renderOrCapture = event == SoundDeviceEventType::VolumeRenderChanged;
         PutVolumeChangeToApi(devicePnpId, renderOrCapture, renderOrCapture ? soundDeviceInterface->GetCurrentRenderVolume() : soundDeviceInterface->GetCurrentCaptureVolume());
     }

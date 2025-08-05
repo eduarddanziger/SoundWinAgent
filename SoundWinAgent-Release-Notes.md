@@ -11,6 +11,15 @@ Released on $date$
 ~~~
 
 ## Changes
+- Device properties and events are extended to include the operating defaults for render and capture.
+
+3.2.5
+--------
+~~~
+Released on 23.07.2025
+~~~
+
+## Changes
 - Operation system name included into the Rest API
 - Discovery, Confirm, and Sound Volume messages
 - Latest spdog etc. via vcpkg

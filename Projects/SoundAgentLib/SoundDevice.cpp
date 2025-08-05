@@ -5,18 +5,20 @@
 ed::audio::SoundDevice::~SoundDevice() = default;
 
 ed::audio::SoundDevice::SoundDevice()
-    : SoundDevice("", "", SoundDeviceFlowType::None, 0, 0)
+    : SoundDevice("", "", SoundDeviceFlowType::None, 0, 0, false, false)
 {
 }
 
 // ReSharper disable once CppParameterMayBeConst
 ed::audio::SoundDevice::SoundDevice(std::string pnpId, std::string name, SoundDeviceFlowType flow, uint16_t renderVolume,
-                          uint16_t captureVolume)
+                          uint16_t captureVolume, bool renderIsDefault, bool captureIsDefault)
     : pnpId_(std::move(pnpId))
       , name_(std::move(name))
       , flow_(flow)
       , renderVolume_(renderVolume)
       , captureVolume_(captureVolume)
+    , renderIsDefault_(renderIsDefault)
+    , captureIsDefault_(captureIsDefault)
 {
 }
 
@@ -26,6 +28,8 @@ ed::audio::SoundDevice::SoundDevice(const SoundDevice & toCopy)
       , flow_(toCopy.flow_)
       , renderVolume_(toCopy.renderVolume_)
       , captureVolume_(toCopy.captureVolume_)
+    , renderIsDefault_(toCopy.renderIsDefault_)
+    , captureIsDefault_(toCopy.captureIsDefault_)
 {
 }
 
@@ -35,6 +39,8 @@ ed::audio::SoundDevice::SoundDevice(SoundDevice && toMove) noexcept
       , flow_(toMove.flow_)
       , renderVolume_(toMove.renderVolume_)
       , captureVolume_(toMove.captureVolume_)
+    , renderIsDefault_(toMove.renderIsDefault_)
+    , captureIsDefault_(toMove.captureIsDefault_)
 {
 }
 
@@ -47,6 +53,8 @@ ed::audio::SoundDevice & ed::audio::SoundDevice::operator=(const SoundDevice & t
         flow_ = toCopy.flow_;
         renderVolume_ = toCopy.renderVolume_;
         captureVolume_ = toCopy.captureVolume_;
+        renderIsDefault_ = toCopy.renderIsDefault_;
+        captureIsDefault_ = toCopy.captureIsDefault_;
     }
     return *this;
 }
@@ -60,6 +68,8 @@ ed::audio::SoundDevice & ed::audio::SoundDevice::operator=(SoundDevice && toMove
         flow_ = toMove.flow_;
         renderVolume_ = toMove.renderVolume_;
         captureVolume_ = toMove.captureVolume_;
+        captureIsDefault_ = toMove.captureIsDefault_;
+        renderIsDefault_ = toMove.renderIsDefault_;
     }
     return *this;
 }
@@ -97,4 +107,24 @@ void ed::audio::SoundDevice::SetCurrentRenderVolume(uint16_t volume)
 void ed::audio::SoundDevice::SetCurrentCaptureVolume(uint16_t volume)
 {
     captureVolume_ = volume;
+}
+
+bool ed::audio::SoundDevice::IsCaptureCurrentlyDefault() const
+{
+    return captureIsDefault_;
+}
+
+bool ed::audio::SoundDevice::IsRenderCurrentlyDefault() const
+{
+    return renderIsDefault_;
+}
+
+void ed::audio::SoundDevice::SetCaptureCurrentlyDefault(bool value)
+{
+    captureIsDefault_ = value;
+}
+
+void ed::audio::SoundDevice::SetRenderCurrentlyDefault(bool value)
+{
+    renderIsDefault_ = value;
 }
