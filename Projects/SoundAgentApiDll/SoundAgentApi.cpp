@@ -67,12 +67,16 @@ SaaResult SaaGetDefaultRender(SaaHandle handle, SaaDescription* description)
         const auto device = device_collection->CreateItem(*pnpId);
         strncpy_s(description->PnpId, _countof(description->PnpId), device->GetPnpId().c_str(), device->GetPnpId().size());
         strncpy_s(description->Name, _countof(description->Name), device->GetName().c_str(), device->GetName().size());
+        description->IsRender = device->GetFlow() == SoundDeviceFlowType::Render || device->GetFlow() == SoundDeviceFlowType::RenderAndCapture ? TRUE : FALSE;
+        description->IsCapture = device->GetFlow() == SoundDeviceFlowType::Capture || device->GetFlow() == SoundDeviceFlowType::RenderAndCapture ? TRUE : FALSE;
         description->RenderVolume = device->GetCurrentRenderVolume();
         description->CaptureVolume = device->GetCurrentCaptureVolume();
         return 0;
     }
     description->PnpId[0] = '\0';
     description->Name[0] = '\0';
+    description->IsRender = FALSE;
+    description->IsCapture = FALSE;
     description->RenderVolume = 0;
     description->CaptureVolume = 0;
     return 0;

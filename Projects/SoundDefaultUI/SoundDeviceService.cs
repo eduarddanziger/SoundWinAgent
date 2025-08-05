@@ -26,6 +26,7 @@ public class SoundDeviceService
         return new SoundDeviceInfo
         {
             PnpId = device.PnpId, DeviceName = device.Name,
+            IsRenderingAvailable = device.IsRender, IsCapturingAvailable = device.IsCapture,
             RenderVolumeLevel = device.RenderVolume, CaptureVolumeLevel = device.CaptureVolume
         };
         ;

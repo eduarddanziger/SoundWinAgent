@@ -21,6 +21,8 @@
     typedef struct {
         CHAR PnpId[80];
         CHAR Name[128];
+        BOOL IsRender;
+        BOOL IsCapture;
         UINT16 RenderVolume;
         UINT16 CaptureVolume;
     } SaaDescription;
