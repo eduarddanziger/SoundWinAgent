@@ -46,10 +46,12 @@
                     IsEnabled="{Binding Device.IsCapturingAvailable}" />
             </StackPanel>
         </Grid>
+        <!--
         <Button Content="Refresh Volume Level"
                 Command="{Binding RefreshCommand}"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Bottom"
                 Width="230" />
+    -->
     </DockPanel>
 </Window>

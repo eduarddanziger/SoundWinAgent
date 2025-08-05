@@ -4,10 +4,10 @@ namespace SoundDefaultUI;
 
 public class SoundDeviceInfo
 {
-    public string PnpId { get; init; } = "";
-    public string DeviceName { get; init; } = "";
-    public bool IsRenderingAvailable { get; init; } = false;
-    public bool IsCapturingAvailable { get; init; } = false;
+    public required string PnpId { get; init; } 
+    public required string DeviceName { get; init; }
+    public required bool IsRenderingAvailable { get; init; }
+    public required bool IsCapturingAvailable { get; init; }
     public float RenderVolumeLevel { get; init; }
     public float CaptureVolumeLevel { get; init; }
     public string RenderVolumePercentText => IsRenderingAvailable ? $"{Math.Round(RenderVolumeLevel / 10.0)}%" : "";
