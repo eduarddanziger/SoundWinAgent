@@ -49,9 +49,8 @@ ed::audio::SoundDeviceCollection::~SoundDeviceCollection()
     SAFE_RELEASE(enumerator_)
 }
 
-ed::audio::SoundDeviceCollection::SoundDeviceCollection(bool bothHeadsetAndMicro, std::function<void()> wainFunc)
+ed::audio::SoundDeviceCollection::SoundDeviceCollection(std::function<void()> wainFunc)
     : MultipleNotificationClient()
-      , bothHeadsetAndMicro_(bothHeadsetAndMicro)
       , wainFunc_(std::move(wainFunc))
 {
     const auto hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, IID_PPV_ARGS(&enumerator_));
@@ -124,7 +123,6 @@ void ed::audio::SoundDeviceCollection::Unsubscribe(SoundDeviceObserverInterface 
 {
     observers_.erase(&observer);
 }
-
 
 std::optional<std::wstring> ed::audio::SoundDeviceCollection::GetDeviceId(CComPtr<IMMDevice> deviceEndpointSmartPtr)
 {
@@ -438,7 +436,7 @@ void ed::audio::SoundDeviceCollection::ProcessActiveDeviceList(const ProcessDevi
     {
         IMMDeviceCollection* deviceCollection = nullptr;
         hr = enumerator_->EnumAudioEndpoints(
-            bothHeadsetAndMicro_ ? eAll : eRender, DEVICE_STATE_ACTIVE,
+            eAll, DEVICE_STATE_ACTIVE,
             &deviceCollection);
         if (FAILED(hr))
         {
@@ -472,10 +470,6 @@ void ed::audio::SoundDeviceCollection::ProcessActiveDeviceList(const ProcessDevi
             isDeviceCreated = TryCreateDeviceAndGetVolumeEndpoint(endpointDeviceSmartPtr, device, deviceId, endPointVolumeSmartPtr);
         }
         if (!isDeviceCreated)
-        {
-            continue;
-        }
-        if (!IsDeviceApplicable(device))
         {
             continue;
         }
@@ -597,27 +591,6 @@ void ed::audio::SoundDeviceCollection::NotifyObservers(SoundDeviceEventType acti
     }
 }
 
-bool ed::audio::SoundDeviceCollection::IsDeviceApplicable(const SoundDevice & device) const
-{
-    if (!bothHeadsetAndMicro_ && device.GetFlow() != SoundDeviceFlowType::Render)
-    {
-        spdlog::info(R"(Got a low-level event concerning the device "{}" , that is in "{}" mode. Ignore the event.)",
-                     device.GetName(), magic_enum::enum_name(device.GetFlow()));
-        return false;
-    }
-    spdlog::info(R"(Got a low-level event concerning the device "{}" , that is in {} mode.)", device.GetName(),
-                 magic_enum::enum_name(device.GetFlow()));
-
-    if (device.GetPnpId() == noPlugAndPlayGuid_)
-    {
-        spdlog::info(R"(The device "{}" has no unique plug-and-play id. Ignoring the event.)", device.GetName());
-        return false;
-    }
-    spdlog::info(R"(The device "{}" has got a plug-and-play id {}. Transferring the event to subscribers.)",
-                 device.GetName(), device.GetPnpId());
-    return true;
-}
-
 HRESULT ed::audio::SoundDeviceCollection::OnDeviceAdded(LPCWSTR deviceId)
 {
     const HRESULT onDeviceAdded = MultipleNotificationClient::OnDeviceAdded(deviceId);
@@ -629,7 +602,7 @@ HRESULT ed::audio::SoundDeviceCollection::OnDeviceAdded(LPCWSTR deviceId)
         if
         (
             EndPointVolumeSmartPtr endPointVolumeSmartPtr;
-            TryCreateDeviceOnId(deviceId, device, endPointVolumeSmartPtr) && IsDeviceApplicable(device)
+            TryCreateDeviceOnId(deviceId, device, endPointVolumeSmartPtr)
         )
         {
             RegisterDevice(this, deviceId, device, endPointVolumeSmartPtr);
@@ -728,7 +701,6 @@ HRESULT ed::audio::SoundDeviceCollection::OnDeviceRemoved(LPCWSTR deviceId)
         if
         (   EndPointVolumeSmartPtr volumeEndpointSmartPtr;
             TryCreateDeviceOnId(deviceId, removedDeviceToUnmerge, volumeEndpointSmartPtr)
-            && IsDeviceApplicable(removedDeviceToUnmerge)
         )
         {
             spdlog::info(R"(Device to remove, more info: name "{}", flow: {}, plug-and-play id: {}.)",
