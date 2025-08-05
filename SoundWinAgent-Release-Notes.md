@@ -11,10 +11,10 @@ Released on $date$
 ~~~
 
 ## New
-- The new simple WPF GUI shows Default Render Sound Device. It uses Sound Agent ANSI-C API and the respective Windows DLL project SoundAgentApiDll.dll. 
+- Added a simple WPF GUI to display the default render sound device, using the Sound Agent C API, implemented in a new SoundAgentApiDll.dll.
 
 ## Changes
-- Device properties and events are extended to include the operating defaults for render and capture.
+- Device properties and events now include the operating system's default render and capture devices.
 
 3.2.5
 --------
