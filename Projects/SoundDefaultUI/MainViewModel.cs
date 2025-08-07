@@ -26,6 +26,9 @@ public class MainViewModel : INotifyPropertyChanged
             {
                 _device = value;
                 OnPropertyChanged(nameof(Device));
+                OnPropertyChanged(nameof(IsDeviceNotNull));
+                OnPropertyChanged(nameof(IsDeviceNotNullAndHasRendering));
+                OnPropertyChanged(nameof(IsDeviceNotNullAndHasCapturing));
             }
         }
     }
@@ -58,7 +61,7 @@ public class MainViewModel : INotifyPropertyChanged
         RefreshCommand.CanExecuteChanged += (sender, eventArgs) => OnPropertyChanged();
     }
 
-    private static void OnDefaultRenderPresentOrAbsent(bool attach)
+    private static void OnDefaultRenderPresentOrAbsent(bool presentOrAbsent)
     {
         MyDispatcher?.Invoke(() =>
         {
@@ -67,7 +70,7 @@ public class MainViewModel : INotifyPropertyChanged
             // ReSharper disable once InvertIf
             if (mainWindow?.DataContext is MainViewModel mainViewModel)
             {
-                mainViewModel.Device = attach ? mainViewModel.SoundDeviceService.GetSoundDevice() : null;
+                mainViewModel.Device = presentOrAbsent ? mainViewModel.SoundDeviceService.GetSoundDevice() : null;
                 CommandManager.InvalidateRequerySuggested();
             }
         });
@@ -79,7 +82,11 @@ public class MainViewModel : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    public ICommand RefreshCommand { get; }
+    private ICommand RefreshCommand { get; }
+
+    public bool IsDeviceNotNull => Device != null;
+    public bool IsDeviceNotNullAndHasRendering => Device is { IsRenderingAvailable: true };
+    public bool IsDeviceNotNullAndHasCapturing => Device is { IsCapturingAvailable: true };
 
 
     private void Refresh()

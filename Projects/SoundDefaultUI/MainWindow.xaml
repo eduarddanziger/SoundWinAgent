@@ -19,31 +19,40 @@
     <DockPanel Margin="10">
         <Grid DockPanel.Dock="Top">
             <StackPanel>
-                <TextBlock Text="PnP Identifier" FontWeight="Bold" Margin="0,0,0,5" />
-                <TextBox
-                    Text="{Binding Device.PnpId, Mode = OneWay, TargetNullValue='(No device)', FallbackValue='(No device)'}"
-                    IsReadOnly="True" Margin="0,0,0,10" />
+                <TextBlock Text="PnP Identifier" FontWeight="Bold" Margin="0,0,0,5"
+                           IsEnabled="{Binding IsDeviceNotNull}"
+                           Style="{StaticResource GrayOnDisabledTextBlock}" />
 
-                <TextBlock Text="Name" FontWeight="Bold" Margin="0,0,0,5" />
                 <TextBox
-                    Text="{Binding Device.DeviceName, Mode = OneWay, TargetNullValue='(No name)', FallbackValue='(No name)'}"
-                    IsReadOnly="True" Margin="0,0,0,10" />
+                    Text="{Binding Device.PnpId, Mode = OneWay, TargetNullValue='null value', FallbackValue=''}"
+                    IsReadOnly="True" Margin="0,0,0,10"
+                    IsEnabled="{Binding IsDeviceNotNull}"/>
+
+                <TextBlock Text="Name" FontWeight="Bold" Margin="0,0,0,5"
+                           IsEnabled="{Binding IsDeviceNotNull}"
+                           Style="{StaticResource GrayOnDisabledTextBlock}" />
+
+
+                <TextBox
+                    Text="{Binding Device.DeviceName, Mode = OneWay, TargetNullValue='null value', FallbackValue=''}"
+                    IsReadOnly="True" Margin="0,0,0,10"
+                    IsEnabled="{Binding IsDeviceNotNull}"/>
 
                 <TextBlock Text="Output Volume Level" FontWeight="Bold" Margin="0,0,0,5"
-                           IsEnabled="{Binding Device.IsRenderingAvailable}"
+                           IsEnabled="{Binding IsDeviceNotNullAndHasRendering}"
                            Style="{StaticResource GrayOnDisabledTextBlock}" />
                 <TextBox
-                    Text="{Binding Device.RenderVolumePercentText, Mode = OneWay, TargetNullValue='-', FallbackValue='-'}"
+                    Text="{Binding Device.RenderVolumePercentText, Mode = OneWay, TargetNullValue='null value'}"
                     IsReadOnly="True" Margin="0,0,0,10"
-                    IsEnabled="{Binding Device.IsRenderingAvailable}" />
+                    IsEnabled="{Binding IsDeviceNotNullAndHasRendering}" />
 
                 <TextBlock Text="Input Volume Level" FontWeight="Bold" Margin="0,0,0,5"
-                           IsEnabled="{Binding Device.IsCapturingAvailable}"
+                           IsEnabled="{Binding IsDeviceNotNullAndHasCapturing}"
                            Style="{StaticResource GrayOnDisabledTextBlock}" />
                 <TextBox
-                    Text="{Binding Device.CaptureVolumePercentText, Mode = OneWay, TargetNullValue='-', FallbackValue='-'}"
+                    Text="{Binding Device.CaptureVolumePercentText, Mode = OneWay, TargetNullValue='null value', FallbackValue=''}"
                     IsReadOnly="True" Margin="0,0,0,10"
-                    IsEnabled="{Binding Device.IsCapturingAvailable}" />
+                    IsEnabled="{Binding IsDeviceNotNullAndHasCapturing}" />
             </StackPanel>
         </Grid>
         <!--
