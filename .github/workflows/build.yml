@@ -78,7 +78,9 @@ jobs:
       run: vcpkg integrate install
 
     - name: Build with MSBuild
-      run: msbuild /p:Configuration=Release /p:VcpkgEnabled=true /p:VcpkgManifestPath=vcpkg.json /p:VcpkgTriplet=x64-windows-static /target:Rebuild -restore
+      run: |
+        msbuild /p:Configuration=Release /p:VcpkgEnabled=true /p:VcpkgManifestPath=vcpkg.json /p:VcpkgTriplet=x64-windows-static /target:Rebuild -restore
+        dotnet publish "Projects/SoundDefaultUI/SoundDefaultUI.csproj" -c Release -p:PublishProfile=FolderProfile
 
     - name: Upload entire artifacts directory
       uses: actions/upload-artifact@v4
