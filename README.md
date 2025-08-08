@@ -27,6 +27,19 @@ SoundWinAgent.exe /url=http://localhost:5027
 ```
 6. SoundWinAgent.exe /help brings a command line help screen with all available options.
 
+## Prepare RabbitMQ artifacts:
+```powershell
+### Create exchange
+.\rabbitmqadmin declare exchange --name=sdr_updates --type=direct --durable=true --vhost=/
+
+### Create queue
+.\rabbitmqadmin declare queue --name=sdr_metrics --durable=true --vhost=/
+
+### Bind queue to exchange
+.\rabbitmqadmin declare binding --source=sdr_updates --destination=sdr_metrics --destination-type=queue --routing-key=metrics-capture --vhost=/
+```
+
+
 ## How to Build
 1. Install Visual Studio 2022
 2. download [Nuget.exe](https://dist.nuget.org/win-x86-commandline/latest/nuget.exe) and set a NuGet environment variable to the path of the NuGet executable.

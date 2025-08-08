@@ -72,6 +72,9 @@
     <ClInclude Include="ApiClient\common\SpdLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ApiClient\MetricsPublisher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ApiClient\common\StringUtils.cpp">

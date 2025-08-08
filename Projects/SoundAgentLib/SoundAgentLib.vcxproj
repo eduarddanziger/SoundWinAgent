@@ -17,6 +17,7 @@
     <RootNamespace>AudioControllerLib</RootNamespace>
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.props" />
   <ImportGroup Label="ExtensionSettings" />
@@ -58,6 +59,7 @@
     <ClInclude Include="ApiClient\common\SpdLogger\LogBuffer.h" />
     <ClInclude Include="ApiClient\common\SpdLogger\Logger.h" />
     <ClInclude Include="ApiClient\HttpRequestProcessor.h" />
+    <ClInclude Include="ApiClient\MetricsPublisher.h" />
     <ClInclude Include="ApiClient\SodiumCrypt.h" />
     <ClInclude Include="ApiClient\common\ClassDefHelper.h" />
     <ClInclude Include="public\CoInitRaiiHelper.h" />
