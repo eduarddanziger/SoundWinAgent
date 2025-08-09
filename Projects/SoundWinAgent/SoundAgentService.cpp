@@ -3,6 +3,8 @@
 #include "ApiClient/common/SpdLogger.h"
 
 #include "ApiClient/SodiumCrypt.h"
+#include "ApiClient/HttpStandaloneProcessor.h"
+#include "ApiClient/HttpGatewayProcessor.h"
 #include "ServiceObserver.h"
 #include "public/CoInitRaiiHelper.h"
 #include "public/SoundAgentInterface.h"
@@ -32,7 +34,17 @@ protected:
 
             const auto coll(SoundAgent::CreateDeviceCollection());
 
-            ServiceObserver serviceObserver(*coll, apiBaseUrl_, universalToken_, codeSpaceName_);
+            std::unique_ptr<HttpRequestProcessorInterface> requestProcessorSmartPtr;
+            if (apiBaseUrl_ == "none")
+            {
+                requestProcessorSmartPtr.reset(new HttpGatewayProcessor());
+            }
+            else 
+            {
+                requestProcessorSmartPtr.reset(new HttpStandaloneProcessor(apiBaseUrl_, universalToken_, codeSpaceName_));
+            }
+
+            ServiceObserver serviceObserver(*coll, *requestProcessorSmartPtr);
             coll->Subscribe(serviceObserver);
 
             coll->ResetContent();
@@ -123,8 +135,11 @@ protected:
         {
             apiBaseUrl_ = ReadStringConfigProperty(API_BASE_URL_PROPERTY_KEY);
         }
-       
-        apiBaseUrl_ += "/api/AudioDevices";
+
+        if (apiBaseUrl_ != "none")
+        {
+            apiBaseUrl_ += "/api/AudioDevices";
+        }
 
         universalToken_ = ReadStringConfigProperty(UNIVERSAL_TOKEN_PROPERTY_KEY);
 
