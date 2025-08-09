@@ -61,7 +61,7 @@
     <ClInclude Include="ApiClient\common\SpdLogger\Logger.h" />
     <ClInclude Include="ApiClient\HttpStandaloneProcessor.h" />
     <ClInclude Include="ApiClient\HttpRequestProcessorInterface.h" />
-    <ClInclude Include="ApiClient\MetricsPublisher.h" />
+    <ClInclude Include="ApiClient\RequestPublisher.h" />
     <ClInclude Include="ApiClient\SodiumCrypt.h" />
     <ClInclude Include="ApiClient\common\ClassDefHelper.h" />
     <ClInclude Include="public\CoInitRaiiHelper.h" />
@@ -80,7 +80,7 @@
     <ClCompile Include="ApiClient\AudioDeviceApiClient.cpp" />
     <ClCompile Include="ApiClient\HttpGatewayProcessor.cpp" />
     <ClCompile Include="ApiClient\HttpStandaloneProcessor.cpp" />
-    <ClCompile Include="ApiClient\MetricsPublisher.cpp" />
+    <ClCompile Include="ApiClient\RequestPublisher.cpp" />
     <ClCompile Include="ApiClient\SodiumCrypt.cpp" />
     <ClCompile Include="SoundDevice.cpp" />
     <ClCompile Include="SoundDeviceCollection.cpp" />

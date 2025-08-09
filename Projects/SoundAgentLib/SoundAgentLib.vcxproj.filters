@@ -72,7 +72,7 @@
     <ClInclude Include="ApiClient\common\SpdLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ApiClient\MetricsPublisher.h">
+    <ClInclude Include="ApiClient\RequestPublisher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ApiClient\HttpRequestProcessorInterface.h">
@@ -104,7 +104,7 @@
     <ClCompile Include="ApiClient\HttpGatewayProcessor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ApiClient\MetricsPublisher.cpp">
+    <ClCompile Include="ApiClient\RequestPublisher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
