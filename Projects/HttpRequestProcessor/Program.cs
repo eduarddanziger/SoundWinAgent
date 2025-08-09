@@ -20,9 +20,9 @@ var builder = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IConnectionFactory>(sp =>
             new ConnectionFactory()
             {
-                HostName = config["RabbitMQ:HostName"],
-                UserName = config["RabbitMQ:UserName"],
-                Password = config["RabbitMQ:Password"]
+                HostName = config["RabbitMQ:HostName"] ?? string.Empty,
+                UserName = config["RabbitMQ:UserName"] ?? string.Empty,
+                Password = config["RabbitMQ:Password"] ?? string.Empty
             });
 
         // Add hosted service

@@ -16,8 +16,8 @@ public class RabbitMqConsumerService(
     : BackgroundService
 {
     private readonly string _queueName = rabbitSettings.Value.QueueName;
-    //private readonly string _apiEndpoint = apiSettings.Value.AzureUrl; //! Azure, not Codespace
-    private readonly string _apiEndpoint = apiSettings.Value.LocalVmUrl; // Use Local VM URL for testing
+    private readonly string _apiEndpoint = apiSettings.Value.AzureUrl; //! Azure, not Codespace
+    //private readonly string _apiEndpoint = apiSettings.Value.LocalVmUrl; // Use Local VM URL for testing
 
     private IConnection? _connection;
     private IChannel? _channel;
