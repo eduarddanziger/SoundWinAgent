@@ -21,13 +21,23 @@ The Sound Agent registers audio device information on a backend server via REST 
 	- net stop SoundWinAgent
 3. Start / Stop the SoundWinAgent service
 4. SoundWinAgent.exe can be started as a Windows CLI, too. Stop it via Ctrl-C
-5. SoundWinAgent.exe accepts an optional command line parameter, can tune the URL of the backend ASP.Net Core REST API Server, e.g.:
-```powershell or bash
-SoundWinAgent.exe /url=http://localhost:5027
-```
+5. SoundWinAgent.exe accepts following optional command line parameters
+    - /url=\<URL\> can tune the URL of the backend ASP.Net Core REST API Server.
+      If not set, see the configuration file SoundWinAgent.xml, apiBaseUrl element. Example:
+	```
+	SoundWinAgent.exe /url=http://localhost:5027
+	```
+    - /transport=None|Direct|RabbitMQ defines the transport mechanism to use for deliver
+      audio device information to the backend server. The default is 'None' (no delivery).
+	  'Direct' uses an own transient queue and HTTP client; 'RabbitMQ' uses RabbitMQ as a message broker (recommended).
+	  If not set, see the configuration file SoundWinAgent.xml, apiBaseUrl element. Example:
+
+	```
+	SoundWinAgent.exe /transport=RabbitMQ
+	```
 6. SoundWinAgent.exe /help brings a command line help screen with all available options.
 
-## Prepare RabbitMQ artifacts:
+## Prepare RabbitMQ:
 ```powershell
 ### Create exchange
 .\rabbitmqadmin declare exchange --name=sdr_updates --type=direct --durable=true --vhost=/
