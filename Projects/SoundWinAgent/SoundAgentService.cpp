@@ -3,8 +3,8 @@
 #include "ApiClient/common/SpdLogger.h"
 
 #include "ApiClient/SodiumCrypt.h"
-#include "ApiClient/HttpStandaloneProcessor.h"
-#include "ApiClient/HttpGatewayProcessor.h"
+#include "ApiClient/DirectHttpRequestDispatcher.h"
+#include "ApiClient/RabbitMqHttpRequestDispatcher.h"
 #include "ServiceObserver.h"
 #include "public/CoInitRaiiHelper.h"
 #include "public/SoundAgentInterface.h"
@@ -34,17 +34,17 @@ protected:
 
             const auto coll(SoundAgent::CreateDeviceCollection());
 
-            std::unique_ptr<HttpRequestProcessorInterface> requestProcessorSmartPtr;
+            std::unique_ptr<HttpRequestDispatcherInterface> requestDispatcherSmartPtr;
             if (apiBaseUrl_ == "none")
             {
-                requestProcessorSmartPtr.reset(new HttpGatewayProcessor());
+                requestDispatcherSmartPtr.reset(new RabbitMqHttpRequestDispatcher());
             }
             else 
             {
-                requestProcessorSmartPtr.reset(new HttpStandaloneProcessor(apiBaseUrl_, universalToken_, codeSpaceName_));
+                requestDispatcherSmartPtr.reset(new DirectHttpRequestDispatcher(apiBaseUrl_, universalToken_, codeSpaceName_));
             }
 
-            ServiceObserver serviceObserver(*coll, *requestProcessorSmartPtr);
+            ServiceObserver serviceObserver(*coll, *requestDispatcherSmartPtr);
             coll->Subscribe(serviceObserver);
 
             coll->ResetContent();

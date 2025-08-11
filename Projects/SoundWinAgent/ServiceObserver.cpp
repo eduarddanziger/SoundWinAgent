@@ -11,7 +11,7 @@
 #include <cpprest/asyncrt_utils.h>
 
 ServiceObserver::ServiceObserver(SoundDeviceCollectionInterface& collection,
-                                 HttpRequestProcessorInterface& requestProcessor
+                                 HttpRequestDispatcherInterface& requestProcessor
                                  )
     : collection_(collection)
     , requestProcessorInterface_(requestProcessor)

@@ -54,7 +54,7 @@
     <ClInclude Include="ApiClient\AudioDeviceApiClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ApiClient\HttpStandaloneProcessor.h">
+    <ClInclude Include="ApiClient\DirectHttpRequestDispatcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ApiClient\SodiumCrypt.h">
@@ -75,10 +75,10 @@
     <ClInclude Include="ApiClient\RequestPublisher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ApiClient\HttpRequestProcessorInterface.h">
+    <ClInclude Include="ApiClient\HttpRequestDispatcherInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ApiClient\HttpGatewayProcessor.h">
+    <ClInclude Include="ApiClient\RabbitMqHttpRequestDispatcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -95,13 +95,13 @@
     <ClCompile Include="ApiClient\AudioDeviceApiClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ApiClient\HttpStandaloneProcessor.cpp">
+    <ClCompile Include="ApiClient\DirectHttpRequestDispatcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ApiClient\SodiumCrypt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ApiClient\HttpGatewayProcessor.cpp">
+    <ClCompile Include="ApiClient\RabbitMqHttpRequestDispatcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ApiClient\RequestPublisher.cpp">

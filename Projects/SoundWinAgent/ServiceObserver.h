@@ -2,13 +2,13 @@
 
 #include "public/SoundAgentInterface.h"
 
-class HttpRequestProcessorInterface;
-class HttpStandaloneProcessor;
+class HttpRequestDispatcherInterface;
+class DirectHttpRequestDispatcher;
 
 class ServiceObserver final : public SoundDeviceObserverInterface {
 public:
     ServiceObserver(SoundDeviceCollectionInterface& collection,
-        HttpRequestProcessorInterface& requestProcessor
+        HttpRequestDispatcherInterface& requestProcessor
     );
 
     void PostDeviceToApi(SoundDeviceEventType messageType, const SoundDeviceInterface* devicePtr, const std::string & hintPrefix= "") const;
@@ -28,5 +28,5 @@ private:
 
 private:
     SoundDeviceCollectionInterface& collection_;
-    HttpRequestProcessorInterface& requestProcessorInterface_;
+    HttpRequestDispatcherInterface& requestProcessorInterface_;
 };
