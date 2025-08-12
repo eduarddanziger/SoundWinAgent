@@ -2,18 +2,19 @@
 
 Sound Agent detects and outputs plug-and-play audio endpoint devices under Windows. It handles audio notifications and device changes.
 
-The Sound Agent registers audio device information on a backend server via REST API,
-see the backend Audio Device Repository Server (ASP.Net Core) [audio-device-repo-server](https://github.com/eduarddanziger/audio-device-repo-server/)
-with a React / TypeScript frontend: [list-audio-react-app](https://github.com/eduarddanziger/list-audio-react-app/)
+The Sound Agent registers audio device information on a backend server via REST API, optionally using RabbitMQ / RMQ to REST API forwarder (.NET Windows Service).
+Fir the backend Audio Device Repository Server (ASP.Net Core) see [audio-device-repo-server](https://github.com/eduarddanziger/audio-device-repo-server/)
+with a React / TypeScript frontend [list-audio-react-app](https://github.com/eduarddanziger/list-audio-react-app/).
 
 ## Executables Generated
 - **SoundWinAgent**: Windows Service collects audio device information and sends it to a remote server.
 - **SoundAgentCli**: Command-line test CLI.
-- **HttpRequestProcessor**: RabbitMQ to REST API forwarder, which is used to forward audio device information from RabbitMQ to the backend server.
+- **HttpRequestProcessor**: RMQ to REST API forwarder, which is used to forward audio device information from RabbitMQ to the backend server.
 
 ## Technologies Used
 - **C++**: Core logic implementation.
-- **Packages**: Poco and cpprestsdk vcpkg packages used in order to leverage Windows Server Manager and utilize HTTP REST client code.
+- **Packages**: Poco, cpprestsdk and rmqcpp vcpkg packages used in order to leverage Windows Server Manager and utilize HTTP and RabbitMQ client code.
+- **RabbitMQ** service, optionally
 
 ## Usage
 1. Download and unzip the latest rollout of SoundWinAgent-x.x.x. from the latest repository release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/releases/latest)
@@ -54,9 +55,9 @@ you need to install RabbitMQ (via chocolatey), rabbitmqadmin, and create the nec
 .\rabbitmqadmin declare binding --source=sdr_updates --destination=sdr_metrics --destination-type=queue --routing-key=metrics-capture --vhost=/
 ```
 
-### Then download and unzip the latest rollout of RabbitMq-To-RESTAPI-Forwarder: HttpRequestProcessor-x.x.x. from the latest repository release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/releases/latest) and register HttpRequestProcessor.exe as a Windows Service:
+### Then download and unzip the latest rollout of RMQ-To-RESTAPI-Forwarder: HttpRequestProcessor-x.x.x. from the latest repository release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/releases/latest) and register HttpRequestProcessor.exe as a Windows Service:
 ```powershell
-# Register and start the RabbitMq-To-RESTAPI-Forwarder Windows Service
+# Register and start the RMQ-To-RESTAPI-Forwarder Windows Service
 sc create HttpRequestProcessor binPath="<your folder>\HttpRequestProcessor.exe" start=auto
 sc start HttpRequestProcessor
 ```
