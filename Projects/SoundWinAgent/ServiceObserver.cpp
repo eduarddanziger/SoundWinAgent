@@ -3,7 +3,6 @@
 #include "ServiceObserver.h"
 
 #include "ApiClient/AudioDeviceApiClient.h"
-#include "ApiClient/HttpRequestProcessor.h"
 
 #include <magic_enum/magic_enum.hpp>
 
@@ -12,26 +11,22 @@
 #include <cpprest/asyncrt_utils.h>
 
 ServiceObserver::ServiceObserver(SoundDeviceCollectionInterface& collection,
-                                 std::string apiBaseUrl,
-                                 std::string universalToken,
-                                 std::string codeSpaceName)
+                                 HttpRequestDispatcherInterface& requestProcessor
+                                 )
     : collection_(collection)
-    , apiBaseUrl_(std::move(apiBaseUrl))
-    , universalToken_(std::move(universalToken))
-    , codeSpaceName_(std::move(codeSpaceName))
-    , requestProcessorSmartPtr_(std::make_shared<HttpRequestProcessor>(apiBaseUrl_, universalToken_, codeSpaceName_))
+    , requestProcessorInterface_(requestProcessor)
 {
 }
 
 void ServiceObserver::PostDeviceToApi(const SoundDeviceEventType messageType, const SoundDeviceInterface* devicePtr, const std::string & hintPrefix) const
 {
-    const AudioDeviceApiClient apiClient(requestProcessorSmartPtr_, GetHostName, GetOperationSystemName);
+    const AudioDeviceApiClient apiClient(requestProcessorInterface_, GetHostName, GetOperationSystemName);
     apiClient.PostDeviceToApi(messageType, devicePtr, hintPrefix);
 }
 
 void ServiceObserver::PutVolumeChangeToApi(const std::string & pnpId, bool renderOrCapture, uint16_t volume, const std::string & hintPrefix) const
 {
-	const AudioDeviceApiClient apiClient(requestProcessorSmartPtr_, GetHostName, GetOperationSystemName);
+	const AudioDeviceApiClient apiClient(requestProcessorInterface_, GetHostName, GetOperationSystemName);
 	apiClient.PutVolumeChangeToApi(pnpId, renderOrCapture, volume, hintPrefix);
 }
 
@@ -46,14 +41,7 @@ void ServiceObserver::PostAndPrintCollection() const
         spdlog::info(R"({}, "{}", {}, Volume {} / {})", deviceSmartPtr->GetPnpId(), deviceSmartPtr->GetName(),
                      magic_enum::enum_name(deviceSmartPtr->GetFlow()), deviceSmartPtr->GetCurrentRenderVolume(),
                      deviceSmartPtr->GetCurrentCaptureVolume());
-        if (!apiBaseUrl_.empty())
-        {
-            PostDeviceToApi(SoundDeviceEventType::Confirmed, deviceSmartPtr.get(), "(by iteration on device collection) ");
-        }
-        else
-        {
-            spdlog::info("No API base URL configured. Skipping API call.");
-        }
+        PostDeviceToApi(SoundDeviceEventType::Confirmed, deviceSmartPtr.get(), "(by iteration on device collection) ");
     }
     spdlog::info("...Processing device collection finished.");
 }
