@@ -22,6 +22,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundAgentLibTests", "Proje
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundWinAgent", "Projects\SoundWinAgent\SoundWinAgent.vcxproj", "{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundAgentApiDll", "Projects\SoundAgentApiDll\SoundAgentApiDll.vcxproj", "{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundDefaultUI", "Projects\SoundDefaultUI\SoundDefaultUI.csproj", "{5B7BBF93-1CE3-7A17-DC7A-432D3575AFB6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E} = {92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpRequestProcessor", "Projects\HttpRequestProcessor\HttpRequestProcessor.csproj", "{D95C52E8-5631-4FDC-9DC6-A3C3C23A91DA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5B7BBF93-1CE3-7A17-DC7A-432D3575AFB6} = {5B7BBF93-1CE3-7A17-DC7A-432D3575AFB6}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -52,6 +64,20 @@ Global
 		{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}.Release|x64.ActiveCfg = Release|x64
 		{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}.Release|x64.Build.0 = Release|x64
 		{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}.Release|x64.Deploy.0 = Release|x64
+		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Debug|x64.ActiveCfg = Debug|x64
+		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Debug|x64.Build.0 = Debug|x64
+		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Debug|x64.Deploy.0 = Debug|x64
+		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Release|x64.ActiveCfg = Release|x64
+		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Release|x64.Build.0 = Release|x64
+		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Release|x64.Deploy.0 = Release|x64
+		{5B7BBF93-1CE3-7A17-DC7A-432D3575AFB6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5B7BBF93-1CE3-7A17-DC7A-432D3575AFB6}.Debug|x64.Build.0 = Debug|Any CPU
+		{5B7BBF93-1CE3-7A17-DC7A-432D3575AFB6}.Release|x64.ActiveCfg = Release|Any CPU
+		{5B7BBF93-1CE3-7A17-DC7A-432D3575AFB6}.Release|x64.Build.0 = Release|Any CPU
+		{D95C52E8-5631-4FDC-9DC6-A3C3C23A91DA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D95C52E8-5631-4FDC-9DC6-A3C3C23A91DA}.Debug|x64.Build.0 = Debug|Any CPU
+		{D95C52E8-5631-4FDC-9DC6-A3C3C23A91DA}.Release|x64.ActiveCfg = Release|Any CPU
+		{D95C52E8-5631-4FDC-9DC6-A3C3C23A91DA}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

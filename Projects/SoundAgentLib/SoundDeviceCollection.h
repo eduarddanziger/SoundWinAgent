@@ -28,7 +28,7 @@ public:
     ~SoundDeviceCollection() override;
 
 public:
-    explicit SoundDeviceCollection(bool bothHeadsetAndMicro, std::function<void()> wainFunc);
+    explicit SoundDeviceCollection(std::function<void()> wainFunc);
 
     [[nodiscard]] size_t GetSize() const override;
     [[nodiscard]] std::unique_ptr<SoundDeviceInterface> CreateItem(size_t deviceNumber) const override;
@@ -61,7 +61,6 @@ private:
 
 
     void NotifyObservers(SoundDeviceEventType action, const std::string & devicePNpId) const;
-    [[nodiscard]] bool IsDeviceApplicable(const SoundDevice & device) const;
     static bool TryCreateDeviceAndGetVolumeEndpoint(
         CComPtr<IMMDevice> deviceEndpointSmartPtr,
         SoundDevice& device,
@@ -95,9 +94,7 @@ private:
     std::map<std::string, SoundDevice> pnpToDeviceMap_;
     std::set<SoundDeviceObserverInterface*> observers_;
     IMMDeviceEnumerator * enumerator_ = nullptr;
-    bool bothHeadsetAndMicro_;
     std::function<void()> wainFunc_;
-    const std::string noPlugAndPlayGuid_ = "00000000-0000-0000-FFFF-FFFFFFFFFFFF";
 
     std::map<std::wstring, CComPtr<IAudioEndpointVolume>> devIdToEndpointVolumes_;
 

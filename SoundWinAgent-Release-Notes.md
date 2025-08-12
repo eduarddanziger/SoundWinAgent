@@ -10,8 +10,12 @@ $version$
 Released on $date$
 ~~~
 
+## New
+- Added a simple WPF GUI to display the default render sound device, using the Sound Agent C API, implemented in a new SoundAgentApiDll.dll.
+- Added possibility to use RabbitMQ as a transport mechanism.
+
 ## Changes
-- Device properties and events are extended to include the operating defaults for render and capture.
+- Device properties and events now include the operating system's default render and capture devices.
 
 3.2.5
 --------
