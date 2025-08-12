@@ -2,11 +2,14 @@
 
 Sound Agent detects and outputs plug-and-play audio endpoint devices under Windows. It handles audio notifications and device changes.
 
-The Sound Agent registers audio device information on a backend server via REST API, see the backend Audio Device Repository Server (ASP.Net Core) [audio-device-repo-server](https://github.com/eduarddanziger/audio-device-repo-server/) with a React / TypeScript frontend: [list-audio-react-app](https://github.com/eduarddanziger/list-audio-react-app/)
+The Sound Agent registers audio device information on a backend server via REST API,
+see the backend Audio Device Repository Server (ASP.Net Core) [audio-device-repo-server](https://github.com/eduarddanziger/audio-device-repo-server/)
+with a React / TypeScript frontend: [list-audio-react-app](https://github.com/eduarddanziger/list-audio-react-app/)
 
 ## Executables Generated
 - **SoundWinAgent**: Windows Service collects audio device information and sends it to a remote server.
 - **SoundAgentCli**: Command-line test CLI.
+- **HttpRequestProcessor**: RabbitMQ to REST API forwarder, which is used to forward audio device information from RabbitMQ to the backend server.
 
 ## Technologies Used
 - **C++**: Core logic implementation.
@@ -37,20 +40,28 @@ The Sound Agent registers audio device information on a backend server via REST 
 	```
 6. SoundWinAgent.exe /help brings a command line help screen with all available options.
 
-## Prepare RabbitMQ:
-```powershell
-### Create exchange
-.\rabbitmqadmin declare exchange --name=sdr_updates --type=direct --durable=true --vhost=/
+## Use RabbitMQ
 
+### If you want to use RabbitMQ as a message broker (most reliable solution),
+you need to install RabbitMQ (via chocolatey), rabbitmqadmin, and create the necessary exchange and queue.
+
+```powershell
+# Create exchange
+.\rabbitmqadmin declare exchange --name=sdr_updates --type=direct --durable=true --vhost=/
 ### Create queue
 .\rabbitmqadmin declare queue --name=sdr_metrics --durable=true --vhost=/
-
-### Bind queue to exchange
+# Bind queue to exchange
 .\rabbitmqadmin declare binding --source=sdr_updates --destination=sdr_metrics --destination-type=queue --routing-key=metrics-capture --vhost=/
 ```
 
+### Then download and unzip the latest rollout of RabbitMq-To-RESTAPI-Forwarder: HttpRequestProcessor-x.x.x. from the latest repository release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/releases/latest) and register HttpRequestProcessor.exe as a Windows Service:
+```powershell
+# Register and start the RabbitMq-To-RESTAPI-Forwarder Windows Service
+sc create HttpRequestProcessor binPath="<your folder>\HttpRequestProcessor.exe" start=auto
+sc start HttpRequestProcessor
+```
 
-## How to Build
+## Developer Environment, How to Build:
 1. Install Visual Studio 2022
 2. download [Nuget.exe](https://dist.nuget.org/win-x86-commandline/latest/nuget.exe) and set a NuGet environment variable to the path of the NuGet executable.
 3. Build the solution, e.g. if you use Visual Studio Community Edition:
