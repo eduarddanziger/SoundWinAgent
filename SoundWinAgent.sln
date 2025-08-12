@@ -30,6 +30,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundDefaultUI", "Projects\
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpRequestProcessor", "Projects\HttpRequestProcessor\HttpRequestProcessor.csproj", "{D95C52E8-5631-4FDC-9DC6-A3C3C23A91DA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5B7BBF93-1CE3-7A17-DC7A-432D3575AFB6} = {5B7BBF93-1CE3-7A17-DC7A-432D3575AFB6}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

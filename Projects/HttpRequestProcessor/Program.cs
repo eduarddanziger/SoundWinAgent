@@ -7,10 +7,10 @@ using System.Text.Json;
 using HttpRequestProcessor;
 
 var builder = Host.CreateDefaultBuilder(args)
-    // .UseWindowsService(options =>
-    // {
-    //     options.ServiceName = "RabbitMQ Message Processor";
-    // })
+    .UseWindowsService(options =>
+    {
+        options.ServiceName = "RabbitMQ Message Processor";
+    })
     .ConfigureServices((context, services) =>
     {
         var config = context.Configuration;
