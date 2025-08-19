@@ -27,8 +27,10 @@ public class MainViewModel : INotifyPropertyChanged
                 _device = value;
                 OnPropertyChanged(nameof(Device));
                 OnPropertyChanged(nameof(IsDeviceNotNull));
-                OnPropertyChanged(nameof(IsDeviceNotNullAndHasRendering));
-                OnPropertyChanged(nameof(IsDeviceNotNullAndHasCapturing));
+                OnPropertyChanged(nameof(IsRenderingAvailable));
+                OnPropertyChanged(nameof(IsCapturingAvailable));
+                OnPropertyChanged(nameof(RenderingAvailability2IndicatorOpacity));
+                OnPropertyChanged(nameof(CapturingAvailability2IndicatorOpacity));
             }
         }
     }
@@ -85,9 +87,11 @@ public class MainViewModel : INotifyPropertyChanged
     private ICommand RefreshCommand { get; }
 
     public bool IsDeviceNotNull => Device != null;
-    public bool IsDeviceNotNullAndHasRendering => Device is { IsRenderingAvailable: true };
-    public bool IsDeviceNotNullAndHasCapturing => Device is { IsCapturingAvailable: true };
+    public bool IsRenderingAvailable => Device is { IsRenderingAvailable: true };
+    public bool IsCapturingAvailable => Device is { IsCapturingAvailable: true };
 
+    public double RenderingAvailability2IndicatorOpacity => IsRenderingAvailable ? 1.0 : 0.2;
+    public double CapturingAvailability2IndicatorOpacity => IsCapturingAvailable ? 1.0 : 0.2;
 
     private void Refresh()
     {
