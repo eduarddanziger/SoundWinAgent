@@ -91,7 +91,7 @@ public class MainViewModel : INotifyPropertyChanged
     public bool IsCapturingAvailable => Device is { IsCapturingAvailable: true };
 
     public double RenderingAvailability2IndicatorOpacity => IsRenderingAvailable ? 1.0 : 0.2;
-    public double CapturingAvailability2IndicatorOpacity => IsCapturingAvailable ? 1.0 : 0.2;
+    public double CapturingAvailability2IndicatorOpacity => IsCapturingAvailable ? 0.55 : 0.2;
 
     private void Refresh()
     {
