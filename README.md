@@ -10,12 +10,17 @@ with a React / TypeScript frontend: [list-audio-react-app](https://github.com/ed
 - **SoundWinAgent**: Windows Service collects audio device information and sends it to a remote server.
 - **SoundAgentCli**: Command-line test CLI.
 - **HttpRequestProcessor**: RabbitMQ to REST API forwarder, which is used to forward audio device information from RabbitMQ to the backend server.
+- **SoundDefaultUI**: Lightweight WPF UI showing the live volume levels of the current default audio devices.
 
 ## Technologies Used
 - **C++**: Core logic implementation.
 - **Packages**: Poco and cpprestsdk vcpkg packages used in order to leverage Windows Server Manager and utilize HTTP REST client code.
+- **RabbitMQ**: Used as a message broker for reliable audio device information delivery.
+- **WPF**: Lightweight UI for displaying live volume levels of the current default audio devices.
+ 
 
 ## Usage
+### SoundWinAgent
 1. Download and unzip the latest rollout of SoundWinAgent-x.x.x. from the latest repository release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/releases/latest)
 2. Install / Uninstall the SoundWinAgent service:
 	- (elevated) SoundWinAgent.exe /registerService [/startup=auto|manual|disabled]. 
@@ -39,10 +44,11 @@ with a React / TypeScript frontend: [list-audio-react-app](https://github.com/ed
 	SoundWinAgent.exe /transport=RabbitMQ
 	```
 6. SoundWinAgent.exe /help brings a command line help screen with all available options.
+ 
 
-## Use RabbitMQ
+### Use RabbitMQ in SoundWinAgent
 
-### If you want to use RabbitMQ as a message broker (most reliable solution),
+If you want to use RabbitMQ as a message broker (most reliable solution),
 you need to install RabbitMQ (via chocolatey), rabbitmqadmin, and create the necessary exchange and queue.
 
 ```powershell
@@ -54,12 +60,21 @@ you need to install RabbitMQ (via chocolatey), rabbitmqadmin, and create the nec
 .\rabbitmqadmin declare binding --source=sdr_updates --destination=sdr_metrics --destination-type=queue --routing-key=metrics-capture --vhost=/
 ```
 
-### Then download and unzip the latest rollout of RabbitMq-To-RESTAPI-Forwarder: HttpRequestProcessor-x.x.x. from the latest repository release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/releases/latest) and register HttpRequestProcessor.exe as a Windows Service:
+Then download and unzip the latest rollout of RabbitMq-To-RESTAPI-Forwarder: HttpRequestProcessor-x.x.x. from the latest repository release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/releases/latest) and register HttpRequestProcessor.exe as a Windows Service:
+
 ```powershell
 # Register and start the RabbitMq-To-RESTAPI-Forwarder Windows Service
 sc create HttpRequestProcessor binPath="<your folder>\HttpRequestProcessor.exe" start=auto
 sc start HttpRequestProcessor
 ```
+
+### SoundDefaultUI
+
+1. Download and unzip the latest rollout of SoundDefaultUI-x.x.x. from the latest repository
+release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/releases/latest)
+2. Run the SoundDefaultUI
+
+    ![SoundDefaultUI screenshot](20250820152822SoundDefaultUI.JPG)
 
 ## Developer Environment, How to Build:
 1. Install Visual Studio 2022
