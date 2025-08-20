@@ -5,10 +5,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
     <Application.Resources>
         <ResourceDictionary>
-            <!-- Converters available app-wide (needed by bindings on root elements) -->
             <local:ThemeToColorZoneModeConverter x:Key="ThemeToColorZoneModeConverter" />
-
-            <!-- Theme Resources -->
             <ResourceDictionary x:Key="LightTheme">
                 <ResourceDictionary.MergedDictionaries>
                     <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
@@ -16,7 +13,6 @@
                     <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
-
             <ResourceDictionary x:Key="DarkTheme">
                 <ResourceDictionary.MergedDictionaries>
                     <materialDesign:BundledTheme BaseTheme="Dark" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
@@ -24,13 +20,6 @@
                     <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
-
-            <!-- Default Light Theme -->
-            <ResourceDictionary.MergedDictionaries>
-                <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
-            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -61,9 +61,6 @@ public class MainViewModel : INotifyPropertyChanged
 
         var audioDeviceInfo = SoundDeviceService.GetSoundDevice();
         Device = audioDeviceInfo.PnpId.Length != 0 ? audioDeviceInfo : null;
-
-        RefreshCommand = new RelayCommand(Refresh, () => Device != null);
-        RefreshCommand.CanExecuteChanged += (sender, eventArgs) => OnPropertyChanged();
     }
 
     private static void OnDefaultRenderPresentOrAbsent(bool presentOrAbsent)
@@ -86,8 +83,6 @@ public class MainViewModel : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-
-    private ICommand RefreshCommand { get; }
 
     public bool IsDeviceNotNull => Device != null;
     public bool IsRenderingAvailable => Device is { IsRenderingAvailable: true };
