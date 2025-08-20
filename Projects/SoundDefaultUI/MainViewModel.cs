@@ -27,13 +27,18 @@ public class MainViewModel : INotifyPropertyChanged
                 _device = value;
                 OnPropertyChanged(nameof(Device));
                 OnPropertyChanged(nameof(IsDeviceNotNull));
-                OnPropertyChanged(nameof(IsDeviceNotNullAndHasRendering));
-                OnPropertyChanged(nameof(IsDeviceNotNullAndHasCapturing));
+                OnPropertyChanged(nameof(IsRenderingAvailable));
+                OnPropertyChanged(nameof(IsCapturingAvailable));
+                OnPropertyChanged(nameof(Availability2GroupOpacity));
+                OnPropertyChanged(nameof(RenderingAvailability2IndicatorOpacity));
+                OnPropertyChanged(nameof(CapturingAvailability2IndicatorOpacity));
             }
         }
     }
 
     public string WindowTitle { get; }
+
+    public ThemeService ThemeService => ThemeService.Instance;
 
     private readonly TSaaDefaultRenderChangedDelegate _onDefaultRenderPresentOrAbsent = OnDefaultRenderPresentOrAbsent;
 
@@ -47,7 +52,7 @@ public class MainViewModel : INotifyPropertyChanged
             ? $"Command line parameter(s) detected. They are currently ignored."
             : "No command line parameters detected");
 
-        WindowTitle = "System Default Render Sound Device";
+        WindowTitle = "System Default Sound";
 
         SoundDeviceService = new SoundDeviceService(_onDefaultRenderPresentOrAbsent);
 
@@ -56,9 +61,6 @@ public class MainViewModel : INotifyPropertyChanged
 
         var audioDeviceInfo = SoundDeviceService.GetSoundDevice();
         Device = audioDeviceInfo.PnpId.Length != 0 ? audioDeviceInfo : null;
-
-        RefreshCommand = new RelayCommand(Refresh, () => Device != null);
-        RefreshCommand.CanExecuteChanged += (sender, eventArgs) => OnPropertyChanged();
     }
 
     private static void OnDefaultRenderPresentOrAbsent(bool presentOrAbsent)
@@ -82,12 +84,13 @@ public class MainViewModel : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private ICommand RefreshCommand { get; }
-
     public bool IsDeviceNotNull => Device != null;
-    public bool IsDeviceNotNullAndHasRendering => Device is { IsRenderingAvailable: true };
-    public bool IsDeviceNotNullAndHasCapturing => Device is { IsCapturingAvailable: true };
+    public bool IsRenderingAvailable => Device is { IsRenderingAvailable: true };
+    public bool IsCapturingAvailable => Device is { IsCapturingAvailable: true };
 
+    public double Availability2GroupOpacity => IsDeviceNotNull ? 1.0 : 0.55;
+    public double RenderingAvailability2IndicatorOpacity => IsRenderingAvailable ? 1.0 : 0.2;
+    public double CapturingAvailability2IndicatorOpacity => IsCapturingAvailable ? 0.55 : 0.2;
 
     private void Refresh()
     {

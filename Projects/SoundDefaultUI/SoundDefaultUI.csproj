@@ -20,13 +20,14 @@
     <Content Include="resources\Headphone.ico" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MaterialDesignColors" Version="3.1.0" />
-    <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
+    <PackageReference Include="MaterialDesignColors" Version="5.2.1" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
     <PackageReference Include="MSBuildTasks" Version="1.5.0.235">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NLog.Extensions.Logging" Version="5.3.12" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="6.0.3" />
+    <PackageReference Include="NLog.Targets.GZipFile" Version="6.0.3" />
     <PackageReference Include="Wpf.Extensions.Hosting" Version="1.2.0" />
   </ItemGroup>
   <ItemGroup>
