@@ -29,6 +29,7 @@ public class MainViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(IsDeviceNotNull));
                 OnPropertyChanged(nameof(IsRenderingAvailable));
                 OnPropertyChanged(nameof(IsCapturingAvailable));
+                OnPropertyChanged(nameof(Availability2GroupOpacity));
                 OnPropertyChanged(nameof(RenderingAvailability2IndicatorOpacity));
                 OnPropertyChanged(nameof(CapturingAvailability2IndicatorOpacity));
             }
@@ -49,7 +50,7 @@ public class MainViewModel : INotifyPropertyChanged
             ? $"Command line parameter(s) detected. They are currently ignored."
             : "No command line parameters detected");
 
-        WindowTitle = "System Default Render Sound Device";
+        WindowTitle = "System Default Sound";
 
         SoundDeviceService = new SoundDeviceService(_onDefaultRenderPresentOrAbsent);
 
@@ -90,6 +91,7 @@ public class MainViewModel : INotifyPropertyChanged
     public bool IsRenderingAvailable => Device is { IsRenderingAvailable: true };
     public bool IsCapturingAvailable => Device is { IsCapturingAvailable: true };
 
+    public double Availability2GroupOpacity => IsDeviceNotNull ? 1.0 : 0.55;
     public double RenderingAvailability2IndicatorOpacity => IsRenderingAvailable ? 1.0 : 0.2;
     public double CapturingAvailability2IndicatorOpacity => IsCapturingAvailable ? 0.55 : 0.2;
 
