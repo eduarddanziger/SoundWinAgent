@@ -5,8 +5,9 @@
         xmlns:local="clr-namespace:SoundDefaultUI"
         Style="{StaticResource MaterialDesignWindow}"
         Title="{Binding WindowTitle}" Height="400" Width="700"
-        materialDesign:ColorZoneAssist.Mode="PrimaryLight">
+        materialDesign:ColorZoneAssist.Mode="{Binding Source={x:Static local:ThemeService.Instance}, Path=IsDarkTheme, Converter={StaticResource ThemeToColorZoneModeConverter}}">
     <Window.Resources>
+        <local:ThemeToColorZoneModeConverter x:Key="ThemeToColorZoneModeConverter" />
         <Style x:Key="GrayOnDisabledTextBlock" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
             <Style.Triggers>

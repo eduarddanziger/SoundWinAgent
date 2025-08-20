@@ -5,6 +5,9 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
     <Application.Resources>
         <ResourceDictionary>
+            <!-- Converters available app-wide (needed by bindings on root elements) -->
+            <local:ThemeToColorZoneModeConverter x:Key="ThemeToColorZoneModeConverter" />
+
             <!-- Theme Resources -->
             <ResourceDictionary x:Key="LightTheme">
                 <ResourceDictionary.MergedDictionaries>
