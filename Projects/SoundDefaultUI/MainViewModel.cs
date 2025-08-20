@@ -38,6 +38,8 @@ public class MainViewModel : INotifyPropertyChanged
 
     public string WindowTitle { get; }
 
+    public ThemeService ThemeService => ThemeService.Instance;
+
     private readonly TSaaDefaultRenderChangedDelegate _onDefaultRenderPresentOrAbsent = OnDefaultRenderPresentOrAbsent;
 
     public MainViewModel()

@@ -4,7 +4,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:SoundDefaultUI"
         Style="{StaticResource MaterialDesignWindow}"
-        Title="{Binding WindowTitle}" Height="350" Width="700"
+        Title="{Binding WindowTitle}" Height="400" Width="700"
         materialDesign:ColorZoneAssist.Mode="PrimaryLight">
     <Window.Resources>
         <Style x:Key="GrayOnDisabledTextBlock" TargetType="TextBlock">
@@ -18,6 +18,13 @@
     </Window.Resources>
 
     <DockPanel Margin="5">
+        <!-- Theme Status Display -->
+        <StackPanel DockPanel.Dock="Top" 
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right" 
+                    Margin="0,0,10,5">
+        </StackPanel>
+        
         <materialDesign:Card DockPanel.Dock="Top" Margin="0" Background="Transparent" 
                              materialDesign:ElevationAssist.Elevation="Dp0">
             <GroupBox Header="Default Render Device" 
@@ -83,12 +90,5 @@
                 </StackPanel>
             </GroupBox>
         </materialDesign:Card>
-        <!--
-        <Button Content="Refresh Volume Level"
-                Command="{Binding RefreshCommand}"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Bottom"
-                Width="230" />
-        -->
     </DockPanel>
 </Window>
