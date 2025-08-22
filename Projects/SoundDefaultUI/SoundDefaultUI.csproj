@@ -74,6 +74,7 @@
       </PropertyGroup>
       <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(ArtifactsDirectory)$(ReleaseNotesFileName)" />
       <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(OutputPath)\SoundAgentApiDll.dll" />
+      <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(ProjectDir)CodeSign.cer" />
       <ZipDirectory Overwrite="true" SourceDirectory="$(PublishFullDirectory)" DestinationFile="$(ZipFileName)" />
   </Target>
 </Project>

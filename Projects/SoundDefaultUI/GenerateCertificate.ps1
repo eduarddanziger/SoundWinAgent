@@ -9,6 +9,7 @@ $validYears = 9
 $pfxPath = "$PSScriptRoot\CodeSign.pfx"
 $pfxPasswordPlain = $CertificatePassword
 $pfxPassword = ConvertTo-SecureString -String $pfxPasswordPlain -Force -AsPlainText
+$cerPath = "$PSScriptRoot\CodeSign.cer"
 
 # Create the self-signed certificate in the CurrentUser\My store.
 $cert = New-SelfSignedCertificate `
@@ -24,5 +25,7 @@ Write-Host "Certificate created with thumbprint:" $cert.Thumbprint
 
 # Export the certificate (including private key) to a PFX file.
 Export-PfxCertificate -Cert $cert -FilePath $pfxPath -Password $pfxPassword
-
 Write-Host "Certificate exported as PFX to:" $pfxPath
+# Export the public certificate (no private key) to a CER-file
+Export-Certificate -Cert $cert -FilePath $cerPath
+Write-Host "Public certificate exported to:" $cerPath
