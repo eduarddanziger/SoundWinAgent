@@ -47,7 +47,7 @@ protected:
                                         const std::unordered_map<std::string, std::string>&, const std::string&
                     ) override
                     {
-                        spdlog::info("Request not sent, because the transport method is \"{}\"",
+                        spdlog::info("Enqueueing ignored, because the transport method is \"{}\"",
                                      API_TRANSPORT_METHOD_VALUE00_NONE);
                     }
                 };
