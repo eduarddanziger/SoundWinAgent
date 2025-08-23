@@ -17,7 +17,8 @@ public class MainViewModel : INotifyPropertyChanged
     private static Dispatcher? MyDispatcher { get; set; }
     private SoundDeviceInfo? _device;
 
-    private SoundDeviceInfo? Device
+    // ReSharper disable once MemberCanBePrivate.Global
+    public SoundDeviceInfo? Device
     {
         get => _device;
         set
@@ -26,6 +27,7 @@ public class MainViewModel : INotifyPropertyChanged
             if (_device != value)
             {
                 _device = value;
+                OnPropertyChanged();
                 OnPropertyChanged(nameof(IsDeviceNotNull));
                 OnPropertyChanged(nameof(IsRenderingAvailable));
                 OnPropertyChanged(nameof(IsCapturingAvailable));
@@ -41,9 +43,7 @@ public class MainViewModel : INotifyPropertyChanged
     [UsedImplicitly]
     public static ThemeService ThemeService => ThemeService.Instance;
 
-    private readonly SaaDefaultRenderChangedDelegate _onDefaultRenderPresentOrAbsent = OnDefaultRenderPresentOrAbsent;
-
-    public MainViewModel()
+    public MainViewModel(SoundDeviceService soundDeviceService)
     {
         MyDispatcher = Dispatcher.CurrentDispatcher;
 
@@ -55,7 +55,8 @@ public class MainViewModel : INotifyPropertyChanged
 
         WindowTitle = "System Default Sound";
 
-        SoundDeviceService = new SoundDeviceService(_onDefaultRenderPresentOrAbsent);
+        SoundDeviceService = soundDeviceService;
+        SoundDeviceService.InitializeAndBind(OnDefaultRenderPresentOrAbsent);
 
         var app = (App)Application.Current;
         app.SoundDeviceService = SoundDeviceService;
@@ -68,9 +69,10 @@ public class MainViewModel : INotifyPropertyChanged
     {
         MyDispatcher?.Invoke(() =>
         {
+            // ReSharper disable once AccessToStaticMemberViaDerivedType
+            // ReSharper disable once AssignNullToNotNullAttribute
             var mainWindow = Window.GetWindow(App.Current.MainWindow) as MainWindow;
 
-            // ReSharper disable once InvertIf
             if (mainWindow?.DataContext is MainViewModel mainViewModel)
             {
                 mainViewModel.Device = presentOrAbsent ? mainViewModel.SoundDeviceService.GetSoundDevice() : null;

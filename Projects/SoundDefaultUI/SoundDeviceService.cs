@@ -4,12 +4,12 @@ namespace SoundDefaultUI;
 
 public class SoundDeviceService
 {
-    private readonly ulong _serviceHandle;
+    private ulong _serviceHandle;
 
-    public SoundDeviceService(SaaDefaultRenderChangedDelegate discoverDelegate)
+    public void InitializeAndBind(SaaDefaultRenderChangedDelegate deviceRenderNotification)
     {
 #pragma warning disable CA1806
-        SaaInitialize(out _serviceHandle, discoverDelegate);
+        SaaInitialize(out _serviceHandle, deviceRenderNotification);
 #pragma warning restore CA1806
     }
 
@@ -17,7 +17,11 @@ public class SoundDeviceService
     {
         if (_serviceHandle == 0)
         {
-            throw new InvalidOperationException("Service handle is not initialized.");
+            return new SoundDeviceInfo
+            {
+                PnpId = "", DeviceName = "", IsRenderingAvailable = false, IsCapturingAvailable = false,
+                RenderVolumeLevel = 0, CaptureVolumeLevel = 0
+            };
         }
         // Get the default render device information
 #pragma warning disable CA1806
