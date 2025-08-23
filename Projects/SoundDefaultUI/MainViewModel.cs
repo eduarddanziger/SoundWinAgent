@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using JetBrains.Annotations;
+using NLog;
 
 namespace SoundDefaultUI;
 
@@ -16,7 +17,7 @@ public class MainViewModel : INotifyPropertyChanged
     private static Dispatcher? MyDispatcher { get; set; }
     private SoundDeviceInfo? _device;
 
-    public SoundDeviceInfo? Device
+    private SoundDeviceInfo? Device
     {
         get => _device;
         set
@@ -25,7 +26,6 @@ public class MainViewModel : INotifyPropertyChanged
             if (_device != value)
             {
                 _device = value;
-                OnPropertyChanged(nameof(Device));
                 OnPropertyChanged(nameof(IsDeviceNotNull));
                 OnPropertyChanged(nameof(IsRenderingAvailable));
                 OnPropertyChanged(nameof(IsCapturingAvailable));
@@ -38,9 +38,10 @@ public class MainViewModel : INotifyPropertyChanged
 
     public string WindowTitle { get; }
 
-    public ThemeService ThemeService => ThemeService.Instance;
+    [UsedImplicitly]
+    public static ThemeService ThemeService => ThemeService.Instance;
 
-    private readonly TSaaDefaultRenderChangedDelegate _onDefaultRenderPresentOrAbsent = OnDefaultRenderPresentOrAbsent;
+    private readonly SaaDefaultRenderChangedDelegate _onDefaultRenderPresentOrAbsent = OnDefaultRenderPresentOrAbsent;
 
     public MainViewModel()
     {
@@ -49,7 +50,7 @@ public class MainViewModel : INotifyPropertyChanged
         var logger = LogManager.GetCurrentClassLogger();
         var args = Environment.GetCommandLineArgs();
         logger.Info(args.Length > 1
-            ? $"Command line parameter(s) detected. They are currently ignored."
+            ? "Command line parameter(s) detected. They are currently ignored."
             : "No command line parameters detected");
 
         WindowTitle = "System Default Sound";
@@ -90,15 +91,4 @@ public class MainViewModel : INotifyPropertyChanged
     public double Availability2GroupOpacity => IsDeviceNotNull ? 1.0 : 0.55;
     public double RenderingAvailability2IndicatorOpacity => IsRenderingAvailable ? 1.0 : 0.2;
     public double CapturingAvailability2IndicatorOpacity => IsCapturingAvailable ? 0.55 : 0.2;
-
-    private void Refresh()
-    {
-        MyDispatcher?.Invoke(() =>
-        {
-            if (Device != null)
-            {
-                Device = SoundDeviceService.GetSoundDevice();
-            }
-        });
-    }
 }

@@ -6,7 +6,7 @@ public class SoundDeviceService
 {
     private readonly ulong _serviceHandle;
 
-    public SoundDeviceService(TSaaDefaultRenderChangedDelegate discoverDelegate)
+    public SoundDeviceService(SaaDefaultRenderChangedDelegate discoverDelegate)
     {
 #pragma warning disable CA1806
         SaaInitialize(out _serviceHandle, discoverDelegate);

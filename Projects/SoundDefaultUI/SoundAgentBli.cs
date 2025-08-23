@@ -4,7 +4,7 @@ namespace SoundDefaultUI;
 
 
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-public struct SaaDescription
+internal struct SaaDescription
 {
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
     public string PnpId;
@@ -22,28 +22,30 @@ public struct SaaDescription
 }
 
 [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-public delegate void TSaaDefaultRenderChangedDelegate(
+public delegate void SaaDefaultRenderChangedDelegate(
     [MarshalAs(UnmanagedType.Bool)] bool presentOrAbsent
 );
 
-public static class SoundAgentApi
+internal static class SoundAgentApi
 {
+#pragma warning disable SYSLIB1054 // Warning about DllImport -> LibraryImport
     [DllImport("SoundAgentApiDll.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern int SaaInitialize(
+    internal static extern int SaaInitialize(
         out ulong handle,
-        TSaaDefaultRenderChangedDelegate? defaultRenderChangedCallback
+        SaaDefaultRenderChangedDelegate? defaultRenderChangedCallback
     );
 
     [DllImport("SoundAgentApiDll.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern int SaaGetDefaultRender(
+    internal static extern int SaaGetDefaultRender(
         ulong handle,
         out SaaDescription description
     );
 
     [DllImport("SoundAgentApiDll.dll", CallingConvention = CallingConvention.StdCall)]
-    public static extern int SaaUnInitialize(
+    internal static extern int SaaUnInitialize(
         ulong handle
     );
+#pragma warning restore SYSLIB1054
 }
 
 
