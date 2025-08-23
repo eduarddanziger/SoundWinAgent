@@ -16,10 +16,9 @@ with a React / TypeScript frontend [list-audio-react-app](https://github.com/edu
 ## Technologies Used
 
 - **C++**: Core logic implementation.
-- **Packages**: Poco and cpprestsdk vcpkg packages used in order to leverage Windows Server Manager and utilize HTTP REST client code.
+- **Poco and cpprestsdk** packages: Used in order to leverage Windows Server Manager and utilize HTTP REST client code.
 - **RabbitMQ**: Optionally used as a message broker for reliable audio device information delivery.
-- **WPF**: Lightweight UI for displaying live volume levels of the current default audio devices.
- 
+- **C# / WPF**: Lightweight UI for displaying live volume levels of the current default audio devices.
 
 ## Usage
 
@@ -48,7 +47,6 @@ with a React / TypeScript frontend [list-audio-react-app](https://github.com/edu
       - If /transport not used, the transport is tuned via the configuration file SoundWinAgent.xml, apiBaseUrl element
 
 6. SoundWinAgent.exe /help brings a command line help screen with all available options.
- 
 
 ### Use RabbitMQ in SoundWinAgent
 If you want to use RabbitMQ as a message broker (most reliable solution),
@@ -74,7 +72,14 @@ sc start HttpRequestProcessor
 ### SoundDefaultUI
 1. Download and unzip the latest rollout of SoundDefaultUI-x.x.x. from the latest repository
 release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/releases/latest)
-2. Run the SoundDefaultUI
+
+2. Install certificates and unblock the SoundDefaultUI.exe per PowerShell (start as Administrator):
+
+```powershell
+   Import-Certificate -FilePath .\CodeSign.cer -CertStoreLocation Cert:\LocalMachine\Root
+   Unblock-File -Path .\SoundDefaultUI.exe
+```
+3. Run the SoundDefaultUI
 
     ![SoundDefaultUI screenshot](20250820152822SoundDefaultUI.JPG)
 
