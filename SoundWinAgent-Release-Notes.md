@@ -11,7 +11,16 @@ Released on $date$
 ~~~
 
 ## New
-- Added a simple WPF GUI to display the default render sound device, using the Sound Agent C API, implemented in a new SoundAgentApiDll.dll.
+- CodeSign.cer certificate included, see readme, **SoundDefaultUI**
+
+3.3.1
+--------
+~~~
+Released on 20.08.2025
+~~~
+
+## New
+- Added a simple WPF GUI to display the default sound device, using the Sound Agent C API, implemented in a new SoundAgentApiDll.dll.
 - Added possibility to use RabbitMQ as a transport mechanism.
 
 ## Changes

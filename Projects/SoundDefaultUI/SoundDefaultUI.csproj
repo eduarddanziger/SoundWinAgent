@@ -65,7 +65,8 @@
       <FileUpdate Files="$(ReleaseNotesTargetPathName)" Regex="\$date\$" ReplacementText="$(BuildDate)" />
   </Target>
 
-  <Target Name="ZipOutputPath" AfterTargets="Publish">
+  <Target Name="ZipOutputPath" AfterTargets="SignAfterPublish">
+      <Message Text="Zip: PublishFullDirectory: $(PublishFullDirectory)" importance="high" />
       <PropertyGroup>
           <PublishFullDirectory>$(ProjectDir)$(PublishDir)</PublishFullDirectory>
           <ZipFileNameSuffix Condition=" '$(Configuration)' == 'Debug' ">-Debug</ZipFileNameSuffix>
@@ -73,6 +74,7 @@
       </PropertyGroup>
       <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(ArtifactsDirectory)$(ReleaseNotesFileName)" />
       <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(OutputPath)\SoundAgentApiDll.dll" />
+      <Copy DestinationFolder="$(PublishFullDirectory)" SourceFiles="$(ProjectDir)CodeSign.cer" />
       <ZipDirectory Overwrite="true" SourceDirectory="$(PublishFullDirectory)" DestinationFile="$(ZipFileName)" />
   </Target>
 </Project>

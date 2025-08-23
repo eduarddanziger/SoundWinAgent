@@ -189,6 +189,7 @@ ClientBin/
 *.dbmdl
 *.dbproj.schemaview
 *.pfx
+*.cer
 *.publishsettings
 node_modules/
 orleans.codegen.cs
@@ -277,3 +278,4 @@ Deliverables/*/[Ll]ib
 **/PublishDir/
 
 NuGet.Config
+

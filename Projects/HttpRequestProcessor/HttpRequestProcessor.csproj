@@ -32,7 +32,8 @@
     </Target>
     -->
 
-    <Target Name="ZipOutputPath" AfterTargets="Publish">
+    <Target Name="ZipOutputPath" AfterTargets="SignAfterPublish">
+        <Message Text="Zip: PublishFullDirectory: $(PublishFullDirectory)" importance="high" />
         <PropertyGroup>
             <PublishFullDirectory>$(ProjectDir)$(PublishDir)</PublishFullDirectory>
             <ZipFileNameSuffix Condition=" '$(Configuration)' == 'Debug' ">-Debug</ZipFileNameSuffix>

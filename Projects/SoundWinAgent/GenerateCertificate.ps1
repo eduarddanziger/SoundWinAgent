@@ -1,14 +1,13 @@
 ﻿param(
-    [Parameter(Mandatory=$true)] [string] $CertificateName,
     [Parameter(Mandatory=$true)] [string] $CertificatePassword
 )
 
 # Parameters
-$subject = "CN=$CertificateName"                     # Use parameter value
-$friendlyName = "$CertificateName Code Signing"      # Use parameter value
-$validYears = 5                                     # Certificate validity in years
-$pfxPath = "$PSScriptRoot\CodeSign.pfx"             # Export destination
-$pfxPasswordPlain = $CertificatePassword            # Use parameter value
+$subject = "CN=Eduard Danziger (Dev Signing), O=Private, C=DE"    
+$friendlyName = "Eduard Danziger Code Signing"
+$validYears = 9
+$pfxPath = "$PSScriptRoot\CodeSign.pfx"
+$pfxPasswordPlain = $CertificatePassword
 $pfxPassword = ConvertTo-SecureString -String $pfxPasswordPlain -Force -AsPlainText
 
 # Create the self-signed certificate in the CurrentUser\My store.

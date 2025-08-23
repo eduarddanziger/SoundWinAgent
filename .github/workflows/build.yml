@@ -80,8 +80,8 @@ jobs:
     - name: Build with MSBuild
       run: |
         msbuild /p:Configuration=Release /p:VcpkgEnabled=true /p:VcpkgManifestPath=vcpkg.json /p:VcpkgTriplet=x64-windows-static /target:Rebuild -restore
-        dotnet publish "Projects/SoundDefaultUI/SoundDefaultUI.csproj" -c Release -p:PublishProfile=FolderProfile
-        dotnet publish "Projects/HttpRequestProcessor/HttpRequestProcessor.csproj" -c Release -p:PublishProfile=WinX64
+        dotnet publish "Projects/SoundDefaultUI/SoundDefaultUI.csproj" -c Release -p:PublishProfile=FolderProfile -v:detailed
+        dotnet publish "Projects/HttpRequestProcessor/HttpRequestProcessor.csproj" -c Release -p:PublishProfile=WinX64 -v:detailed
 
     - name: Upload entire artifacts directory
       uses: actions/upload-artifact@v4
