@@ -22,7 +22,7 @@ public struct SaaDescription
 }
 
 [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-public delegate void SaaDefaultRenderChangedDelegate(
+public delegate void SaaDefaultChangedDelegate(
     [MarshalAs(UnmanagedType.Bool)] bool presentOrAbsent
 );
 
@@ -32,11 +32,18 @@ internal static class SoundAgentApi
 #pragma warning disable SYSLIB1054 // Warning for DllImport -> LibraryImport
     internal static extern int SaaInitialize(
         out ulong handle,
-        SaaDefaultRenderChangedDelegate? defaultRenderChangedCallback
+        SaaDefaultChangedDelegate? defaultRenderChangedCallback,
+        SaaDefaultChangedDelegate? defaultCaptureChangedCallback
     );
 
     [DllImport("SoundAgentApiDll.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     internal static extern int SaaGetDefaultRender(
+        ulong handle,
+        out SaaDescription description
+    );
+
+    [DllImport("SoundAgentApiDll.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    internal static extern int SaaGetDefaultCapture(
         ulong handle,
         out SaaDescription description
     );

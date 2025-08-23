@@ -6,33 +6,64 @@ public class SoundDeviceService
 {
     private ulong _serviceHandle;
 
-    public void InitializeAndBind(SaaDefaultRenderChangedDelegate deviceRenderNotification)
+    public void InitializeAndBind(SaaDefaultChangedDelegate renderNotification, SaaDefaultChangedDelegate captureNotification)
     {
 #pragma warning disable CA1806
-        SaaInitialize(out _serviceHandle, deviceRenderNotification);
+        SaaInitialize(out _serviceHandle, renderNotification, captureNotification);
 #pragma warning restore CA1806
     }
 
-    public SoundDeviceInfo GetSoundDevice()
+    // Common helpers
+    private static SoundDeviceInfo EmptyDeviceInfo() => new SoundDeviceInfo
+    {
+        PnpId = "",
+        DeviceName = "",
+        IsRenderingAvailable = false,
+        IsCapturingAvailable = false,
+        RenderVolumeLevel = 0,
+        CaptureVolumeLevel = 0
+    };
+
+    private static SoundDeviceInfo SaaDescription2SoundDeviceInfo(in SaaDescription device) => new SoundDeviceInfo
+    {
+        PnpId = device.PnpId,
+        DeviceName = device.Name,
+        IsRenderingAvailable = device.IsRender,
+        IsCapturingAvailable = device.IsCapture,
+        RenderVolumeLevel = device.RenderVolume,
+        CaptureVolumeLevel = device.CaptureVolume
+    };
+
+    private SoundDeviceInfo GetDevice(Func<ulong, SaaDescription> fetch)
     {
         if (_serviceHandle == 0)
         {
-            return new SoundDeviceInfo
-            {
-                PnpId = "", DeviceName = "", IsRenderingAvailable = false, IsCapturingAvailable = false,
-                RenderVolumeLevel = 0, CaptureVolumeLevel = 0
-            };
+            return EmptyDeviceInfo();
         }
-        // Get the default render device information
-#pragma warning disable CA1806
-        SaaGetDefaultRender(_serviceHandle, out var device);
-#pragma warning restore CA1806
-        return new SoundDeviceInfo
+        var dev = fetch(_serviceHandle);
+        return SaaDescription2SoundDeviceInfo(dev);
+    }
+
+    public SoundDeviceInfo GetRenderDevice()
+    {
+        return GetDevice(handle =>
         {
-            PnpId = device.PnpId, DeviceName = device.Name,
-            IsRenderingAvailable = device.IsRender, IsCapturingAvailable = device.IsCapture,
-            RenderVolumeLevel = device.RenderVolume, CaptureVolumeLevel = device.CaptureVolume
-        };
+#pragma warning disable CA1806
+            SaaGetDefaultRender(handle, out var device);
+#pragma warning restore CA1806
+            return device;
+        });
+    }
+
+    public SoundDeviceInfo GetCaptureDevice()
+    {
+        return GetDevice(handle =>
+        {
+#pragma warning disable CA1806
+            SaaGetDefaultCapture(handle, out var device);
+#pragma warning restore CA1806
+            return device;
+        });
     }
 
     public void Dispose()

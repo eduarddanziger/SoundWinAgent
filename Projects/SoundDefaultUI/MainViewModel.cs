@@ -55,12 +55,12 @@ public class MainViewModel : INotifyPropertyChanged
         WindowTitle = "System Default Sound";
 
         SoundDeviceService = soundDeviceService;
-        SoundDeviceService.InitializeAndBind(OnDefaultRenderPresentOrAbsent);
+        SoundDeviceService.InitializeAndBind(OnDefaultRenderPresentOrAbsent, OnDefaultCapturePresentOrAbsent);
 
         var app = (App)Application.Current;
         app.SoundDeviceService = SoundDeviceService;
 
-        var audioDeviceInfo = SoundDeviceService.GetSoundDevice();
+        var audioDeviceInfo = SoundDeviceService.GetRenderDevice();
         Device = audioDeviceInfo.PnpId.Length != 0 ? audioDeviceInfo : null;
     }
 
@@ -74,10 +74,16 @@ public class MainViewModel : INotifyPropertyChanged
 
             if (mainWindow?.DataContext is MainViewModel mainViewModel)
             {
-                mainViewModel.Device = presentOrAbsent ? mainViewModel.SoundDeviceService.GetSoundDevice() : null;
+                mainViewModel.Device = presentOrAbsent ? mainViewModel.SoundDeviceService.GetRenderDevice() : null;
             }
         });
     }
+
+    private static void OnDefaultCapturePresentOrAbsent(bool presentOrAbsent)
+    {
+    }
+
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private void OnPropertyChanged([CallerMemberName] string propertyName = "")
