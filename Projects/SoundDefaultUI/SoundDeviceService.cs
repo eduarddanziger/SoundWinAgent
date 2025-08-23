@@ -2,9 +2,11 @@
 
 namespace SoundDefaultUI;
 
-public class SoundDeviceService
+public class SoundDeviceService : IDisposable
 {
     private ulong _serviceHandle;
+    private bool _disposed;
+    private readonly object _disposeLock = new();
 
     public void InitializeAndBind(SaaDefaultChangedDelegate renderNotification, SaaDefaultChangedDelegate captureNotification)
     {
@@ -66,12 +68,32 @@ public class SoundDeviceService
         });
     }
 
+    ~SoundDeviceService()
+    {
+        Dispose(false);
+    }
+
     public void Dispose()
     {
-        if (_serviceHandle != 0)
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        ulong handleToRelease = 0;
+        lock (_disposeLock)
+        {
+            if (_disposed) return;
+            _disposed = true;
+            handleToRelease = _serviceHandle;
+            _serviceHandle = 0;
+        }
+
+        if (handleToRelease != 0)
         {
 #pragma warning disable CA1806
-            SaaUnInitialize(_serviceHandle);
+            SaaUnInitialize(handleToRelease);
 #pragma warning restore CA1806
         }
     }

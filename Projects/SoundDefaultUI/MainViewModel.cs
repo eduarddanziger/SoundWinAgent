@@ -57,9 +57,6 @@ public class MainViewModel : INotifyPropertyChanged
         SoundDeviceService = soundDeviceService;
         SoundDeviceService.InitializeAndBind(OnDefaultRenderPresentOrAbsent, OnDefaultCapturePresentOrAbsent);
 
-        var app = (App)Application.Current;
-        app.SoundDeviceService = SoundDeviceService;
-
         var audioDeviceInfo = SoundDeviceService.GetRenderDevice();
         Device = audioDeviceInfo.PnpId.Length != 0 ? audioDeviceInfo : null;
     }

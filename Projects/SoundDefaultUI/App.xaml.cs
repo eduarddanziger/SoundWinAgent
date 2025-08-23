@@ -7,8 +7,6 @@ namespace SoundDefaultUI
     /// </summary>
     public partial class App
     {
-        public SoundDeviceService? SoundDeviceService { private get; set; }
-
         public App()
         {
             InitializeComponent();
@@ -31,6 +29,7 @@ namespace SoundDefaultUI
         {
             var themeKey = isDarkTheme ? "DarkTheme" : "LightTheme";
             
+            // ReSharper disable once InvertIf
             if (Resources[themeKey] is ResourceDictionary themeResources)
             {
                 // Clear existing merged dictionaries
@@ -39,13 +38,6 @@ namespace SoundDefaultUI
                 // Apply the selected theme
                 Resources.MergedDictionaries.Add(themeResources);
             }
-        }
-
-        protected override void OnExit(ExitEventArgs e)
-        {
-            base.OnExit(e);
-
-            SoundDeviceService?.Dispose();
         }
     }
 
