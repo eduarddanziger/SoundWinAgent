@@ -26,26 +26,25 @@ public delegate void SaaDefaultRenderChangedDelegate(
     [MarshalAs(UnmanagedType.Bool)] bool presentOrAbsent
 );
 
-public static class SoundAgentApi
+internal static class SoundAgentApi
 {
-#pragma warning disable SYSLIB1054 // Warning about DllImport -> LibraryImport
     [DllImport("SoundAgentApiDll.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern int SaaInitialize(
+#pragma warning disable SYSLIB1054 // Warning for DllImport -> LibraryImport
+    internal static extern int SaaInitialize(
         out ulong handle,
         SaaDefaultRenderChangedDelegate? defaultRenderChangedCallback
     );
 
     [DllImport("SoundAgentApiDll.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern int SaaGetDefaultRender(
+    internal static extern int SaaGetDefaultRender(
         ulong handle,
         out SaaDescription description
     );
 
     [DllImport("SoundAgentApiDll.dll", CallingConvention = CallingConvention.StdCall)]
-    public static extern int SaaUnInitialize(
+    internal static extern int SaaUnInitialize(
         ulong handle
     );
-#pragma warning restore SYSLIB1054
 }
 
 

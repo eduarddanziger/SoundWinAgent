@@ -33,7 +33,6 @@ public class SoundDeviceService
             IsRenderingAvailable = device.IsRender, IsCapturingAvailable = device.IsCapture,
             RenderVolumeLevel = device.RenderVolume, CaptureVolumeLevel = device.CaptureVolume
         };
-        ;
     }
 
     public void Dispose()

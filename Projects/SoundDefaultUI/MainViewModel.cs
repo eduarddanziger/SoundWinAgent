@@ -1,13 +1,11 @@
-﻿using JetBrains.Annotations;
+﻿namespace SoundDefaultUI;
+
+using JetBrains.Annotations;
 using NLog;
 
-namespace SoundDefaultUI;
-
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Threading;
 
 public class MainViewModel : INotifyPropertyChanged
@@ -38,6 +36,7 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
+    [UsedImplicitly]
     public string WindowTitle { get; }
 
     [UsedImplicitly]
