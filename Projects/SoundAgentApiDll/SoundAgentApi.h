@@ -33,9 +33,14 @@
 
     SAA_EXPORT_IMPORT_DECL
         SaaResult __stdcall SaaInitialize(
-        _Out_ SaaHandle* handle,
-        _In_opt_ TSaaDefaultChangedCallback defaultRenderChangedCallback,
-        _In_opt_ TSaaDefaultChangedCallback defaultCaptureChangedCallback
+            _Out_ SaaHandle* handle
+        );
+
+    SAA_EXPORT_IMPORT_DECL
+        SaaResult __stdcall SaaRegisterCallbacks(
+            _In_ SaaHandle handle,
+            _In_opt_ TSaaDefaultChangedCallback defaultRenderChangedCallback,
+            _In_opt_ TSaaDefaultChangedCallback defaultCaptureChangedCallback
         );
 
     SAA_EXPORT_IMPORT_DECL

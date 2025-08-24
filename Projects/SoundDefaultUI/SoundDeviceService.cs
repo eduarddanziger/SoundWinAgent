@@ -8,10 +8,17 @@ public class SoundDeviceService : IDisposable
     private bool _disposed;
     private readonly object _disposeLock = new();
 
+    public SoundDeviceService()
+    {
+#pragma warning disable CA1806
+        SaaInitialize(out _serviceHandle);
+#pragma warning restore CA1806
+    }
+
     public void InitializeAndBind(SaaDefaultChangedDelegate renderNotification, SaaDefaultChangedDelegate captureNotification)
     {
 #pragma warning disable CA1806
-        SaaInitialize(out _serviceHandle, renderNotification, captureNotification);
+        SaaRegisterCallbacks(_serviceHandle, renderNotification, captureNotification);
 #pragma warning restore CA1806
     }
 

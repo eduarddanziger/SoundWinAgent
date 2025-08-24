@@ -31,7 +31,12 @@ internal static class SoundAgentApi
     [DllImport("SoundAgentApiDll.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 #pragma warning disable SYSLIB1054 // Warning for DllImport -> LibraryImport
     internal static extern int SaaInitialize(
-        out ulong handle,
+        out ulong handle
+    );
+
+    [DllImport("SoundAgentApiDll.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    internal static extern int SaaRegisterCallbacks(
+        ulong handle,
         SaaDefaultChangedDelegate? defaultRenderChangedCallback,
         SaaDefaultChangedDelegate? defaultCaptureChangedCallback
     );

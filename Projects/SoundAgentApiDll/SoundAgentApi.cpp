@@ -54,18 +54,28 @@ namespace  {
     std::unique_ptr<SoundDeviceObserverInterface> device_collection_observer;
 }
 
-SaaResult SaaInitialize(SaaHandle* handle
+SaaResult SaaInitialize(SaaHandle* handle)
+{
+    device_collection = SoundAgent::CreateDeviceCollection();
+    *handle = reinterpret_cast<SaaHandle>(device_collection.get());
+
+    return 0;
+}
+
+SaaResult SaaRegisterCallbacks([[maybe_unused]] SaaHandle handle
     , TSaaDefaultChangedCallback defaultRenderChangedCallback
     , TSaaDefaultChangedCallback defaultCaptureChangedCallback
 )
 {
-    device_collection = SoundAgent::CreateDeviceCollection();
+    if (device_collection_observer != nullptr)
+    {
+        device_collection->Unsubscribe(*device_collection_observer);
+    }
+
     device_collection_observer = std::make_unique<DllObserver>(defaultRenderChangedCallback,
         defaultCaptureChangedCallback);
     device_collection->Subscribe(*device_collection_observer);
     device_collection->ResetContent();
-    
-    *handle = reinterpret_cast<SaaHandle>(device_collection.get());
 
     return 0;
 }
@@ -76,7 +86,7 @@ namespace
 }
 
 
-SaaResult SaaGetDefaultRender(SaaHandle handle, SaaDescription* description)
+SaaResult SaaGetDefaultRender([[maybe_unused]] SaaHandle handle, SaaDescription* description)
 {
     if (description == nullptr)
     {
@@ -87,7 +97,7 @@ SaaResult SaaGetDefaultRender(SaaHandle handle, SaaDescription* description)
     return GetDeviceOnPnpId(description, pnpId);
 }
 
-SaaResult SaaGetDefaultCapture(SaaHandle handle, SaaDescription* description)
+SaaResult SaaGetDefaultCapture([[maybe_unused]] SaaHandle handle, SaaDescription* description)
 {
     if (description == nullptr)
     {
@@ -128,8 +138,11 @@ SaaResult SaaUnInitialize(SaaHandle handle)
 {
     if(device_collection != nullptr)
     {
-        device_collection->Unsubscribe(*device_collection_observer);
-        device_collection_observer.reset();
+        if (device_collection_observer != nullptr)
+        {
+            device_collection->Unsubscribe(*device_collection_observer);
+            device_collection_observer.reset();
+        }
         device_collection.reset();
     }
     return 0;
