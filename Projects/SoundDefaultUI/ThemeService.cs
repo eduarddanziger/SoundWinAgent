@@ -1,7 +1,10 @@
 using Microsoft.Win32;
+using NLog;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
+using System.Windows.Threading;
+using Windows.UI;
+using Windows.UI.ViewManagement;
 
 namespace SoundDefaultUI;
 
@@ -9,6 +12,8 @@ public sealed class ThemeService : INotifyPropertyChanged
 {
     private static ThemeService? _instance;
     private bool _isDarkTheme;
+    private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
+    private static Dispatcher Dispatcher { get; } = Dispatcher.CurrentDispatcher;
 
     public static ThemeService Instance => _instance ??= new ThemeService();
 
@@ -31,7 +36,6 @@ public sealed class ThemeService : INotifyPropertyChanged
 
     private ThemeService()
     {
-        // Listen to system preference changes (theme toggles)
         SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
         UpdateTheme();
     }
@@ -42,34 +46,33 @@ public sealed class ThemeService : INotifyPropertyChanged
         if (e.Category == UserPreferenceCategory.General)
         {
             // ensure update on UI thread
-            if (Application.Current?.Dispatcher.CheckAccess() == true)
+            if (Dispatcher.CheckAccess())
             {
                 UpdateTheme();
             }
             else
             {
-                Application.Current?.Dispatcher.Invoke(UpdateTheme);
+                Dispatcher.Invoke(UpdateTheme);
             }
         }
     }
 
+    private static bool IsColorLight(Color clr)
+        => ((5 * clr.G) + (2 * clr.R) + clr.B) > (8 * 128);
     private void UpdateTheme()
     {
         try
         {
-            using var key = Registry.CurrentUser.OpenSubKey(@"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize");
-            if (key?.GetValue("AppsUseLightTheme") is int value)
-            {
-                IsDarkTheme = value == 0;
-            }
-            else
-            {
-                IsDarkTheme = false;
-            }
+
+#pragma warning disable CA1416 // Windows 10.0.17763.0+ only
+            var uiSettings = new UISettings();
+            IsDarkTheme = !IsColorLight(uiSettings.GetColorValue(UIColorType.Background));
+#pragma warning restore CA1416
         }
-        catch
+        catch (Exception e)
         {
-            IsDarkTheme = false;
+            Logger.Warn($"Failed to use UISettings available in Windows > 10.0.17763.0 wheile detecting Dark mode. Set app to the Light mode: {e.Message}.");
+            IsDarkTheme = false; // default to light theme
         }
     }
 

@@ -14,6 +14,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     private static Dispatcher Dispatcher { get; } = Dispatcher.CurrentDispatcher;
     private SoundDeviceInfo? _device;
+    private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
     // ReSharper disable once MemberCanBePrivate.Global
     public SoundDeviceInfo? Device
@@ -39,14 +40,10 @@ public class MainViewModel : INotifyPropertyChanged
     [UsedImplicitly]
     public string WindowTitle { get; }
 
-    [UsedImplicitly]
-    public static ThemeService ThemeService => ThemeService.Instance;
-
     public MainViewModel(SoundDeviceService soundDeviceService)
     {
-        var logger = LogManager.GetCurrentClassLogger();
         var args = Environment.GetCommandLineArgs();
-        logger.Info(args.Length > 1
+        Logger.Info(args.Length > 1
             ? "Command line parameter(s) detected. They are currently ignored."
             : "No command line parameters detected");
 
