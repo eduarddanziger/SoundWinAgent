@@ -12,7 +12,7 @@ public class MainViewModel : INotifyPropertyChanged
 {
     private SoundDeviceService SoundDeviceService { get; }
 
-    private static Dispatcher? MyDispatcher { get; set; }
+    private static Dispatcher Dispatcher { get; } = Dispatcher.CurrentDispatcher;
     private SoundDeviceInfo? _device;
 
     // ReSharper disable once MemberCanBePrivate.Global
@@ -44,8 +44,6 @@ public class MainViewModel : INotifyPropertyChanged
 
     public MainViewModel(SoundDeviceService soundDeviceService)
     {
-        MyDispatcher = Dispatcher.CurrentDispatcher;
-
         var logger = LogManager.GetCurrentClassLogger();
         var args = Environment.GetCommandLineArgs();
         logger.Info(args.Length > 1
@@ -63,7 +61,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     private static void OnDefaultRenderPresentOrAbsent(bool presentOrAbsent)
     {
-        MyDispatcher?.Invoke(() =>
+        Dispatcher.Invoke(() =>
         {
             // ReSharper disable once AccessToStaticMemberViaDerivedType
             // ReSharper disable once AssignNullToNotNullAttribute
@@ -83,7 +81,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void OnPropertyChanged([CallerMemberName] string propertyName = "")
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

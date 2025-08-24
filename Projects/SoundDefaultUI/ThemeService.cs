@@ -17,6 +17,7 @@ public sealed class ThemeService : INotifyPropertyChanged
         get => _isDarkTheme;
         private set
         {
+            // ReSharper disable once InvertIf
             if (_isDarkTheme != value)
             {
                 _isDarkTheme = value;
@@ -37,16 +38,17 @@ public sealed class ThemeService : INotifyPropertyChanged
 
     private void OnUserPreferenceChanged(object? sender, UserPreferenceChangedEventArgs e)
     {
+        // ReSharper disable once InvertIf
         if (e.Category == UserPreferenceCategory.General)
         {
             // ensure update on UI thread
-            if (Application.Current?.Dispatcher?.CheckAccess() == true)
+            if (Application.Current?.Dispatcher.CheckAccess() == true)
             {
                 UpdateTheme();
             }
             else
             {
-                Application.Current?.Dispatcher?.Invoke(UpdateTheme);
+                Application.Current?.Dispatcher.Invoke(UpdateTheme);
             }
         }
     }
