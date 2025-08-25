@@ -25,10 +25,10 @@
                     Margin="0" />
 
         <StackPanel Orientation="Vertical" Margin="-10,0,0,0">
-            <Expander Header="Default Render Device" IsExpanded="True">
+            <Expander Header="Default Output Audio Device" IsExpanded="True">
                 <controls:DefaultDeviceControl DataContext="{Binding RenderDeviceViewModel}" />
             </Expander>
-            <Expander Header="Default Capture Device" IsExpanded="True" Margin="0,0,0,12">
+            <Expander Header="Default Input Audio Device" IsExpanded="True" Margin="0,0,0,12">
                 <controls:DefaultDeviceControl DataContext="{Binding CaptureDeviceViewModel}" />
             </Expander>
         </StackPanel>
