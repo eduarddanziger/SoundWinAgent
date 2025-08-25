@@ -13,6 +13,9 @@ Released on $date$
 ## New
 - CodeSign.cer certificate included, see readme, **SoundDefaultUI**
 
+## Changes
+- SoundDefaultUI: both output and input devices shown
+
 3.3.1
 --------
 ~~~

@@ -2,42 +2,105 @@
 
 namespace SoundDefaultUI;
 
-public class SoundDeviceService
+public class SoundDeviceService : IDisposable
 {
-    private readonly ulong _serviceHandle;
+    private ulong _serviceHandle;
+    private bool _disposed;
+    private readonly object _disposeLock = new();
 
-    public SoundDeviceService(TSaaDefaultRenderChangedDelegate discoverDelegate)
+    public SoundDeviceService()
     {
 #pragma warning disable CA1806
-        SaaInitialize(out _serviceHandle, discoverDelegate);
+        SaaInitialize(out _serviceHandle);
 #pragma warning restore CA1806
     }
 
-    public SoundDeviceInfo GetSoundDevice()
+    public void InitializeAndBind(SaaDefaultChangedDelegate renderNotification, SaaDefaultChangedDelegate captureNotification)
+    {
+#pragma warning disable CA1806
+        SaaRegisterCallbacks(_serviceHandle, renderNotification, captureNotification);
+#pragma warning restore CA1806
+    }
+
+    // Common helpers
+    private static SoundDeviceInfo EmptyDeviceInfo() => new SoundDeviceInfo
+    {
+        PnpId = "",
+        DeviceName = "",
+        IsRenderingAvailable = false,
+        IsCapturingAvailable = false,
+        RenderVolumeLevel = 0,
+        CaptureVolumeLevel = 0
+    };
+
+    private static SoundDeviceInfo SaaDescription2SoundDeviceInfo(in SaaDescription device) => new SoundDeviceInfo
+    {
+        PnpId = device.PnpId,
+        DeviceName = device.Name,
+        IsRenderingAvailable = device.IsRender,
+        IsCapturingAvailable = device.IsCapture,
+        RenderVolumeLevel = device.RenderVolume,
+        CaptureVolumeLevel = device.CaptureVolume
+    };
+
+    private SoundDeviceInfo GetDevice(Func<ulong, SaaDescription> fetch)
     {
         if (_serviceHandle == 0)
         {
-            throw new InvalidOperationException("Service handle is not initialized.");
+            return EmptyDeviceInfo();
         }
-        // Get the default render device information
-#pragma warning disable CA1806
-        SaaGetDefaultRender(_serviceHandle, out var device);
-#pragma warning restore CA1806
-        return new SoundDeviceInfo
+        var dev = fetch(_serviceHandle);
+        return SaaDescription2SoundDeviceInfo(dev);
+    }
+
+    public SoundDeviceInfo GetRenderDevice()
+    {
+        return GetDevice(handle =>
         {
-            PnpId = device.PnpId, DeviceName = device.Name,
-            IsRenderingAvailable = device.IsRender, IsCapturingAvailable = device.IsCapture,
-            RenderVolumeLevel = device.RenderVolume, CaptureVolumeLevel = device.CaptureVolume
-        };
-        ;
+#pragma warning disable CA1806
+            SaaGetDefaultRender(handle, out var device);
+#pragma warning restore CA1806
+            return device;
+        });
+    }
+
+    public SoundDeviceInfo GetCaptureDevice()
+    {
+        return GetDevice(handle =>
+        {
+#pragma warning disable CA1806
+            SaaGetDefaultCapture(handle, out var device);
+#pragma warning restore CA1806
+            return device;
+        });
+    }
+
+    ~SoundDeviceService()
+    {
+        Dispose(false);
     }
 
     public void Dispose()
     {
-        if (_serviceHandle != 0)
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        ulong handleToRelease = 0;
+        lock (_disposeLock)
+        {
+            if (_disposed) return;
+            _disposed = true;
+            handleToRelease = _serviceHandle;
+            _serviceHandle = 0;
+        }
+
+        if (handleToRelease != 0)
         {
 #pragma warning disable CA1806
-            SaaUnInitialize(_serviceHandle);
+            SaaUnInitialize(handleToRelease);
 #pragma warning restore CA1806
         }
     }

@@ -1,16 +1,12 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
+﻿using System.Windows;
 
 namespace SoundDefaultUI
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App
     {
-        public SoundDeviceService? SoundDeviceService { private get; set; }
-
         public App()
         {
             InitializeComponent();
@@ -20,7 +16,7 @@ namespace SoundDefaultUI
             ApplyTheme(themeService.IsDarkTheme);
             
             // Listen for theme changes
-            themeService.PropertyChanged += (sender, e) =>
+            themeService.PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName == nameof(ThemeService.IsDarkTheme))
                 {
@@ -33,6 +29,7 @@ namespace SoundDefaultUI
         {
             var themeKey = isDarkTheme ? "DarkTheme" : "LightTheme";
             
+            // ReSharper disable once InvertIf
             if (Resources[themeKey] is ResourceDictionary themeResources)
             {
                 // Clear existing merged dictionaries
@@ -41,13 +38,6 @@ namespace SoundDefaultUI
                 // Apply the selected theme
                 Resources.MergedDictionaries.Add(themeResources);
             }
-        }
-
-        protected override void OnExit(ExitEventArgs e)
-        {
-            base.OnExit(e);
-
-            SoundDeviceService?.Dispose();
         }
     }
 

@@ -6,11 +6,19 @@
     <Application.Resources>
         <ResourceDictionary>
             <local:ThemeToColorZoneModeConverter x:Key="ThemeToColorZoneModeConverter" />
+            <local:ThemeToDisabledColorConverter x:Key="ThemeToDisabledColorConverter" />
+            
+            <SolidColorBrush x:Key="MaterialDesignBodyDisabled" 
+                             Color="{Binding Source={x:Static local:ThemeService.Instance}, Path=IsDarkTheme, 
+                             Converter={StaticResource ThemeToDisabledColorConverter}}" />
+            
             <ResourceDictionary x:Key="LightTheme">
                 <ResourceDictionary.MergedDictionaries>
                     <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
                     <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
                     <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+                    <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Window.xaml" />
+                    <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
             <ResourceDictionary x:Key="DarkTheme">
@@ -18,6 +26,8 @@
                     <materialDesign:BundledTheme BaseTheme="Dark" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
                     <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
                     <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+                    <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Window.xaml" />
+                    <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Dark.xaml" />
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>
         </ResourceDictionary>

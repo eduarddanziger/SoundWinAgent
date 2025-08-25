@@ -8,8 +8,10 @@
 
 class DllObserver final : public SoundDeviceObserverInterface {
 public:
-    explicit DllObserver(TSaaDefaultRenderChangedCallback defaultRenderChangedCallback)
+    explicit DllObserver(TSaaDefaultChangedCallback defaultRenderChangedCallback
+        , TSaaDefaultChangedCallback defaultCaptureChangedCallback)
         : defaultRenderChangedCallback_(defaultRenderChangedCallback)
+        , defaultCaptureChangedCallback_(defaultCaptureChangedCallback)
     {
     }
     DISALLOW_COPY_MOVE(DllObserver);
@@ -18,7 +20,8 @@ public:
     void OnCollectionChanged(SoundDeviceEventType event, const std::string& devicePnpId) override;
 
 private:
-    TSaaDefaultRenderChangedCallback defaultRenderChangedCallback_;
+    TSaaDefaultChangedCallback defaultRenderChangedCallback_;
+    TSaaDefaultChangedCallback defaultCaptureChangedCallback_;
 };
 
 DllObserver::~DllObserver() = default;
@@ -27,12 +30,21 @@ void DllObserver::OnCollectionChanged(SoundDeviceEventType event, const std::str
 {
     if(defaultRenderChangedCallback_ != nullptr)
     {
-	    if (event == SoundDeviceEventType::DefaultRenderChanged
-		    || event == SoundDeviceEventType::VolumeRenderChanged
-		    || event == SoundDeviceEventType::VolumeCaptureChanged)
-	    {
-		    defaultRenderChangedCallback_(devicePnpId.empty() ? FALSE : TRUE);
-	    }
+        if (event == SoundDeviceEventType::DefaultRenderChanged
+            || event == SoundDeviceEventType::VolumeRenderChanged
+            || event == SoundDeviceEventType::VolumeCaptureChanged)
+        {
+            defaultRenderChangedCallback_(devicePnpId.empty() ? FALSE : TRUE);
+        }
+    }
+    if (defaultCaptureChangedCallback_ != nullptr)
+    {
+        if (event == SoundDeviceEventType::DefaultCaptureChanged
+            || event == SoundDeviceEventType::VolumeCaptureChanged
+            || event == SoundDeviceEventType::VolumeRenderChanged)
+        {
+            defaultCaptureChangedCallback_(devicePnpId.empty() ? FALSE : TRUE);
+        }
     }
 }
 
@@ -42,52 +54,95 @@ namespace  {
     std::unique_ptr<SoundDeviceObserverInterface> device_collection_observer;
 }
 
-SaaResult SaaInitialize(SaaHandle* handle, TSaaDefaultRenderChangedCallback defaultRenderChangedCallback)
+SaaResult SaaInitialize(SaaHandle* handle)
 {
     device_collection = SoundAgent::CreateDeviceCollection();
-    device_collection_observer = std::make_unique<DllObserver>(defaultRenderChangedCallback);
-    device_collection->Subscribe(*device_collection_observer);
-    device_collection->ResetContent();
-    
     *handle = reinterpret_cast<SaaHandle>(device_collection.get());
 
     return 0;
 }
 
-SaaResult SaaGetDefaultRender(SaaHandle handle, SaaDescription* description)
+SaaResult SaaRegisterCallbacks([[maybe_unused]] SaaHandle handle
+    , TSaaDefaultChangedCallback defaultRenderChangedCallback
+    , TSaaDefaultChangedCallback defaultCaptureChangedCallback
+)
 {
-    if(description == nullptr)
+    if (device_collection_observer != nullptr)
     {
-        return 0;
+        device_collection->Unsubscribe(*device_collection_observer);
     }
 
-    if (const auto pnpId = device_collection->GetDefaultRenderDevicePnpId()
-        ; pnpId.has_value())
-    {
-        const auto device = device_collection->CreateItem(*pnpId);
-        strncpy_s(description->PnpId, _countof(description->PnpId), device->GetPnpId().c_str(), device->GetPnpId().size());
-        strncpy_s(description->Name, _countof(description->Name), device->GetName().c_str(), device->GetName().size());
-        description->IsRender = device->GetFlow() == SoundDeviceFlowType::Render || device->GetFlow() == SoundDeviceFlowType::RenderAndCapture ? TRUE : FALSE;
-        description->IsCapture = device->GetFlow() == SoundDeviceFlowType::Capture || device->GetFlow() == SoundDeviceFlowType::RenderAndCapture ? TRUE : FALSE;
-        description->RenderVolume = device->GetCurrentRenderVolume();
-        description->CaptureVolume = device->GetCurrentCaptureVolume();
-        return 0;
-    }
-    description->PnpId[0] = '\0';
-    description->Name[0] = '\0';
-    description->IsRender = FALSE;
-    description->IsCapture = FALSE;
-    description->RenderVolume = 0;
-    description->CaptureVolume = 0;
+    device_collection_observer = std::make_unique<DllObserver>(defaultRenderChangedCallback,
+        defaultCaptureChangedCallback);
+    device_collection->Subscribe(*device_collection_observer);
+    device_collection->ResetContent();
+
     return 0;
 }
+
+namespace
+{
+    SaaResult GetDeviceOnPnpId(SaaDescription* description, const std::optional<std::string> pnpId);
+}
+
+
+SaaResult SaaGetDefaultRender([[maybe_unused]] SaaHandle handle, SaaDescription* description)
+{
+    if (description == nullptr)
+    {
+        return 0;
+    }
+    const auto pnpId = device_collection->GetDefaultRenderDevicePnpId();
+
+    return GetDeviceOnPnpId(description, pnpId);
+}
+
+SaaResult SaaGetDefaultCapture([[maybe_unused]] SaaHandle handle, SaaDescription* description)
+{
+    if (description == nullptr)
+    {
+        return 0;
+    }
+    const auto pnpId = device_collection->GetDefaultCaptureDevicePnpId();
+
+    return GetDeviceOnPnpId(description, pnpId);
+}
+
+namespace
+{
+    SaaResult GetDeviceOnPnpId(SaaDescription* description, const std::optional<std::string> pnpId)
+    {
+        if (pnpId.has_value())
+        {
+            const auto device = device_collection->CreateItem(*pnpId);
+            strncpy_s(description->PnpId, _countof(description->PnpId), device->GetPnpId().c_str(), device->GetPnpId().size());
+            strncpy_s(description->Name, _countof(description->Name), device->GetName().c_str(), device->GetName().size());
+            description->IsRender = device->GetFlow() == SoundDeviceFlowType::Render || device->GetFlow() == SoundDeviceFlowType::RenderAndCapture ? TRUE : FALSE;
+            description->IsCapture = device->GetFlow() == SoundDeviceFlowType::Capture || device->GetFlow() == SoundDeviceFlowType::RenderAndCapture ? TRUE : FALSE;
+            description->RenderVolume = device->GetCurrentRenderVolume();
+            description->CaptureVolume = device->GetCurrentCaptureVolume();
+            return 0;
+        }
+        description->PnpId[0] = '\0';
+        description->Name[0] = '\0';
+        description->IsRender = FALSE;
+        description->IsCapture = FALSE;
+        description->RenderVolume = 0;
+        description->CaptureVolume = 0;
+        return 0;
+    }
+}
+
 
 SaaResult SaaUnInitialize(SaaHandle handle)
 {
     if(device_collection != nullptr)
     {
-        device_collection->Unsubscribe(*device_collection_observer);
-        device_collection_observer.reset();
+        if (device_collection_observer != nullptr)
+        {
+            device_collection->Unsubscribe(*device_collection_observer);
+            device_collection_observer.reset();
+        }
         device_collection.reset();
     }
     return 0;

@@ -27,21 +27,33 @@
         UINT16 CaptureVolume;
     } SaaDescription;
 
-    typedef void(__stdcall* TSaaDefaultRenderChangedCallback)(
+    typedef void(__stdcall* TSaaDefaultChangedCallback)(
         _In_ BOOL presentOrAbsent
         );
 
     SAA_EXPORT_IMPORT_DECL
         SaaResult __stdcall SaaInitialize(
-        _Out_ SaaHandle* handle,
-        _In_opt_ TSaaDefaultRenderChangedCallback defaultRenderChangedCallback
-    );
+            _Out_ SaaHandle* handle
+        );
+
+    SAA_EXPORT_IMPORT_DECL
+        SaaResult __stdcall SaaRegisterCallbacks(
+            _In_ SaaHandle handle,
+            _In_opt_ TSaaDefaultChangedCallback defaultRenderChangedCallback,
+            _In_opt_ TSaaDefaultChangedCallback defaultCaptureChangedCallback
+        );
 
     SAA_EXPORT_IMPORT_DECL
         SaaResult __stdcall SaaGetDefaultRender(
-        _In_ SaaHandle handle,
-        _Out_ SaaDescription* description
-    );
+            _In_ SaaHandle handle,
+            _Out_ SaaDescription* description
+        );
+
+    SAA_EXPORT_IMPORT_DECL
+        SaaResult __stdcall SaaGetDefaultCapture(
+            _In_ SaaHandle handle,
+            _Out_ SaaDescription* description
+        );
 
     SAA_EXPORT_IMPORT_DECL
         SaaResult __stdcall SaaUnInitialize(
