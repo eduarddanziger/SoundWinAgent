@@ -10,7 +10,7 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
         Style="{StaticResource MaterialDesignWindow}"
-        Title="{Binding WindowTitle}" Height="400" Width="700"
+        Title="{Binding WindowTitle}" Height="690" Width="750"
         materialDesign:ColorZoneAssist.Mode="{Binding Source={x:Static local:ThemeService.Instance}, Path=IsDarkTheme, Converter={StaticResource ThemeToColorZoneModeConverter}}">
     <Window.Resources>
         <local:ThemeToColorZoneModeConverter x:Key="ThemeToColorZoneModeConverter" />
@@ -31,13 +31,13 @@
                     Margin="0,0,10,5" />
 
         <Grid Margin="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height ="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-            <controls:DefaultDeviceControl Grid.Column="0" Header="Default Render Device" DataContext="{Binding RenderDevice}" />
-            <controls:DefaultDeviceControl Grid.Column="1" Header="Default Capture Device" DataContext="{Binding CaptureDevice}" />
+            <controls:DefaultDeviceControl Grid.Row="0" Header="Default Render Device" DataContext="{Binding RenderDevice}" />
+            <controls:DefaultDeviceControl Grid.Row="1" Header="Default Capture Device" DataContext="{Binding CaptureDevice}" />
         </Grid>
     </DockPanel>
 </Window>
