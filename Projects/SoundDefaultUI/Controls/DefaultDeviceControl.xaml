@@ -7,13 +7,16 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=vm:DefaultDeviceViewModel}">
-    <GroupBox Header="{Binding Header, RelativeSource={RelativeSource AncestorType=UserControl}}"
-              Style="{DynamicResource MaterialDesignGroupBox}"
-              Margin="10"
-              Background="Transparent"
-              materialDesign:ColorZoneAssist.Mode="PrimaryMid"
-              Opacity="{Binding Availability2GroupOpacity}">
-        <StackPanel Margin="8">
+    <Border
+        Margin="25,0,18,0"
+        Background="Transparent"
+        BorderBrush="{DynamicResource MaterialDesignDivider}"
+        BorderThickness="2"
+        CornerRadius="6"
+        materialDesign:ColorZoneAssist.Mode="PrimaryMid"
+        Opacity="{Binding Availability2GroupOpacity}"
+        Padding="10">
+        <StackPanel>
             <TextBlock Text="PnP Identifier" FontWeight="Bold" Margin="0,0,0,5"
                        IsEnabled="{Binding IsDeviceNotNull}"
                        Style="{DynamicResource GrayOnDisabledTextBlock}" />
@@ -54,5 +57,5 @@
                            Foreground="{DynamicResource MaterialDesignBody}" />
             </Grid>
         </StackPanel>
-    </GroupBox>
+    </Border>
 </UserControl>

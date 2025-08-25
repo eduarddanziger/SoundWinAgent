@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace SoundDefaultUI.Controls;
 
-public partial class DefaultDeviceControl : UserControl
+public partial class DefaultDeviceControl
 {
     public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register(
         nameof(Header), typeof(string), typeof(DefaultDeviceControl), new PropertyMetadata("Default Device"));

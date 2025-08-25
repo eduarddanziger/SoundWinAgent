@@ -28,16 +28,15 @@
         <StackPanel DockPanel.Dock="Top"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
-                    Margin="0,0,10,5" />
+                    Margin="0" />
 
-        <Grid Margin="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height ="*" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-
-            <controls:DefaultDeviceControl Grid.Row="0" Header="Default Render Device" DataContext="{Binding RenderDevice}" />
-            <controls:DefaultDeviceControl Grid.Row="1" Header="Default Capture Device" DataContext="{Binding CaptureDevice}" />
-        </Grid>
+        <StackPanel Orientation="Vertical" Margin="-10,0,0,0">
+            <Expander Header="Default Render Device" IsExpanded="True">
+                <controls:DefaultDeviceControl DataContext="{Binding RenderDevice}" />
+            </Expander>
+            <Expander Header="Default Capture Device" IsExpanded="True">
+                <controls:DefaultDeviceControl DataContext="{Binding CaptureDevice}" />
+            </Expander>
+        </StackPanel>
     </DockPanel>
 </Window>
