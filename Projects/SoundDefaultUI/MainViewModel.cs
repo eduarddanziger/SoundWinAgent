@@ -1,130 +1,68 @@
-﻿using NLog;
+﻿namespace SoundDefaultUI;
 
-namespace SoundDefaultUI;
+using JetBrains.Annotations;
+using NLog;
 
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Threading;
 
-public class MainViewModel : INotifyPropertyChanged
+public class MainViewModel
 {
     private SoundDeviceService SoundDeviceService { get; }
 
-    private static Dispatcher? MyDispatcher { get; set; }
-    private SoundDeviceInfo? _device;
-
-    public SoundDeviceInfo? Device
-    {
-        get => _device;
-        set
-        {
-            // ReSharper disable once InvertIf
-            if (_device != value)
-            {
-                _device = value;
-                OnPropertyChanged(nameof(Device));
-                OnPropertyChanged(nameof(IsDeviceNotNull));
-                OnPropertyChanged(nameof(IsRenderingAvailable));
-                OnPropertyChanged(nameof(IsCapturingAvailable));
-                OnPropertyChanged(nameof(Availability2GroupOpacity));
-                OnPropertyChanged(nameof(RenderingAvailability2IndicatorOpacity));
-                OnPropertyChanged(nameof(CapturingAvailability2IndicatorOpacity));
-            }
-        }
-    }
+    private static Dispatcher Dispatcher { get; } = Dispatcher.CurrentDispatcher;
 
     public string WindowTitle { get; }
 
-    public ThemeService ThemeService => ThemeService.Instance;
+    [UsedImplicitly]
+    public static ThemeService ThemeService => ThemeService.Instance;
 
-    private readonly TSaaDefaultRenderChangedDelegate _onDefaultRenderPresentOrAbsent = OnDefaultRenderPresentOrAbsent;
+    public DefaultDeviceViewModel RenderDeviceViewModel { get; } = new(true);
+    public DefaultDeviceViewModel CaptureDeviceViewModel { get; } = new(false);
 
-    public MainViewModel()
+    public MainViewModel(SoundDeviceService soundDeviceService)
     {
-        MyDispatcher = Dispatcher.CurrentDispatcher;
-
         var logger = LogManager.GetCurrentClassLogger();
         var args = Environment.GetCommandLineArgs();
         logger.Info(args.Length > 1
-            ? $"Command line parameter(s) detected. They are currently ignored."
+            ? "Command line parameter(s) detected. They are currently ignored."
             : "No command line parameters detected");
 
         WindowTitle = "System Default Sound";
 
-        SoundDeviceService = new SoundDeviceService(_onDefaultRenderPresentOrAbsent);
+        SoundDeviceService = soundDeviceService;
+        SoundDeviceService.InitializeAndBind(OnDefaultRenderPresentOrAbsent, OnDefaultCapturePresentOrAbsent);
 
-        var app = (App)Application.Current;
-        app.SoundDeviceService = SoundDeviceService;
+        var render = SoundDeviceService.GetRenderDevice();
+        RenderDeviceViewModel.Device = render.PnpId.Length != 0 ? render : null;
 
-        var audioDeviceInfo = SoundDeviceService.GetSoundDevice();
-        Device = audioDeviceInfo.PnpId.Length != 0 ? audioDeviceInfo : null;
+        var capture = SoundDeviceService.GetCaptureDevice();
+        CaptureDeviceViewModel.Device = capture.PnpId.Length != 0 ? capture : null;
     }
 
     private static void OnDefaultRenderPresentOrAbsent(bool presentOrAbsent)
     {
-        MyDispatcher?.Invoke(() =>
+        Dispatcher.Invoke(() =>
         {
             var mainWindow = Window.GetWindow(App.Current.MainWindow) as MainWindow;
-
-            // ReSharper disable once InvertIf
-            if (mainWindow?.DataContext is MainViewModel mainViewModel)
+            if (mainWindow?.DataContext is MainViewModel vm)
             {
-                mainViewModel.Device = presentOrAbsent ? mainViewModel.SoundDeviceService.GetSoundDevice() : null;
-                CommandManager.InvalidateRequerySuggested();
+                vm.RenderDeviceViewModel.Device = presentOrAbsent ? vm.SoundDeviceService.GetRenderDevice() : null;
             }
         });
     }
-    public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void OnPropertyChanged([CallerMemberName] string propertyName = "")
+    private static void OnDefaultCapturePresentOrAbsent(bool presentOrAbsent)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    public bool IsDeviceNotNull => Device != null;
-    public bool IsRenderingAvailable => Device is { IsRenderingAvailable: true };
-    public bool IsCapturingAvailable => Device is { IsCapturingAvailable: true };
-
-    public double Availability2GroupOpacity => IsDeviceNotNull ? 1.0 : 0.55;
-    public double RenderingAvailability2IndicatorOpacity => IsRenderingAvailable ? 1.0 : 0.2;
-    public double CapturingAvailability2IndicatorOpacity => IsCapturingAvailable ? 0.55 : 0.2;
-
-    private void Refresh()
-    {
-        MyDispatcher?.Invoke(() =>
+        Dispatcher.Invoke(() =>
         {
-            if (Device != null)
+            var mainWindow = Window.GetWindow(App.Current.MainWindow) as MainWindow;
+            if (mainWindow?.DataContext is MainViewModel vm)
             {
-                Device = SoundDeviceService.GetSoundDevice();
+                vm.CaptureDeviceViewModel.Device = presentOrAbsent ? vm.SoundDeviceService.GetCaptureDevice() : null;
             }
         });
-    }
-}
-
-public class RelayCommand : ICommand
-{
-    private readonly Action _execute;
-    private readonly Func<bool>? _canExecute;
-
-    // ReSharper disable once ConvertToPrimaryConstructor
-    public RelayCommand(Action execute, Func<bool>? canExecute = null)
-    {
-        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-        _canExecute = canExecute;
-    }
-    public bool CanExecute(object? parameter) => _canExecute == null || _canExecute();
-
-    public void Execute(object? parameter)
-    {
-        _execute();
-    }
-
-    public event EventHandler? CanExecuteChanged
-    {
-        add => CommandManager.RequerySuggested += value;
-        remove => CommandManager.RequerySuggested -= value;
     }
 }

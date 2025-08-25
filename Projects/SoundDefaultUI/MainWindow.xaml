@@ -1,95 +1,36 @@
-﻿<Window x:Class="SoundDefaultUI.MainWindow"
+﻿<!-- ReSharper disable once Xaml.StaticResourceNotResolved -->
+<Window x:Class="SoundDefaultUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:SoundDefaultUI"
+        xmlns:controls="clr-namespace:SoundDefaultUI.Controls"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
         Style="{StaticResource MaterialDesignWindow}"
-        Title="{Binding WindowTitle}" Height="400" Width="700"
+        Title="{Binding WindowTitle}"
+        SizeToContent="WidthAndHeight"
+        MinWidth="700" 
         materialDesign:ColorZoneAssist.Mode="{Binding Source={x:Static local:ThemeService.Instance}, Path=IsDarkTheme, Converter={StaticResource ThemeToColorZoneModeConverter}}">
     <Window.Resources>
         <local:ThemeToColorZoneModeConverter x:Key="ThemeToColorZoneModeConverter" />
-        <Style x:Key="GrayOnDisabledTextBlock" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
-            <Style.Triggers>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Foreground" Value="LightGray" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
     </Window.Resources>
 
     <DockPanel Margin="5">
-        <!-- Theme Status Display -->
-        <StackPanel DockPanel.Dock="Top" 
+        <StackPanel DockPanel.Dock="Top"
                     Orientation="Horizontal"
-                    HorizontalAlignment="Right" 
-                    Margin="0,0,10,5">
+                    HorizontalAlignment="Right"
+                    Margin="0" />
+
+        <StackPanel Orientation="Vertical" Margin="-10,0,0,0">
+            <Expander Header="Default Render Device" IsExpanded="True">
+                <controls:DefaultDeviceControl DataContext="{Binding RenderDeviceViewModel}" />
+            </Expander>
+            <Expander Header="Default Capture Device" IsExpanded="True" Margin="0,0,0,12">
+                <controls:DefaultDeviceControl DataContext="{Binding CaptureDeviceViewModel}" />
+            </Expander>
         </StackPanel>
-        
-        <materialDesign:Card DockPanel.Dock="Top" Margin="0" Background="Transparent" 
-                             materialDesign:ElevationAssist.Elevation="Dp0">
-            <GroupBox Header="Default Render Device" 
-                      Style="{DynamicResource MaterialDesignGroupBox}" 
-                      Margin="10"
-                      Background="Transparent"
-                      materialDesign:ColorZoneAssist.Mode="PrimaryMid"
-                      Opacity="{Binding Availability2GroupOpacity}">
-                <StackPanel Margin="8">
-                    <TextBlock Text="PnP Identifier" FontWeight="Bold" Margin="0,0,0,5"
-                               IsEnabled="{Binding IsDeviceNotNull}"
-                               Style="{StaticResource GrayOnDisabledTextBlock}" />
-
-                    <TextBox
-                        Text="{Binding Device.PnpId, Mode = OneWay, TargetNullValue='null value', FallbackValue=''}"
-                        IsReadOnly="True" Margin="0,0,0,10"
-                        IsEnabled="{Binding IsDeviceNotNull}"/>
-
-                    <TextBlock Text="Name" FontWeight="Bold" Margin="0,0,0,5"
-                               IsEnabled="{Binding IsDeviceNotNull}"
-                               Style="{StaticResource GrayOnDisabledTextBlock}" />
-
-                    <TextBox
-                        Text="{Binding Device.DeviceName, Mode = OneWay, TargetNullValue='null value', FallbackValue=''}"
-                        IsReadOnly="True" Margin="0,0,0,10"
-                        IsEnabled="{Binding IsDeviceNotNull}"/>
-
-                    <TextBlock Text="Output Volume Level" FontWeight="Bold" Margin="0,0,0,5"
-                               IsEnabled="{Binding IsRenderingAvailable}"
-                               Style="{StaticResource GrayOnDisabledTextBlock}" />
-                    <Grid Height="28" Margin="0,0,0,10" VerticalAlignment="Center">
-                        <ProgressBar
-                            Value="{Binding Device.RenderVolumeLevel, Mode=OneWay}"
-                            Maximum="1000"
-                            Height="28"
-                            VerticalAlignment="Center"
-                            Opacity="{Binding RenderingAvailability2IndicatorOpacity}" />
-                        <TextBlock
-                            Text="{Binding Device.RenderVolumePercentText, Mode=OneWay, TargetNullValue='-'}"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            FontWeight="Bold"
-                            Foreground="{DynamicResource MaterialDesignBody}" />
-                    </Grid>
-
-                    <TextBlock Text="Input Volume Level" FontWeight="Bold" Margin="0,0,0,5"
-                               IsEnabled="{Binding IsCapturingAvailable}"
-                               Style="{StaticResource GrayOnDisabledTextBlock}" />
-                    <Grid Height="28" Margin="0,0,0,10" VerticalAlignment="Center">
-                        <ProgressBar
-                            Value="{Binding Device.CaptureVolumeLevel, Mode=OneWay}"
-                            Maximum="1000"
-                            Height="28"
-                            VerticalAlignment="Center"
-                            Opacity="{Binding CapturingAvailability2IndicatorOpacity}" />
-                        <TextBlock
-                            Text="{Binding Device.CaptureVolumePercentText, Mode=OneWay, TargetNullValue='-'}"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            FontWeight="Bold"
-                            Foreground="{DynamicResource MaterialDesignBody}" />
-                    </Grid>
-                </StackPanel>
-            </GroupBox>
-        </materialDesign:Card>
     </DockPanel>
 </Window>
