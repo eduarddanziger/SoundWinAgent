@@ -34,7 +34,7 @@
                        IsEnabled="{Binding IsRenderingAvailable}"
                        Style="{DynamicResource GrayOnDisabledTextBlock}" />
             <Grid Height="28" Margin="0,0,0,10" VerticalAlignment="Center">
-                <ProgressBar Value="{Binding Device.RenderVolumeLevel, Mode=OneWay, TargetNullValue='-', FallbackValue='-'}"
+                <ProgressBar Value="{Binding Device.RenderVolumeLevel, Mode=OneWay, TargetNullValue=0.0, FallbackValue=0.0}"
                              Maximum="1000" Height="28" VerticalAlignment="Center"
                              Opacity="{Binding RenderingAvailability2IndicatorOpacity}" />
                 <TextBlock Text="{Binding Device.RenderVolumePercentText, Mode=OneWay, TargetNullValue='-', FallbackValue='-'}"
@@ -46,7 +46,7 @@
                        IsEnabled="{Binding IsCapturingAvailable}"
                        Style="{DynamicResource GrayOnDisabledTextBlock}" />
             <Grid Height="28" Margin="0,0,0,10" VerticalAlignment="Center">
-                <ProgressBar Value="{Binding Device.CaptureVolumeLevel, Mode=OneWay, TargetNullValue='-', FallbackValue='-'}"
+                <ProgressBar Value="{Binding Device.CaptureVolumeLevel, Mode=OneWay, TargetNullValue=0.0, FallbackValue=0.0}"
                              Maximum="1000" Height="28" VerticalAlignment="Center"
                              Opacity="{Binding CapturingAvailability2IndicatorOpacity}" />
                 <TextBlock Text="{Binding Device.CaptureVolumePercentText, Mode=OneWay, TargetNullValue='-', FallbackValue='-'}"
