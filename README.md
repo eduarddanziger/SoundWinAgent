@@ -81,7 +81,7 @@ release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/rele
 ```
 3. Run the SoundDefaultUI
 
-    ![SoundDefaultUI screenshot](20250820152822SoundDefaultUI.JPG)
+    ![SoundDefaultUI screenshot](202508251500SoundDefaultUI.JPG)
 
 ## Developer Environment, How to Build:
 
