@@ -4,6 +4,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:SoundDefaultUI"
+        xmlns:controls="clr-namespace:SoundDefaultUI.Controls"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
@@ -24,74 +25,19 @@
     </Window.Resources>
 
     <DockPanel Margin="5">
-        <!-- Theme Status Display -->
         <StackPanel DockPanel.Dock="Top"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
-                    Margin="0,0,10,5">
-        </StackPanel>
+                    Margin="0,0,10,5" />
 
-        <GroupBox Header="Default Render Device"
-                  Style="{DynamicResource MaterialDesignGroupBox}"
-                  Margin="10"
-                  Background="Transparent"
-                  materialDesign:ColorZoneAssist.Mode="PrimaryMid"
-                  Opacity="{Binding Availability2GroupOpacity}">
-            <StackPanel Margin="8">
-                <TextBlock Text="PnP Identifier" FontWeight="Bold" Margin="0,0,0,5"
-                           IsEnabled="{Binding IsDeviceNotNull}"
-                           Style="{StaticResource GrayOnDisabledTextBlock}" />
+        <Grid Margin="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-                <TextBox
-                    Text="{Binding Device.PnpId, Mode = OneWay, TargetNullValue='null value', FallbackValue=''}"
-                    IsReadOnly="True" Margin="0,0,0,10"
-                    IsEnabled="{Binding IsDeviceNotNull}" />
-
-                <TextBlock Text="Name" FontWeight="Bold" Margin="0,0,0,5"
-                           IsEnabled="{Binding IsDeviceNotNull}"
-                           Style="{StaticResource GrayOnDisabledTextBlock}" />
-
-                <TextBox
-                    Text="{Binding Device.DeviceName, Mode = OneWay, TargetNullValue='null value', FallbackValue=''}"
-                    IsReadOnly="True" Margin="0,0,0,10"
-                    IsEnabled="{Binding IsDeviceNotNull}" />
-
-                <TextBlock Text="Output Volume Level" FontWeight="Bold" Margin="0,0,0,5"
-                           IsEnabled="{Binding IsRenderingAvailable}"
-                           Style="{StaticResource GrayOnDisabledTextBlock}" />
-                <Grid Height="28" Margin="0,0,0,10" VerticalAlignment="Center">
-                    <ProgressBar
-                        Value="{Binding Device.RenderVolumeLevel, Mode=OneWay, TargetNullValue='-', FallbackValue='-'}"
-                        Maximum="1000"
-                        Height="28"
-                        VerticalAlignment="Center"
-                        Opacity="{Binding RenderingAvailability2IndicatorOpacity}" />
-                    <TextBlock
-                        Text="{Binding Device.RenderVolumePercentText, Mode=OneWay, TargetNullValue='-', FallbackValue='-'}"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        FontWeight="Bold"
-                        Foreground="{DynamicResource MaterialDesignBody}" />
-                </Grid>
-
-                <TextBlock Text="Input Volume Level" FontWeight="Bold" Margin="0,0,0,5"
-                           IsEnabled="{Binding IsCapturingAvailable}"
-                           Style="{StaticResource GrayOnDisabledTextBlock}" />
-                <Grid Height="28" Margin="0,0,0,10" VerticalAlignment="Center">
-                    <ProgressBar
-                        Value="{Binding Device.CaptureVolumeLevel, Mode=OneWay, TargetNullValue='-', FallbackValue='-'}"
-                        Maximum="1000"
-                        Height="28"
-                        VerticalAlignment="Center"
-                        Opacity="{Binding CapturingAvailability2IndicatorOpacity}" />
-                    <TextBlock
-                        Text="{Binding Device.CaptureVolumePercentText, Mode=OneWay, TargetNullValue='-', FallbackValue='-'}"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        FontWeight="Bold"
-                        Foreground="{DynamicResource MaterialDesignBody}" />
-                </Grid>
-            </StackPanel>
-        </GroupBox>
+            <controls:DefaultDeviceControl Grid.Column="0" Header="Default Render Device" DataContext="{Binding RenderDevice}" />
+            <controls:DefaultDeviceControl Grid.Column="1" Header="Default Capture Device" DataContext="{Binding CaptureDevice}" />
+        </Grid>
     </DockPanel>
 </Window>

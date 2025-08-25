@@ -1,0 +1,54 @@
+<UserControl x:Class="SoundDefaultUI.Controls.DefaultDeviceControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:SoundDefaultUI.Controls">
+    <GroupBox Header="{Binding Header, RelativeSource={RelativeSource AncestorType=UserControl}}"
+              Style="{DynamicResource MaterialDesignGroupBox}"
+              Margin="10"
+              Background="Transparent"
+              materialDesign:ColorZoneAssist.Mode="PrimaryMid"
+              Opacity="{Binding DataContext.Availability2GroupOpacity, RelativeSource={RelativeSource AncestorType=UserControl}}">
+        <StackPanel Margin="8">
+            <TextBlock Text="PnP Identifier" FontWeight="Bold" Margin="0,0,0,5"
+                       IsEnabled="{Binding DataContext.IsDeviceNotNull, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       Style="{DynamicResource GrayOnDisabledTextBlock}" />
+
+            <TextBox Text="{Binding DataContext.Device.PnpId, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay, TargetNullValue='null value', FallbackValue=''}"
+                     IsReadOnly="True" Margin="0,0,0,10"
+                     IsEnabled="{Binding DataContext.IsDeviceNotNull, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+
+            <TextBlock Text="Name" FontWeight="Bold" Margin="0,0,0,5"
+                       IsEnabled="{Binding DataContext.IsDeviceNotNull, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       Style="{DynamicResource GrayOnDisabledTextBlock}" />
+
+            <TextBox Text="{Binding DataContext.Device.DeviceName, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay, TargetNullValue='null value', FallbackValue=''}"
+                     IsReadOnly="True" Margin="0,0,0,10"
+                     IsEnabled="{Binding DataContext.IsDeviceNotNull, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+
+            <TextBlock Text="Output Volume Level" FontWeight="Bold" Margin="0,0,0,5"
+                       IsEnabled="{Binding DataContext.IsRenderingAvailable, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       Style="{DynamicResource GrayOnDisabledTextBlock}" />
+            <Grid Height="28" Margin="0,0,0,10" VerticalAlignment="Center">
+                <ProgressBar Value="{Binding DataContext.Device.RenderVolumeLevel, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay, TargetNullValue='-', FallbackValue='-'}"
+                             Maximum="1000" Height="28" VerticalAlignment="Center"
+                             Opacity="{Binding DataContext.RenderingAvailability2IndicatorOpacity, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                <TextBlock Text="{Binding DataContext.Device.RenderVolumePercentText, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay, TargetNullValue='-', FallbackValue='-'}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"
+                           Foreground="{DynamicResource MaterialDesignBody}" />
+            </Grid>
+
+            <TextBlock Text="Input Volume Level" FontWeight="Bold" Margin="0,0,0,5"
+                       IsEnabled="{Binding DataContext.IsCapturingAvailable, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       Style="{DynamicResource GrayOnDisabledTextBlock}" />
+            <Grid Height="28" Margin="0,0,0,10" VerticalAlignment="Center">
+                <ProgressBar Value="{Binding DataContext.Device.CaptureVolumeLevel, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay, TargetNullValue='-', FallbackValue='-'}"
+                             Maximum="1000" Height="28" VerticalAlignment="Center"
+                             Opacity="{Binding DataContext.CapturingAvailability2IndicatorOpacity, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                <TextBlock Text="{Binding DataContext.Device.CaptureVolumePercentText, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay, TargetNullValue='-', FallbackValue='-'}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"
+                           Foreground="{DynamicResource MaterialDesignBody}" />
+            </Grid>
+        </StackPanel>
+    </GroupBox>
+</UserControl>

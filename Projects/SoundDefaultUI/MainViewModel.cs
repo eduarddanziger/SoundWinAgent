@@ -8,42 +8,25 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Threading;
 
-public class MainViewModel : INotifyPropertyChanged
+public class MainViewModel
 {
     private SoundDeviceService SoundDeviceService { get; }
 
     private static Dispatcher Dispatcher { get; } = Dispatcher.CurrentDispatcher;
-    private SoundDeviceInfo? _device;
-    private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
-    // ReSharper disable once MemberCanBePrivate.Global
-    public SoundDeviceInfo? Device
-    {
-        get => _device;
-        set
-        {
-            // ReSharper disable once InvertIf
-            if (_device != value)
-            {
-                _device = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsDeviceNotNull));
-                OnPropertyChanged(nameof(IsRenderingAvailable));
-                OnPropertyChanged(nameof(IsCapturingAvailable));
-                OnPropertyChanged(nameof(Availability2GroupOpacity));
-                OnPropertyChanged(nameof(RenderingAvailability2IndicatorOpacity));
-                OnPropertyChanged(nameof(CapturingAvailability2IndicatorOpacity));
-            }
-        }
-    }
+    public string WindowTitle { get; }
 
     [UsedImplicitly]
-    public string WindowTitle { get; }
+    public static ThemeService ThemeService => ThemeService.Instance;
+
+    public DefaultDeviceViewModel RenderDevice { get; } = new();
+    public DefaultDeviceViewModel CaptureDevice { get; } = new();
 
     public MainViewModel(SoundDeviceService soundDeviceService)
     {
+        var logger = LogManager.GetCurrentClassLogger();
         var args = Environment.GetCommandLineArgs();
-        Logger.Info(args.Length > 1
+        logger.Info(args.Length > 1
             ? "Command line parameter(s) detected. They are currently ignored."
             : "No command line parameters detected");
 
@@ -52,42 +35,34 @@ public class MainViewModel : INotifyPropertyChanged
         SoundDeviceService = soundDeviceService;
         SoundDeviceService.InitializeAndBind(OnDefaultRenderPresentOrAbsent, OnDefaultCapturePresentOrAbsent);
 
-        var audioDeviceInfo = SoundDeviceService.GetRenderDevice();
-        Device = audioDeviceInfo.PnpId.Length != 0 ? audioDeviceInfo : null;
+        var render = SoundDeviceService.GetRenderDevice();
+        RenderDevice.Device = render.PnpId.Length != 0 ? render : null;
+
+        var capture = SoundDeviceService.GetCaptureDevice();
+        CaptureDevice.Device = capture.PnpId.Length != 0 ? capture : null;
     }
 
     private static void OnDefaultRenderPresentOrAbsent(bool presentOrAbsent)
     {
         Dispatcher.Invoke(() =>
         {
-            // ReSharper disable once AccessToStaticMemberViaDerivedType
-            // ReSharper disable once AssignNullToNotNullAttribute
             var mainWindow = Window.GetWindow(App.Current.MainWindow) as MainWindow;
-
-            if (mainWindow?.DataContext is MainViewModel mainViewModel)
+            if (mainWindow?.DataContext is MainViewModel vm)
             {
-                mainViewModel.Device = presentOrAbsent ? mainViewModel.SoundDeviceService.GetRenderDevice() : null;
+                vm.RenderDevice.Device = presentOrAbsent ? vm.SoundDeviceService.GetRenderDevice() : null;
             }
         });
     }
 
     private static void OnDefaultCapturePresentOrAbsent(bool presentOrAbsent)
     {
+        Dispatcher.Invoke(() =>
+        {
+            var mainWindow = Window.GetWindow(App.Current.MainWindow) as MainWindow;
+            if (mainWindow?.DataContext is MainViewModel vm)
+            {
+                vm.CaptureDevice.Device = presentOrAbsent ? vm.SoundDeviceService.GetCaptureDevice() : null;
+            }
+        });
     }
-
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    public bool IsDeviceNotNull => Device != null;
-    public bool IsRenderingAvailable => Device is { IsRenderingAvailable: true };
-    public bool IsCapturingAvailable => Device is { IsCapturingAvailable: true };
-
-    public double Availability2GroupOpacity => IsDeviceNotNull ? 1.0 : 0.55;
-    public double RenderingAvailability2IndicatorOpacity => IsRenderingAvailable ? 1.0 : 0.2;
-    public double CapturingAvailability2IndicatorOpacity => IsCapturingAvailable ? 0.55 : 0.2;
 }
