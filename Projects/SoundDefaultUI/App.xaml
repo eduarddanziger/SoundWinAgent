@@ -6,6 +6,12 @@
     <Application.Resources>
         <ResourceDictionary>
             <local:ThemeToColorZoneModeConverter x:Key="ThemeToColorZoneModeConverter" />
+            <local:ThemeToDisabledColorConverter x:Key="ThemeToDisabledColorConverter" />
+            
+            <SolidColorBrush x:Key="MaterialDesignBodyDisabled" 
+                             Color="{Binding Source={x:Static local:ThemeService.Instance}, Path=IsDarkTheme, 
+                             Converter={StaticResource ThemeToDisabledColorConverter}}" />
+            
             <ResourceDictionary x:Key="LightTheme">
                 <ResourceDictionary.MergedDictionaries>
                     <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />

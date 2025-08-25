@@ -10,18 +10,12 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
         Style="{StaticResource MaterialDesignWindow}"
-        Title="{Binding WindowTitle}" Height="690" Width="750"
+        Title="{Binding WindowTitle}"
+        SizeToContent="WidthAndHeight"
+        MinWidth="700" 
         materialDesign:ColorZoneAssist.Mode="{Binding Source={x:Static local:ThemeService.Instance}, Path=IsDarkTheme, Converter={StaticResource ThemeToColorZoneModeConverter}}">
     <Window.Resources>
         <local:ThemeToColorZoneModeConverter x:Key="ThemeToColorZoneModeConverter" />
-        <Style x:Key="GrayOnDisabledTextBlock" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
-            <Style.Triggers>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Foreground" Value="LightGray" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
     </Window.Resources>
 
     <DockPanel Margin="5">
@@ -32,10 +26,10 @@
 
         <StackPanel Orientation="Vertical" Margin="-10,0,0,0">
             <Expander Header="Default Render Device" IsExpanded="True">
-                <controls:DefaultDeviceControl DataContext="{Binding RenderDevice}" />
+                <controls:DefaultDeviceControl DataContext="{Binding RenderDeviceViewModel}" />
             </Expander>
-            <Expander Header="Default Capture Device" IsExpanded="True">
-                <controls:DefaultDeviceControl DataContext="{Binding CaptureDevice}" />
+            <Expander Header="Default Capture Device" IsExpanded="True" Margin="0,0,0,12">
+                <controls:DefaultDeviceControl DataContext="{Binding CaptureDeviceViewModel}" />
             </Expander>
         </StackPanel>
     </DockPanel>

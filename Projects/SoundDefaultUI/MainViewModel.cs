@@ -19,8 +19,8 @@ public class MainViewModel
     [UsedImplicitly]
     public static ThemeService ThemeService => ThemeService.Instance;
 
-    public DefaultDeviceViewModel RenderDevice { get; } = new();
-    public DefaultDeviceViewModel CaptureDevice { get; } = new();
+    public DefaultDeviceViewModel RenderDeviceViewModel { get; } = new(true);
+    public DefaultDeviceViewModel CaptureDeviceViewModel { get; } = new(false);
 
     public MainViewModel(SoundDeviceService soundDeviceService)
     {
@@ -36,10 +36,10 @@ public class MainViewModel
         SoundDeviceService.InitializeAndBind(OnDefaultRenderPresentOrAbsent, OnDefaultCapturePresentOrAbsent);
 
         var render = SoundDeviceService.GetRenderDevice();
-        RenderDevice.Device = render.PnpId.Length != 0 ? render : null;
+        RenderDeviceViewModel.Device = render.PnpId.Length != 0 ? render : null;
 
         var capture = SoundDeviceService.GetCaptureDevice();
-        CaptureDevice.Device = capture.PnpId.Length != 0 ? capture : null;
+        CaptureDeviceViewModel.Device = capture.PnpId.Length != 0 ? capture : null;
     }
 
     private static void OnDefaultRenderPresentOrAbsent(bool presentOrAbsent)
@@ -49,7 +49,7 @@ public class MainViewModel
             var mainWindow = Window.GetWindow(App.Current.MainWindow) as MainWindow;
             if (mainWindow?.DataContext is MainViewModel vm)
             {
-                vm.RenderDevice.Device = presentOrAbsent ? vm.SoundDeviceService.GetRenderDevice() : null;
+                vm.RenderDeviceViewModel.Device = presentOrAbsent ? vm.SoundDeviceService.GetRenderDevice() : null;
             }
         });
     }
@@ -61,7 +61,7 @@ public class MainViewModel
             var mainWindow = Window.GetWindow(App.Current.MainWindow) as MainWindow;
             if (mainWindow?.DataContext is MainViewModel vm)
             {
-                vm.CaptureDevice.Device = presentOrAbsent ? vm.SoundDeviceService.GetCaptureDevice() : null;
+                vm.CaptureDeviceViewModel.Device = presentOrAbsent ? vm.SoundDeviceService.GetCaptureDevice() : null;
             }
         });
     }

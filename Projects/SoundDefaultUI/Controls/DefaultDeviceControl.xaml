@@ -7,6 +7,16 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=vm:DefaultDeviceViewModel}">
+    <UserControl.Resources>
+        <Style x:Key="GrayOnDisabledTextBlock" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBodyDisabled}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
     <Border
         Margin="25,0,18,0"
         Background="Transparent"
