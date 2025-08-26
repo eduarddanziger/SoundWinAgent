@@ -139,9 +139,18 @@ std::optional<std::wstring> ed::audio::SoundDeviceCollection::GetDeviceId(CComPt
     CoTaskMemFree(deviceIdPtr);
 
     // truncate to max 79 chars
-    if (deviceId.length() > 79) {
+    if (deviceId.length() > 79)
+    {
         deviceId = deviceId.substr(0, 79);
     }
+
+    // Remove all { and } characters
+    std::erase_if(deviceId,
+                  [](wchar_t c) { return c == L'{' || c == L'}'; });
+
+    std::ranges::transform(deviceId, deviceId.begin(),
+        [](wchar_t c) { return std::toupper(c); });
+
     return deviceId;
 }
 
