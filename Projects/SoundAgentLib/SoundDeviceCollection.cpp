@@ -137,6 +137,11 @@ std::optional<std::wstring> ed::audio::SoundDeviceCollection::GetDeviceId(CComPt
     }
     std::wstring deviceId(deviceIdPtr);
     CoTaskMemFree(deviceIdPtr);
+
+    // truncate to max 79 chars
+    if (deviceId.length() > 79) {
+        deviceId = deviceId.substr(0, 79);
+    }
     return deviceId;
 }
 
@@ -153,9 +158,11 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
         return false;
     }
     deviceId = deviceIdOpt.value();
+    auto deviceIdAscii = WString2StringTruncate(deviceId);
+
 
     HRESULT hr;
-    spdlog::info(R"(Id of the current device is "{}".)", WString2StringTruncate(deviceId));
+    spdlog::info(R"(Id of the current device is "{}".)", deviceIdAscii);
     // Get flow direction via IMMEndpoint
     auto flow = SoundDeviceFlowType::None;
     {
@@ -171,7 +178,7 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
             return false;
         }
         flow = ConvertFromLowLevelFlow(lowLevelFlow);
-        spdlog::info(R"(The end point device "{}", has a data flow "{}".)", WString2StringTruncate(deviceId),
+        spdlog::info(R"(The end point device "{}", has a data flow "{}".)", deviceIdAscii,
                      magic_enum::enum_name(flow));
     }
     // Read device PnP Class id property
@@ -195,14 +202,14 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
             {
                 name = Utf16ToUtf8(propVarForName.pwszVal);
                 spdlog::info(R"(The end point device "{}" got a name "{}".)",
-                             WString2StringTruncate(deviceId), name);
+                             deviceIdAscii, name);
             }
             else
             {
                 name = "UnknownDeviceName";
                 spdlog::warn(
                     R"(The end point device "{}" has no friendly name not of expected type VT_LPWSTR. Assigning "{}".)",
-                    WString2StringTruncate(deviceId), name);
+                    deviceIdAscii, name);
             }
             // ReSharper disable once CppFunctionResultShouldBeUsed
             PropVariantClear(&propVarForName);
@@ -233,9 +240,16 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
                         pnpGuid = pnpGuid.substr(1, pnpGuid.length() - 2);
                     }
                 }
+                if (constexpr auto noPlugAndPlayGuid = "00000000-0000-0000-FFFF-FFFFFFFFFFFF"
+                    ; pnpGuid == noPlugAndPlayGuid)
+                {
+                    spdlog::info(R"(The device "{}" has got no-plug-and-play-id {}. Assigning a device id "{}" .)",
+                                 device.GetName(), noPlugAndPlayGuid, deviceIdAscii);
+                    pnpGuid = deviceIdAscii;
+                }
             }
             spdlog::info(R"(The end point device "{}", got a PnP id "{}".)",
-                WString2StringTruncate(deviceId), pnpGuid);
+                deviceIdAscii, pnpGuid);
 
                 // ReSharper disable once CppFunctionResultShouldBeUsed
             PropVariantClear(&propVarForGuid);
@@ -259,7 +273,7 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
     }
     // Check mute and possibly correct volume
     if (outVolumeEndpoint == nullptr) {
-        spdlog::warn(R"(The end point device "{}" has no volume property.)", WString2StringTruncate(deviceId));
+        spdlog::warn(R"(The end point device "{}" has no volume property.)", deviceIdAscii);
         return false;
     }
     BOOL mute;
@@ -274,7 +288,7 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
             return false;
         }
         volume = static_cast<uint16_t>(lround(currVolume * 1000.0f));
-        spdlog::info(R"(The end point device "{}" has a volume "{}".)", WString2StringTruncate(deviceId), volume);
+        spdlog::info(R"(The end point device "{}" has a volume "{}".)", deviceIdAscii, volume);
     }
     uint16_t renderVolume = 0;
     uint16_t captureVolume = 0;
