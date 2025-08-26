@@ -24,33 +24,27 @@ public class SoundDeviceService : IDisposable
 #pragma warning restore CA1806
     }
 
-    // Common helpers
-    private static SoundDeviceInfo EmptyDeviceInfo() => new SoundDeviceInfo
-    {
-        PnpId = "",
-        DeviceName = "",
-        IsRenderingAvailable = false,
-        IsCapturingAvailable = false,
-        RenderVolumeLevel = 0,
-        CaptureVolumeLevel = 0
-    };
+    private static SoundDeviceInfo EmptyDeviceInfo() =>
+        new()
+        {
+            PnpId = "",
+            DeviceName = "",
+            IsRenderingAvailable = false,
+            IsCapturingAvailable = false,
+            RenderVolumeLevel = 0,
+            CaptureVolumeLevel = 0
+        };
 
-    private static SoundDeviceInfo SaaDescription2SoundDeviceInfo(in SaaDescription device)
-    {
-        var len = Array.IndexOf(device.Name, (byte)0);
-        var deviceName = len >= 0
-            ? Encoding.UTF8.GetString(device.Name, 0, len)
-            : Encoding.UTF8.GetString(device.Name);
-        return new SoundDeviceInfo
+    private static SoundDeviceInfo SaaDescription2SoundDeviceInfo(in SaaDescription device) =>
+        new()
         {
             PnpId = device.PnpId,
-            DeviceName = deviceName,
+            DeviceName = Encoding.UTF8.GetString(device.Name).TrimEnd('\0'),
             IsRenderingAvailable = device.IsRender,
             IsCapturingAvailable = device.IsCapture,
             RenderVolumeLevel = device.RenderVolume,
             CaptureVolumeLevel = device.CaptureVolume
         };
-    }
 
     private SoundDeviceInfo GetDevice(Func<ulong, SaaDescription> fetch)
     {
