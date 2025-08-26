@@ -12,7 +12,8 @@
         Style="{StaticResource MaterialDesignWindow}"
         Title="{Binding WindowTitle}"
         SizeToContent="WidthAndHeight"
-        MinWidth="700" 
+        ResizeMode="NoResize"
+        MinWidth="500" 
         materialDesign:ColorZoneAssist.Mode="{Binding Source={x:Static local:ThemeService.Instance}, Path=IsDarkTheme, Converter={StaticResource ThemeToColorZoneModeConverter}}">
     <Window.Resources>
         <local:ThemeToColorZoneModeConverter x:Key="ThemeToColorZoneModeConverter" />
