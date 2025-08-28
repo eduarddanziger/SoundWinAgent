@@ -48,8 +48,8 @@ public:
     HRESULT OnDefaultDeviceChanged(EDataFlow flow, ERole role, LPCWSTR defaultDeviceId) override;
 
 private:
-    void SetDefaultRenderDevicePnpId(const std::optional<std::string>& pnpId);
-    void SetDefaultCaptureDevicePnpId(const std::optional<std::string>& pnpId);
+    void SetDefaultRenderDeviceAndNotifyObservers(const std::string& pnpId);
+    void SetDefaultCaptureDeviceAndNotifyObservers(const std::string& pnpId);
 
     void ProcessActiveDeviceList(const ProcessDeviceFunctionT& processDeviceFunc);
     [[nodiscard]] std::pair<std::optional<std::wstring>, std::optional<std::wstring>> TryGetRenderAndCaptureDefaultDeviceIds() const;

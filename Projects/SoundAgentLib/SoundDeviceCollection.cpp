@@ -515,7 +515,7 @@ void ed::audio::SoundDeviceCollection::RecreateActiveDeviceList()
     // ReSharper disable once CppPassValueParameterByConstReference
     auto setActiveAndRegisterDeviceClosure = [renderDefaultDeviceId, captureDefaultDeviceId, this](ed::audio::SoundDeviceCollection* self, const std::wstring& deviceId, const SoundDevice& device, EndPointVolumeSmartPtr endpointVolume)
         {
-            SoundDeviceCollection::RegisterDevice(self, deviceId, device, endpointVolume);  // NOLINT(performance-unnecessary-value-param)
+            RegisterDevice(self, deviceId, device, endpointVolume);  // NOLINT(performance-unnecessary-value-param)
 
             const auto pnpGuid = device.GetPnpId();
             const auto foundPair = self->pnpToDeviceMap_.find(pnpGuid);
@@ -523,21 +523,33 @@ void ed::audio::SoundDeviceCollection::RecreateActiveDeviceList()
             if (SoundDevice* foundDevicePtr = foundPair != self->pnpToDeviceMap_.end() ? &(foundPair->second) : nullptr
                 ; foundDevicePtr != nullptr)
             {
-                if (device.GetFlow() == SoundDeviceFlowType::Render && renderDefaultDeviceId.has_value() && *renderDefaultDeviceId == deviceId)
+                if
+                (
+                    (device.GetFlow() == SoundDeviceFlowType::Render || device.GetFlow() ==
+                        SoundDeviceFlowType::RenderAndCapture)
+                    && renderDefaultDeviceId.has_value() && *renderDefaultDeviceId == deviceId
+                )
                 {
                     foundDevicePtr->SetRenderCurrentlyDefault(true);
-                    this->SetDefaultRenderDevicePnpId(pnpGuid);
-                    spdlog::info(R"(Device "{}", PnPId "{}", name "{}" detected as Render-Default and set respectively.)"
+                    this->SetDefaultRenderDeviceAndNotifyObservers(pnpGuid);
+                    spdlog::info(
+                        R"(Device "{}", PnPId "{}", name "{}" detected as Render-Default and set respectively. Observers notified.)"
                         , WString2StringTruncate(deviceId)
                         , pnpGuid
                         , foundDevicePtr->GetName()
                     );
                 }
-                else if (device.GetFlow() == SoundDeviceFlowType::Capture && captureDefaultDeviceId.has_value() && *captureDefaultDeviceId == deviceId)
+                if
+                (
+                    (device.GetFlow() == SoundDeviceFlowType::Capture || device.GetFlow() ==
+                        SoundDeviceFlowType::RenderAndCapture)
+                    && captureDefaultDeviceId.has_value() && *captureDefaultDeviceId == deviceId
+                )
                 {
                     foundDevicePtr->SetCaptureCurrentlyDefault(true);
-                    this->SetDefaultCaptureDevicePnpId(pnpGuid);
-                    spdlog::info(R"(Device "{}", PnPId "{}", name "{}" detected as Capture-Default and set respectively..)"
+                    this->SetDefaultCaptureDeviceAndNotifyObservers(pnpGuid);
+                    spdlog::info(
+                        R"(Device "{}", PnPId "{}", name "{}" detected as Capture-Default and set respectively. Observers notified.)"
                         , WString2StringTruncate(deviceId)
                         , pnpGuid
                         , foundDevicePtr->GetName()
@@ -551,7 +563,6 @@ void ed::audio::SoundDeviceCollection::RecreateActiveDeviceList()
 void ed::audio::SoundDeviceCollection::RefreshVolumes()
 {
     spdlog::info("Refreshing volumes of audio devices..");
-
     ProcessActiveDeviceList(&SoundDeviceCollection::UpdateDeviceVolume);
 }
 
@@ -630,7 +641,28 @@ HRESULT ed::audio::SoundDeviceCollection::OnDeviceAdded(LPCWSTR deviceId)
         {
             RegisterDevice(this, deviceId, device, endPointVolumeSmartPtr);
 
-            NotifyObservers(SoundDeviceEventType::Discovered, device.GetPnpId());
+            const auto pnpId = device.GetPnpId();
+            NotifyObservers(SoundDeviceEventType::Discovered, pnpId);
+            if (device.IsRenderCurrentlyDefault())
+            {
+                NotifyObservers(SoundDeviceEventType::DefaultRenderChanged, pnpId);
+                spdlog::info(R"(Device "{}", PnPId "{}", name "{}" was already Render-Default. Observers notified.)"
+                    , WString2StringTruncate(deviceId)
+                    , pnpId
+                    , device.GetName()
+                );
+
+            }
+            if (device.IsCaptureCurrentlyDefault())
+            {
+                NotifyObservers(SoundDeviceEventType::DefaultCaptureChanged, pnpId);
+                spdlog::info(R"(Device "{}", PnPId "{}", name "{}" was already Capture-Default. Observers notified.)"
+                    , WString2StringTruncate(deviceId)
+                    , pnpId
+                    , device.GetName()
+                );
+            }
+
         }
         spdlog::info(R"(Device adding finished: id "{}".)", WString2StringTruncate(deviceId));
     }
@@ -876,23 +908,25 @@ HRESULT ed::audio::SoundDeviceCollection::OnDefaultDeviceChanged(EDataFlow flow,
         }
     }
 
+    // default device disabled 
     if (defaultDeviceId == nullptr)
     {
         if (flow == eRender)
         {
-            SetDefaultRenderDevicePnpId(std::nullopt);
+            defaultRenderDevicePnpId_ = std::nullopt;
             NotifyObservers(SoundDeviceEventType::DefaultRenderChanged, "");
             spdlog::info("Render-Default device removed.");
         }
         else if (flow == eCapture)
         {
-            SetDefaultCaptureDevicePnpId(std::nullopt);
+            defaultCaptureDevicePnpId_ = std::nullopt;
             NotifyObservers(SoundDeviceEventType::DefaultCaptureChanged, "");
             spdlog::info("Capture-Default device removed.");
         }
         return hr;
     }
 
+    // got new default device 
     SoundDevice device;
     if (
         EndPointVolumeSmartPtr endPointVolumeSmartPtr;
@@ -908,9 +942,8 @@ HRESULT ed::audio::SoundDeviceCollection::OnDefaultDeviceChanged(EDataFlow flow,
             if (flow == eRender)
             {
                 foundDevicePtr->SetRenderCurrentlyDefault(true);
-                SetDefaultRenderDevicePnpId(pnpGuid);
-                NotifyObservers(SoundDeviceEventType::DefaultRenderChanged, pnpGuid);
-                spdlog::info(R"(Device "{}", PnPId "{}", name "{}" set as Render-Default according to Default-Change-Event)"
+                SetDefaultRenderDeviceAndNotifyObservers(pnpGuid);
+                spdlog::info(R"(Device "{}", PnPId "{}", name "{}" set as Render-Default according to Default-Change-Event. Observers notified.)"
                     , WString2StringTruncate(defaultDeviceId)
                     , pnpGuid
                     , foundDevicePtr->GetName()
@@ -919,9 +952,8 @@ HRESULT ed::audio::SoundDeviceCollection::OnDefaultDeviceChanged(EDataFlow flow,
             else if (flow == eCapture)
             {
                 foundDevicePtr->SetCaptureCurrentlyDefault(true);
-                SetDefaultCaptureDevicePnpId(pnpGuid);
-                NotifyObservers(SoundDeviceEventType::DefaultCaptureChanged, pnpGuid);
-                spdlog::info(R"(Device "{}", PnPId "{}", name "{}" set as Capture-Default according to Default-Change-Event.)"
+                SetDefaultCaptureDeviceAndNotifyObservers(pnpGuid);
+                spdlog::info(R"(Device "{}", PnPId "{}", name "{}" set as Capture-Default according to Default-Change-Event. Observers notified.)"
                     , WString2StringTruncate(defaultDeviceId)
                     , pnpGuid
                     , foundDevicePtr->GetName()
@@ -933,12 +965,14 @@ HRESULT ed::audio::SoundDeviceCollection::OnDefaultDeviceChanged(EDataFlow flow,
     return hr;
 }
 
-void ed::audio::SoundDeviceCollection::SetDefaultRenderDevicePnpId(const std::optional<std::string>& pnpId)
+void ed::audio::SoundDeviceCollection::SetDefaultRenderDeviceAndNotifyObservers(const std::string& pnpId)
 {
     defaultRenderDevicePnpId_ = pnpId;
+    NotifyObservers(SoundDeviceEventType::DefaultRenderChanged, pnpId);
 }
 
-void ed::audio::SoundDeviceCollection::SetDefaultCaptureDevicePnpId(const std::optional<std::string>& pnpId)
+void ed::audio::SoundDeviceCollection::SetDefaultCaptureDeviceAndNotifyObservers(const std::string& pnpId)
 {
     defaultCaptureDevicePnpId_ = pnpId;
+    NotifyObservers(SoundDeviceEventType::DefaultCaptureChanged, pnpId);
 }
