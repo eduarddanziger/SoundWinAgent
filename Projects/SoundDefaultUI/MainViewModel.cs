@@ -46,10 +46,16 @@ public class MainViewModel
     {
         Dispatcher.Invoke(() =>
         {
-            var mainWindow = Window.GetWindow(App.Current.MainWindow) as MainWindow;
-            if (mainWindow?.DataContext is MainViewModel vm)
+            // ReSharper disable once AccessToStaticMemberViaDerivedType
+            var currentMainWindow = App.Current.MainWindow;
+            // ReSharper disable once InvertIf
+            if (currentMainWindow != null)
             {
-                vm.RenderDeviceViewModel.Device = presentOrAbsent ? vm.SoundDeviceService.GetRenderDevice() : null;
+                var mainWindow = Window.GetWindow(currentMainWindow) as MainWindow;
+                if (mainWindow?.DataContext is MainViewModel vm)
+                {
+                    vm.RenderDeviceViewModel.Device = presentOrAbsent ? vm.SoundDeviceService.GetRenderDevice() : null;
+                }
             }
         });
     }
@@ -58,10 +64,16 @@ public class MainViewModel
     {
         Dispatcher.Invoke(() =>
         {
-            var mainWindow = Window.GetWindow(App.Current.MainWindow) as MainWindow;
-            if (mainWindow?.DataContext is MainViewModel vm)
+            // ReSharper disable once AccessToStaticMemberViaDerivedType
+            var currentMainWindow = App.Current.MainWindow;
+            // ReSharper disable once InvertIf
+            if (currentMainWindow != null)
             {
-                vm.CaptureDeviceViewModel.Device = presentOrAbsent ? vm.SoundDeviceService.GetCaptureDevice() : null;
+                var mainWindow = Window.GetWindow(currentMainWindow) as MainWindow;
+                if (mainWindow?.DataContext is MainViewModel vm)
+                {
+                    vm.CaptureDeviceViewModel.Device = presentOrAbsent ? vm.SoundDeviceService.GetCaptureDevice() : null;
+                }
             }
         });
     }

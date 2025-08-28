@@ -969,10 +969,18 @@ void ed::audio::SoundDeviceCollection::SetDefaultRenderDeviceAndNotifyObservers(
 {
     defaultRenderDevicePnpId_ = pnpId;
     NotifyObservers(SoundDeviceEventType::DefaultRenderChanged, pnpId);
+    if (defaultCaptureDevicePnpId_ == defaultRenderDevicePnpId_)
+    {
+        NotifyObservers(SoundDeviceEventType::DefaultCaptureChanged, pnpId);
+    }
 }
 
 void ed::audio::SoundDeviceCollection::SetDefaultCaptureDeviceAndNotifyObservers(const std::string& pnpId)
 {
     defaultCaptureDevicePnpId_ = pnpId;
     NotifyObservers(SoundDeviceEventType::DefaultCaptureChanged, pnpId);
+    if (defaultRenderDevicePnpId_ == defaultCaptureDevicePnpId_)
+    {
+        NotifyObservers(SoundDeviceEventType::DefaultRenderChanged, pnpId);
+    }
 }
