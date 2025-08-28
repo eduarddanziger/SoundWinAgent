@@ -5,6 +5,9 @@
 #include "public/SoundAgentInterface.h"
 #include "ApiClient/common/ClassDefHelper.h"
 
+#include <algorithm>
+#include <crtdbg.h>
+#include <intsafe.h>
 
 class DllObserver final : public SoundDeviceObserverInterface {
 public:
@@ -82,7 +85,7 @@ SaaResult SaaRegisterCallbacks([[maybe_unused]] SaaHandle handle
 
 namespace
 {
-    SaaResult GetDeviceOnPnpId(SaaDescription* description, const std::optional<std::string> pnpId);
+    SaaResult GetDeviceOnPnpId(SaaDescription* description, const std::optional<std::string>& pnpId);
 }
 
 
@@ -110,25 +113,53 @@ SaaResult SaaGetDefaultCapture([[maybe_unused]] SaaHandle handle, SaaDescription
 
 namespace
 {
-    SaaResult GetDeviceOnPnpId(SaaDescription* description, const std::optional<std::string> pnpId)
+    SaaResult GetDeviceOnPnpId(SaaDescription* description, const std::optional<std::string>& pnpId)
     {
-        if (pnpId.has_value())
-        {
-            const auto device = device_collection->CreateItem(*pnpId);
-            strncpy_s(description->PnpId, _countof(description->PnpId), device->GetPnpId().c_str(), device->GetPnpId().size());
-            strncpy_s(description->Name, _countof(description->Name), device->GetName().c_str(), device->GetName().size());
-            description->IsRender = device->GetFlow() == SoundDeviceFlowType::Render || device->GetFlow() == SoundDeviceFlowType::RenderAndCapture ? TRUE : FALSE;
-            description->IsCapture = device->GetFlow() == SoundDeviceFlowType::Capture || device->GetFlow() == SoundDeviceFlowType::RenderAndCapture ? TRUE : FALSE;
-            description->RenderVolume = device->GetCurrentRenderVolume();
-            description->CaptureVolume = device->GetCurrentCaptureVolume();
-            return 0;
-        }
-        description->PnpId[0] = '\0';
-        description->Name[0] = '\0';
+        std::ranges::fill(description->PnpId, '\0');
+        std::ranges::fill(description->Name, '\0');
         description->IsRender = FALSE;
         description->IsCapture = FALSE;
         description->RenderVolume = 0;
         description->CaptureVolume = 0;
+        if (pnpId.has_value())
+        {
+            if (const auto device = device_collection->CreateItem(*pnpId)
+                ; device != nullptr)
+            {
+                {
+
+                    const auto devicePnpId = device->GetPnpId();
+                    const auto deviceName = device->GetName();
+#ifdef _DEBUG
+                    class RemoveDebugThresholdGuardRaii {
+                    public:
+                        explicit RemoveDebugThresholdGuardRaii() {
+                            _CrtSetDebugFillThreshold(0);
+                        }
+                        ~RemoveDebugThresholdGuardRaii() {
+                            _CrtSetDebugFillThreshold(SIZE_T_MAX);
+                        }
+                    };
+                    RemoveDebugThresholdGuardRaii fillGuard;
+#endif
+                    strncpy_s(description->PnpId, _countof(description->PnpId), devicePnpId.c_str(),
+                        devicePnpId.size());
+                    strncpy_s(description->Name, _countof(description->Name), deviceName.c_str(),
+                        deviceName.size());
+                }
+                description->IsRender = device->GetFlow() == SoundDeviceFlowType::Render || device->GetFlow() ==
+                                        SoundDeviceFlowType::RenderAndCapture
+                                            ? TRUE
+                                            : FALSE;
+                description->IsCapture = device->GetFlow() == SoundDeviceFlowType::Capture || device->GetFlow() ==
+                                         SoundDeviceFlowType::RenderAndCapture
+                                             ? TRUE
+                                             : FALSE;
+                description->RenderVolume = device->GetCurrentRenderVolume();
+                description->CaptureVolume = device->GetCurrentCaptureVolume();
+            }
+            return 0;
+        }
         return 0;
     }
 }

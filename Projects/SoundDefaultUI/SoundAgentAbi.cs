@@ -9,11 +9,12 @@ public struct SaaDescription
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
     public string PnpId;
 
-    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-    public string Name;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
+    public byte[] Name; // UTF-8 encoded string
 
     [MarshalAs(UnmanagedType.Bool)]
     public bool IsRender;
+
     [MarshalAs(UnmanagedType.Bool)]
     public bool IsCapture;
 

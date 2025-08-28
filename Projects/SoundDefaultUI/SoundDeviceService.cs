@@ -1,4 +1,6 @@
-﻿using static SoundDefaultUI.SoundAgentApi;
+﻿using System.Text;
+using System.Xml.Linq;
+using static SoundDefaultUI.SoundAgentApi;
 
 namespace SoundDefaultUI;
 
@@ -22,26 +24,27 @@ public class SoundDeviceService : IDisposable
 #pragma warning restore CA1806
     }
 
-    // Common helpers
-    private static SoundDeviceInfo EmptyDeviceInfo() => new SoundDeviceInfo
-    {
-        PnpId = "",
-        DeviceName = "",
-        IsRenderingAvailable = false,
-        IsCapturingAvailable = false,
-        RenderVolumeLevel = 0,
-        CaptureVolumeLevel = 0
-    };
+    private static SoundDeviceInfo EmptyDeviceInfo() =>
+        new()
+        {
+            PnpId = "",
+            DeviceName = "",
+            IsRenderingAvailable = false,
+            IsCapturingAvailable = false,
+            RenderVolumeLevel = 0,
+            CaptureVolumeLevel = 0
+        };
 
-    private static SoundDeviceInfo SaaDescription2SoundDeviceInfo(in SaaDescription device) => new SoundDeviceInfo
-    {
-        PnpId = device.PnpId,
-        DeviceName = device.Name,
-        IsRenderingAvailable = device.IsRender,
-        IsCapturingAvailable = device.IsCapture,
-        RenderVolumeLevel = device.RenderVolume,
-        CaptureVolumeLevel = device.CaptureVolume
-    };
+    private static SoundDeviceInfo SaaDescription2SoundDeviceInfo(in SaaDescription device) =>
+        new()
+        {
+            PnpId = device.PnpId,
+            DeviceName = Encoding.UTF8.GetString(device.Name).TrimEnd('\0'),
+            IsRenderingAvailable = device.IsRender,
+            IsCapturingAvailable = device.IsCapture,
+            RenderVolumeLevel = device.RenderVolume,
+            CaptureVolumeLevel = device.CaptureVolume
+        };
 
     private SoundDeviceInfo GetDevice(Func<ulong, SaaDescription> fetch)
     {
