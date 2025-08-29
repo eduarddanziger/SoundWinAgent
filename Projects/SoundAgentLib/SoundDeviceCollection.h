@@ -93,7 +93,6 @@ public:
 private:
     std::map<std::string, SoundDevice> pnpToDeviceMap_;
     std::set<SoundDeviceObserverInterface*> observers_;
-    IMMDeviceEnumerator * enumerator_ = nullptr;
     std::function<void()> wainFunc_;
 
     std::map<std::wstring, CComPtr<IAudioEndpointVolume>> devIdToEndpointVolumes_;

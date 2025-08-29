@@ -1,10 +1,13 @@
 ﻿// ReSharper disable CppClangTidyClangDiagnosticLanguageExtensionToken
 #pragma once
 
+#include <cassert>
 #include <endpointvolume.h>
 #include <mmdeviceapi.h>
 
 #include <ApiClient/common/ClassDefHelper.h>
+
+#include "Utilities.h"
 
 
 namespace ed::audio {
@@ -17,27 +20,17 @@ private:
     IMMDeviceEnumerator * enumerator_ = nullptr;
 
 public:
-    void ResetNotification(IMMDeviceEnumerator * enumerator)
+    MultipleNotificationClient()
     {
-        enumerator_ = enumerator;
-        if (enumerator != nullptr)
-        {
-            // ReSharper disable once CppFunctionResultShouldBeUsed
-            enumerator_->RegisterEndpointNotificationCallback(this);
-        }
+        const auto hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, IID_PPV_ARGS(&enumerator_));
+        assert(SUCCEEDED(hr));
+
+        RegisterEnumerator();
     }
 
-    // Constructor
-    MultipleNotificationClient() = default;
-
-    // Destructor
     virtual ~MultipleNotificationClient()
     {
-        if (enumerator_ != nullptr)
-        {
-            // ReSharper disable once CppFunctionResultShouldBeUsed
-            enumerator_->UnregisterEndpointNotificationCallback(this);
-        }
+        UnregisterEnumerator();
     }
 
     // IUnknown methods
@@ -51,7 +44,7 @@ public:
         const ULONG ulRef = InterlockedDecrement(&ref_);
         if (0 == ulRef)
         {
-            delete this;
+            this->UnregisterEnumerator();
         }
         return ulRef;
     }
@@ -111,5 +104,33 @@ public:
     {
         return S_OK;
     }
+
+protected:
+    [[nodiscard]] IMMDeviceEnumerator* GetEnumeratorOrNull() const noexcept
+    {
+        return enumerator_; // nullptr if unavailable
+    }
+
+private:
+    void RegisterEnumerator()
+    {
+        if (enumerator_ != nullptr)
+        {
+            // ReSharper disable once CppFunctionResultShouldBeUsed
+            enumerator_->RegisterEndpointNotificationCallback(this);
+        }
+    }
+    void UnregisterEnumerator()
+    {
+        if (enumerator_ != nullptr)
+        {
+            // ReSharper disable once CppFunctionResultShouldBeUsed
+            enumerator_->UnregisterEndpointNotificationCallback(this);
+            enumerator_->Release();
+            enumerator_ = nullptr;
+        }
+    }
+
 };
+
 }
