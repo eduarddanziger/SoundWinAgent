@@ -48,12 +48,6 @@ ed::audio::SoundDeviceCollection::~SoundDeviceCollection()
     UnregisterAllEndpointsVolumes();
 }
 
-ed::audio::SoundDeviceCollection::SoundDeviceCollection(std::function<void()> wainFunc)
-    : MultipleNotificationClient()
-      , wainFunc_(std::move(wainFunc))
-{
-}
-
 void ed::audio::SoundDeviceCollection::ResetContent()
 {
     RecreateActiveDeviceList();

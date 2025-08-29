@@ -68,7 +68,7 @@ public:
 
         TEST_METHOD(CtorMemoryLeakTest)
         {
-            SoundDeviceCollection devColl(nullptr);
+            SoundDeviceCollection devColl();
 
             // char* s = new char[17];
             // strcpy_s(s, 17, "allocate_no_free");
@@ -78,7 +78,7 @@ public:
         }
         TEST_METHOD(ResetContentMemoryLeakTest)
         {
-            SoundDeviceCollection devColl(nullptr);
+            SoundDeviceCollection devColl();
             devColl.ResetContent();
         }
 #endif

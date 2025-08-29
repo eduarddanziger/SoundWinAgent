@@ -28,7 +28,7 @@ public:
     ~SoundDeviceCollection() override;
 
 public:
-    explicit SoundDeviceCollection(std::function<void()> wainFunc);
+    SoundDeviceCollection() = default;
 
     [[nodiscard]] size_t GetSize() const override;
     [[nodiscard]] std::unique_ptr<SoundDeviceInterface> CreateItem(size_t deviceNumber) const override;
@@ -93,7 +93,6 @@ public:
 private:
     std::map<std::string, SoundDevice> pnpToDeviceMap_;
     std::set<SoundDeviceObserverInterface*> observers_;
-    std::function<void()> wainFunc_;
 
     std::map<std::wstring, CComPtr<IAudioEndpointVolume>> devIdToEndpointVolumes_;
 
