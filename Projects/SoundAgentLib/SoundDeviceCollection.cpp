@@ -517,8 +517,8 @@ void ed::audio::SoundDeviceCollection::RecreateActiveDeviceList()
         {
             RegisterDevice(self, deviceId, device, endpointVolume);  // NOLINT(performance-unnecessary-value-param)
 
-            const auto pnpGuid = device.GetPnpId();
-            const auto foundPair = self->pnpToDeviceMap_.find(pnpGuid);
+            const auto pnpId = device.GetPnpId();
+            const auto foundPair = self->pnpToDeviceMap_.find(pnpId);
 
             if (SoundDevice* foundDevicePtr = foundPair != self->pnpToDeviceMap_.end() ? &(foundPair->second) : nullptr
                 ; foundDevicePtr != nullptr)
@@ -531,11 +531,11 @@ void ed::audio::SoundDeviceCollection::RecreateActiveDeviceList()
                 )
                 {
                     foundDevicePtr->SetRenderCurrentlyDefault(true);
-                    SetDefaultRenderDeviceAndNotifyObservers(pnpGuid);
+                    defaultRenderDevicePnpId_ = pnpId;
                     spdlog::info(
-                        R"(Device "{}", PnPId "{}", name "{}" detected as Render-Default and set respectively. Observers notified.)"
+                        R"(Device "{}", PnPId "{}", name "{}" detected as Render-Default and set respectively.)"
                         , WString2StringTruncate(deviceId)
-                        , pnpGuid
+                        , pnpId
                         , foundDevicePtr->GetName()
                     );
                 }
@@ -547,11 +547,11 @@ void ed::audio::SoundDeviceCollection::RecreateActiveDeviceList()
                 )
                 {
                     foundDevicePtr->SetCaptureCurrentlyDefault(true);
-                    SetDefaultCaptureDeviceAndNotifyObservers(pnpGuid);
+                    defaultCaptureDevicePnpId_ = pnpId;
                     spdlog::info(
-                        R"(Device "{}", PnPId "{}", name "{}" detected as Capture-Default and set respectively. Observers notified.)"
+                        R"(Device "{}", PnPId "{}", name "{}" detected as Capture-Default and set respectively.)"
                         , WString2StringTruncate(deviceId)
-                        , pnpGuid
+                        , pnpId
                         , foundDevicePtr->GetName()
                     );
                 }
@@ -942,8 +942,8 @@ HRESULT ed::audio::SoundDeviceCollection::OnDefaultDeviceChanged(EDataFlow flow,
             if (flow == eRender)
             {
                 foundDevicePtr->SetRenderCurrentlyDefault(true);
-                defaultRenderDevicePnpId_ = pnpId;
-                spdlog::info(R"(Device "{}", PnPId "{}", name "{}" set as Render-Default according to Default-Change-Event.)"
+                SetDefaultRenderDeviceAndNotifyObservers(pnpId);
+                spdlog::info(R"(Device "{}", PnPId "{}", name "{}" set as Render-Default according to Default-Change-Event. Observers notified.)"
                     , WString2StringTruncate(defaultDeviceId)
                     , pnpId
                     , foundDevicePtr->GetName()
@@ -952,8 +952,8 @@ HRESULT ed::audio::SoundDeviceCollection::OnDefaultDeviceChanged(EDataFlow flow,
             else if (flow == eCapture)
             {
                 foundDevicePtr->SetCaptureCurrentlyDefault(true);
-                defaultCaptureDevicePnpId_ = pnpId;
-                spdlog::info(R"(Device "{}", PnPId "{}", name "{}" set as Capture-Default according to Default-Change-Event.)"
+                SetDefaultCaptureDeviceAndNotifyObservers(pnpId);
+                spdlog::info(R"(Device "{}", PnPId "{}", name "{}" set as Capture-Default according to Default-Change-Event. Observers notified.)"
                     , WString2StringTruncate(defaultDeviceId)
                     , pnpId
                     , foundDevicePtr->GetName()
