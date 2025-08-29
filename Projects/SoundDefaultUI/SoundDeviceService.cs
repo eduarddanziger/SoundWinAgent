@@ -1,21 +1,33 @@
-﻿using System.Text;
+﻿using NLog;
+using System.Text;
+using System.Windows.Threading;
 using System.Xml.Linq;
 using static SoundDefaultUI.SoundAgentApi;
 
 namespace SoundDefaultUI;
 
-public class SoundDeviceService : IDisposable
+public sealed class SoundDeviceService : IDisposable
 {
+    private static Logger _logger = LogManager.GetCurrentClassLogger();
     private ulong _serviceHandle;
     private bool _disposed;
     private readonly object _disposeLock = new();
 
+    
+
     public SoundDeviceService()
     {
 #pragma warning disable CA1806
-        SaaInitialize(out _serviceHandle);
+        SaaInitialize(out _serviceHandle, OnLogMessage, "SoundDefaultUI", " 1.0.0");
 #pragma warning restore CA1806
     }
+
+    private static void OnLogMessage(SaaLogMessage logMessage)
+    {
+        var messageText = Encoding.UTF8.GetString(logMessage.Content).TrimEnd('\0');
+        _logger.Info(messageText);
+    }
+
 
     public void InitializeAndBind(SaaDefaultChangedDelegate renderNotification, SaaDefaultChangedDelegate captureNotification)
     {
@@ -89,7 +101,7 @@ public class SoundDeviceService : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         ulong handleToRelease = 0;
         lock (_disposeLock)
