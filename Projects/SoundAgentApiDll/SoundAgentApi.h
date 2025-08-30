@@ -27,13 +27,26 @@
         UINT16 CaptureVolume;
     } SaaDescription;
 
+    typedef struct {
+        CHAR Level[12];
+        CHAR Content[256];
+    } SaaLogMessage;
+
+
     typedef void(__stdcall* TSaaDefaultChangedCallback)(
         _In_ BOOL presentOrAbsent
         );
 
+    typedef void(__stdcall* TSaaGotLogMessageCallback)(
+        _In_ SaaLogMessage message
+        );
+
     SAA_EXPORT_IMPORT_DECL
         SaaResult __stdcall SaaInitialize(
-            _Out_ SaaHandle* handle
+            _Out_ SaaHandle* handle,
+            _In_opt_ TSaaGotLogMessageCallback gotLogMessageCallback,
+            _In_opt_ const CHAR* appName,
+            _In_opt_ const CHAR* appVersion
         );
 
     SAA_EXPORT_IMPORT_DECL
