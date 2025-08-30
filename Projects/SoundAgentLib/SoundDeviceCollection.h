@@ -69,6 +69,7 @@ private:
     );
 
     static std::optional<std::wstring> GetDeviceId(CComPtr<IMMDevice> deviceEndpointSmartPtr);
+    static std::string DeviceIdToPnpIdForm(const std::string& deviceIdAscii);
 
     void UnregisterAllEndpointsVolumes();
     void UnregisterAndRemoveEndpointsVolumes(const std::wstring& deviceId);

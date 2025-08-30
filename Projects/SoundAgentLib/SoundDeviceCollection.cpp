@@ -130,20 +130,23 @@ std::optional<std::wstring> ed::audio::SoundDeviceCollection::GetDeviceId(CComPt
     std::wstring deviceId(deviceIdPtr);
     CoTaskMemFree(deviceIdPtr);
 
-    // truncate to max 79 chars
-    if (deviceId.length() > 79)
-    {
-        deviceId = deviceId.substr(0, 79);
-    }
+    return deviceId;
+}
 
-    // Remove all { and } characters
-    std::erase_if(deviceId,
+std::string ed::audio::SoundDeviceCollection::DeviceIdToPnpIdForm(const std::string& deviceIdAscii)
+{
+    auto pnpId = deviceIdAscii;
+    if (pnpId.length() > 79)
+    {
+        pnpId = pnpId.substr(0, 79);
+    }
+    std::erase_if(pnpId,
                   [](wchar_t c) { return c == L'{' || c == L'}'; });
 
-    std::ranges::transform(deviceId, deviceId.begin(),
-        [](wchar_t c) { return std::toupper(c); });
+    std::ranges::transform(pnpId, pnpId.begin(),
+                           [](wchar_t c) { return std::toupper(c); });
 
-    return deviceId;
+    return pnpId;
 }
 
 bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
@@ -183,7 +186,7 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
                      magic_enum::enum_name(flow));
     }
     // Read device PnP Class id property
-    std::string pnpGuid;
+    std::string pnpId;
     std::string name;
     EndpointFormFactor formFactorEnum;
     {
@@ -253,28 +256,31 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
                 );
                 if (len >= 2)
                 {
-                    pnpGuid = WString2StringTruncate(buff);
-                    if (pnpGuid[0] == '{')
+                    pnpId = WString2StringTruncate(buff);
+                    if (pnpId[0] == '{')
                     {
-                        pnpGuid = pnpGuid.substr(1, pnpGuid.length() - 2);
+                        pnpId = pnpId.substr(1, pnpId.length() - 2);
                     }
                 }
                 if (constexpr auto noPlugAndPlayGuid = "00000000-0000-0000-FFFF-FFFFFFFFFFFF"
-                    ; pnpGuid == noPlugAndPlayGuid)
+                    ; pnpId == noPlugAndPlayGuid)
                 {
-                    spdlog::info(R"(The device "{}" has got no-plug-and-play-id {}. Assigning a device id "{}" .)",
-                                 device.GetName(), noPlugAndPlayGuid, deviceIdAscii);
-                    pnpGuid = deviceIdAscii;
+                    pnpId = DeviceIdToPnpIdForm(deviceIdAscii);
+
+                    spdlog::info(R"(The end point device "{}" has got no-plug-and-play-id {}. Assigning a simplified device id "{}" .)",
+                                 deviceIdAscii, noPlugAndPlayGuid, pnpId);
                 }
             }
             spdlog::info(R"(The end point device "{}", got a PnP id "{}".)",
-                deviceIdAscii, pnpGuid);
+                deviceIdAscii, pnpId);
 
-                // ReSharper disable once CppFunctionResultShouldBeUsed
+            // ReSharper disable once CppFunctionResultShouldBeUsed
             PropVariantClear(&propVarForGuid);
         }
         SAFE_RELEASE(pProps)
     }
+
+    // check special case: exclude render end point devices with form factor Headset
     if (formFactorEnum == EndpointFormFactor::Headset && flow == SoundDeviceFlowType::Render)
     {
         spdlog::info(R"(We exclude the render end point device "{}" with name "{}", while its form factor is Headset.)",
@@ -332,7 +338,7 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
     case SoundDeviceFlowType::RenderAndCapture:
         break;
     }
-    device = SoundDevice(pnpGuid, name, flow, renderVolume, captureVolume, false, false);
+    device = SoundDevice(pnpId, name, flow, renderVolume, captureVolume, false, false);
     return true;
 }
 
