@@ -40,7 +40,9 @@ public sealed class SoundDeviceService : IDisposable
 
     private static void OnLogMessage(SaaLogMessage logMessage)
     {
-        var messageText = Encoding.UTF8.GetString(logMessage.Content).TrimEnd('\0');
+        var nulIndex = Array.IndexOf(logMessage.Content, (byte)0);
+        var length = (nulIndex >= 0) ? nulIndex : logMessage.Content.Length;
+        var messageText = Encoding.UTF8.GetString(logMessage.Content, 0, length);
 
         if (SpdLogToNlog.TryGetValue(logMessage.Level, out var nlogLevel) && nlogLevel != LogLevel.Off)
         {
@@ -71,16 +73,21 @@ public sealed class SoundDeviceService : IDisposable
             CaptureVolumeLevel = 0
         };
 
-    private static SoundDeviceInfo SaaDescription2SoundDeviceInfo(in SaaDescription device) =>
-        new()
+    private static SoundDeviceInfo SaaDescription2SoundDeviceInfo(in SaaDescription device)
+    {
+        var nameNulIndex = Array.IndexOf(device.Name, (byte)0);
+        var nameLength = (nameNulIndex >= 0) ? nameNulIndex : device.Name.Length;
+
+        return new SoundDeviceInfo
         {
             PnpId = device.PnpId,
-            DeviceName = Encoding.UTF8.GetString(device.Name).TrimEnd('\0'),
+            DeviceName = Encoding.UTF8.GetString(device.Name, 0, nameLength),
             IsRenderingAvailable = device.IsRender,
             IsCapturingAvailable = device.IsCapture,
             RenderVolumeLevel = device.RenderVolume,
             CaptureVolumeLevel = device.CaptureVolume
         };
+    }
 
     private SoundDeviceInfo GetDevice(Func<ulong, SaaDescription> fetch)
     {

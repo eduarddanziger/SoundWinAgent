@@ -13,19 +13,6 @@
 
 #include "ApiClient/common/SpdLogger/Logger.h"
 
-#ifdef _DEBUG
-class RemoveDebugThresholdGuardRaii {
-public:
-    explicit RemoveDebugThresholdGuardRaii() {
-        _CrtSetDebugFillThreshold(0);
-    }
-    ~RemoveDebugThresholdGuardRaii() {
-        _CrtSetDebugFillThreshold(SIZE_T_MAX);
-    }
-};
-#endif
-
-
 class DllObserver final : public SoundDeviceObserverInterface {
 public:
     explicit DllObserver(TSaaDefaultChangedCallback defaultRenderChangedCallback
@@ -79,9 +66,6 @@ namespace  {
     {
         if (got_log_message_callback == nullptr) return;
         SaaLogMessage out{}; // zero-init
-#ifdef _DEBUG
-        RemoveDebugThresholdGuardRaii fillGuard;
-#endif
         strncpy_s(out.Level, _countof(out.Level), level.c_str(), _TRUNCATE);
         strncpy_s(out.Content, _countof(out.Content), message.c_str(), _TRUNCATE);
         got_log_message_callback(out);
@@ -193,13 +177,8 @@ namespace
 
                     const auto devicePnpId = device->GetPnpId();
                     const auto deviceName = device->GetName();
-#ifdef _DEBUG
-                    RemoveDebugThresholdGuardRaii fillGuard;
-#endif
-                    strncpy_s(description->PnpId, _countof(description->PnpId), devicePnpId.c_str(),
-                        devicePnpId.size());
-                    strncpy_s(description->Name, _countof(description->Name), deviceName.c_str(),
-                        deviceName.size());
+                    strncpy_s(description->PnpId, _countof(description->PnpId), devicePnpId.c_str(),_TRUNCATE);
+                    strncpy_s(description->Name, _countof(description->Name), deviceName.c_str(), _TRUNCATE);
                 }
                 description->IsRender = device->GetFlow() == SoundDeviceFlowType::Render || device->GetFlow() ==
                                         SoundDeviceFlowType::RenderAndCapture
