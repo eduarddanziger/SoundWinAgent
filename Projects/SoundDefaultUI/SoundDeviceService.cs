@@ -1,4 +1,5 @@
 ﻿using NLog;
+using System.Reflection;
 using System.Text;
 using System.Windows.Threading;
 using System.Xml.Linq;
@@ -17,8 +18,11 @@ public sealed class SoundDeviceService : IDisposable
 
     public SoundDeviceService()
     {
+        var assembly = typeof(SoundDeviceService).Assembly;
+        var assemblyName = assembly.GetName();
+        var versionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 #pragma warning disable CA1806
-        SaaInitialize(out _serviceHandle, OnLogMessage, "SoundDefaultUI", " 1.0.0");
+        SaaInitialize(out _serviceHandle, OnLogMessage, assemblyName.Name, versionAttribute?.InformationalVersion);
 #pragma warning restore CA1806
     }
 
