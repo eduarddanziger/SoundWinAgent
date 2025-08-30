@@ -1,6 +1,10 @@
 ﻿// ReSharper disable CppClangTidyClangDiagnosticLanguageExtensionToken
 #include "os-dependencies.h"
 
+#define INITGUID
+extern "C" const CLSID CLSID_StdGlobalInterfaceTable;
+#include <initguid.h>
+
 #include "SoundDeviceCollection.h"
 
 #include "SoundDevice.h"
@@ -14,7 +18,6 @@
 #include <endpointvolume.h>
 #include <Functiondiscoverykeys_devpkey.h>
 #include <ranges>
-#include <sstream>
 #include <string>
 #include <valarray>
 
@@ -182,6 +185,7 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
     // Read device PnP Class id property
     std::string pnpGuid;
     std::string name;
+    EndpointFormFactor formFactorEnum;
     {
         IPropertyStore* pProps = nullptr;
         hr = deviceEndpointSmartPtr->OpenPropertyStore(STGM_READ, &pProps);
@@ -213,6 +217,23 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
             PropVariantClear(&propVarForName);
         }
 
+        {
+            PROPVARIANT propVarForFormFactor;
+
+            PropVariantInit(&propVarForFormFactor);
+
+            hr = pProps->GetValue(
+                PKEY_AudioEndpoint_FormFactor, &propVarForFormFactor);
+            assert(SUCCEEDED(hr));
+            if (propVarForFormFactor.vt == VT_UI4)
+            {
+                formFactorEnum = static_cast<EndpointFormFactor>(propVarForFormFactor.ulVal);
+                spdlog::info(R"(The end point device "{}" form factor is "{}")",
+                    deviceIdAscii, magic_enum::enum_name(formFactorEnum));
+            }
+            // ReSharper disable once CppFunctionResultShouldBeUsed
+            PropVariantClear(&propVarForFormFactor);
+        }
         {
             PROPVARIANT propVarForGuid;
             PropVariantInit(&propVarForGuid);
@@ -254,6 +275,14 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceAndGetVolumeEndpoint(
         }
         SAFE_RELEASE(pProps)
     }
+    if (formFactorEnum == EndpointFormFactor::Headset && flow == SoundDeviceFlowType::Render)
+    {
+        spdlog::info(R"(We exclude the render end point device "{}" with name "{}", while its form factor is Headset.)",
+            deviceIdAscii, name);
+        return false;
+    }
+
+
     // Get IAudioEndpointVolume and volume
     outVolumeEndpoint = nullptr;
     uint16_t volume = 0;
@@ -956,6 +985,20 @@ HRESULT ed::audio::SoundDeviceCollection::OnDefaultDeviceChanged(EDataFlow flow,
                     , foundDevicePtr->GetName()
                 );
             }
+        }
+    }
+    else
+    {
+        if (flow == eRender)
+        {
+            defaultRenderDevicePnpId_ = std::nullopt;
+            NotifyObservers(SoundDeviceEventType::DefaultRenderChanged, "");
+
+        }
+        else if (flow == eCapture)
+        {
+            defaultCaptureDevicePnpId_ = std::nullopt;
+            NotifyObservers(SoundDeviceEventType::DefaultCaptureChanged, "");
         }
     }
 
