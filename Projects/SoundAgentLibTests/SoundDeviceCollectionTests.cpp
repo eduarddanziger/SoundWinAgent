@@ -17,7 +17,8 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace ed::audio {
     TEST_CLASS(SoundDeviceCollectionTests) {
-#if 0 //#ifdef _DEBUG
+#if 0
+//#ifdef _DEBUG
 private:
     _CrtMemState sOld_ = {};
     _CrtMemState sNew_ = {};
@@ -67,7 +68,7 @@ public:
 
         TEST_METHOD(CtorMemoryLeakTest)
         {
-            SoundDeviceCollection devColl(false, nullptr);
+            SoundDeviceCollection devColl();
 
             // char* s = new char[17];
             // strcpy_s(s, 17, "allocate_no_free");
@@ -77,7 +78,7 @@ public:
         }
         TEST_METHOD(ResetContentMemoryLeakTest)
         {
-            SoundDeviceCollection devColl(false, nullptr);
+            SoundDeviceCollection devColl();
             devColl.ResetContent();
         }
 #endif

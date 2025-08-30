@@ -1,21 +1,57 @@
-﻿using System.Text;
+﻿using NLog;
+using System.Reflection;
+using System.Text;
+using System.Windows.Threading;
 using System.Xml.Linq;
 using static SoundDefaultUI.SoundAgentApi;
+using System.Collections.Generic;
+using LogLevel = NLog.LogLevel;
 
 namespace SoundDefaultUI;
 
-public class SoundDeviceService : IDisposable
+public sealed class SoundDeviceService : IDisposable
 {
+    private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
     private ulong _serviceHandle;
     private bool _disposed;
     private readonly object _disposeLock = new();
 
+    private static readonly Dictionary<string, LogLevel> SpdLogToNlog =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["trace"] = LogLevel.Trace,
+            ["debug"] = LogLevel.Debug,
+            ["info"] = LogLevel.Info,
+            ["warn"] = LogLevel.Warn,
+            ["warning"] = LogLevel.Warn,
+            ["error"] = LogLevel.Error,
+            ["critical"] = LogLevel.Fatal,
+            ["off"] = LogLevel.Off
+        };
     public SoundDeviceService()
     {
+        var assembly = typeof(SoundDeviceService).Assembly;
+        var assemblyName = assembly.GetName();
+        var versionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 #pragma warning disable CA1806
-        SaaInitialize(out _serviceHandle);
+        SaaInitialize(out _serviceHandle, OnLogMessage, assemblyName.Name, versionAttribute?.InformationalVersion);
 #pragma warning restore CA1806
     }
+
+    private static void OnLogMessage(SaaLogMessage logMessage)
+    {
+        var messageText = Encoding.UTF8.GetString(logMessage.Content).TrimEnd('\0');
+
+        if (SpdLogToNlog.TryGetValue(logMessage.Level, out var nlogLevel) && nlogLevel != LogLevel.Off)
+        {
+            Logger.Log(nlogLevel, messageText);
+        }
+        else
+        {
+            Logger.Info(messageText);
+        }
+    }
+
 
     public void InitializeAndBind(SaaDefaultChangedDelegate renderNotification, SaaDefaultChangedDelegate captureNotification)
     {
@@ -89,7 +125,7 @@ public class SoundDeviceService : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         ulong handleToRelease = 0;
         lock (_disposeLock)

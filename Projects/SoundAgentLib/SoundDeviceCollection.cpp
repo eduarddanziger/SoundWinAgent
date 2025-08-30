@@ -46,17 +46,6 @@ namespace {
 ed::audio::SoundDeviceCollection::~SoundDeviceCollection()
 {
     UnregisterAllEndpointsVolumes();
-    SAFE_RELEASE(enumerator_)
-}
-
-ed::audio::SoundDeviceCollection::SoundDeviceCollection(std::function<void()> wainFunc)
-    : MultipleNotificationClient()
-      , wainFunc_(std::move(wainFunc))
-{
-    const auto hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, IID_PPV_ARGS(&enumerator_));
-    assert(SUCCEEDED(hr));
-
-    ResetNotification(enumerator_);
 }
 
 void ed::audio::SoundDeviceCollection::ResetContent()
@@ -326,23 +315,29 @@ ed::audio::SoundDeviceCollection::TryGetRenderAndCaptureDefaultDeviceIds() const
 
     CComPtr<IMMDevice> renderDeviceSmartPtr;
     CComPtr<IMMDevice> captureDeviceSmartPtr;
-    if (
-        const auto hr = enumerator_->GetDefaultAudioEndpoint(
-            eRender,
-            eConsole,
-            &devicePtr)
-        ; SUCCEEDED(hr)
-    )
+    if (GetEnumeratorOrNull() == nullptr)
     {
-        renderDeviceSmartPtr.Attach(devicePtr);
+        return {};
     }
-    else
     {
-        spdlog::warn("Failed to get default render audio endpoint.");
+        if (
+            const auto hr = GetEnumeratorOrNull()->GetDefaultAudioEndpoint(
+                eRender,
+                eConsole,
+                &devicePtr)
+            ; SUCCEEDED(hr)
+        )
+        {
+            renderDeviceSmartPtr.Attach(devicePtr);
+        }
+        else
+        {
+            spdlog::warn("Failed to get default render audio endpoint.");
+        }
     }
 
     if (
-        const auto hr = enumerator_->GetDefaultAudioEndpoint(
+        const auto hr = GetEnumeratorOrNull()->GetDefaultAudioEndpoint(
             eCapture,
             eConsole,
             &devicePtr)
@@ -456,9 +451,10 @@ void ed::audio::SoundDeviceCollection::ProcessActiveDeviceList(const ProcessDevi
 {
     HRESULT hr;
     CComPtr<IMMDeviceCollection> deviceCollectionSmartPtr;
+    if (GetEnumeratorOrNull() != nullptr)
     {
         IMMDeviceCollection* deviceCollection = nullptr;
-        hr = enumerator_->EnumAudioEndpoints(
+        hr = GetEnumeratorOrNull()->EnumAudioEndpoints(
             eAll, DEVICE_STATE_ACTIVE,
             &deviceCollection);
         if (FAILED(hr))
@@ -791,10 +787,11 @@ bool ed::audio::SoundDeviceCollection::TryCreateDeviceOnId(
 ) const {
     CComPtr<IMMDevice> deviceSmartPtr;
     // Retrieve the device using the device ID
+    if (GetEnumeratorOrNull() != nullptr)
     {
         IMMDevice* devicePtr = nullptr;
         if (
-            const auto hr = enumerator_->GetDevice(deviceId, &devicePtr)
+            const auto hr = GetEnumeratorOrNull()->GetDevice(deviceId, &devicePtr)
             ; FAILED(hr)
         )
         {

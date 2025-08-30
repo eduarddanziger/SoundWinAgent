@@ -22,17 +22,36 @@ public struct SaaDescription
     public ushort CaptureVolume;
 }
 
+[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+public struct SaaLogMessage
+{
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 12)]
+    public string Level;
+
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+    public byte[] Content; // UTF-8 encoded string
+}
+
 [UnmanagedFunctionPointer(CallingConvention.StdCall)]
 public delegate void SaaDefaultChangedDelegate(
     [MarshalAs(UnmanagedType.Bool)] bool presentOrAbsent
 );
 
+[UnmanagedFunctionPointer(CallingConvention.StdCall)]
+public delegate void SaaGotLogMessageDelegate(SaaLogMessage message);
+
+
 internal static class SoundAgentApi
 {
-    [DllImport("SoundAgentApiDll.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
 #pragma warning disable SYSLIB1054 // Warning for DllImport -> LibraryImport
+#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
+    [DllImport("SoundAgentApiDll.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     internal static extern int SaaInitialize(
-        out ulong handle
+        out ulong handle,
+        SaaGotLogMessageDelegate? gotLogMessageCallback,
+        string? appName,
+        string? appVersion
+#pragma warning restore CA2101
     );
 
     [DllImport("SoundAgentApiDll.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]

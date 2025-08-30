@@ -5,6 +5,6 @@
 
 std::unique_ptr<SoundDeviceCollectionInterface> SoundAgent::CreateDeviceCollection()
 {
-    return std::make_unique<ed::audio::SoundDeviceCollection>(nullptr);
+    return std::make_unique<ed::audio::SoundDeviceCollection>();
 }
 

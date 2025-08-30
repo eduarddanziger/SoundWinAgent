@@ -5,9 +5,26 @@
 #include "public/SoundAgentInterface.h"
 #include "ApiClient/common/ClassDefHelper.h"
 
+#include "VersionInformation.h"
+
 #include <algorithm>
 #include <crtdbg.h>
 #include <intsafe.h>
+
+#include "ApiClient/common/SpdLogger/Logger.h"
+
+#ifdef _DEBUG
+class RemoveDebugThresholdGuardRaii {
+public:
+    explicit RemoveDebugThresholdGuardRaii() {
+        _CrtSetDebugFillThreshold(0);
+    }
+    ~RemoveDebugThresholdGuardRaii() {
+        _CrtSetDebugFillThreshold(SIZE_T_MAX);
+    }
+};
+#endif
+
 
 class DllObserver final : public SoundDeviceObserverInterface {
 public:
@@ -55,10 +72,56 @@ void DllObserver::OnCollectionChanged(SoundDeviceEventType event, const std::str
 namespace  {
     std::unique_ptr< SoundDeviceCollectionInterface> device_collection;
     std::unique_ptr<SoundDeviceObserverInterface> device_collection_observer;
+
+    TSaaGotLogMessageCallback got_log_message_callback = nullptr;
+
+    void LoggerMessageBridge(const std::string& level, const std::string& message)
+    {
+        if (got_log_message_callback == nullptr) return;
+        SaaLogMessage out{}; // zero-init
+#ifdef _DEBUG
+        RemoveDebugThresholdGuardRaii fillGuard;
+#endif
+        strncpy_s(out.Level, _countof(out.Level), level.c_str(), _TRUNCATE);
+        strncpy_s(out.Content, _countof(out.Content), message.c_str(), _TRUNCATE);
+        got_log_message_callback(out);
+    }
+
+    void SetUpLog
+        (
+        TSaaGotLogMessageCallback gotLogMessageCallback,
+        const CHAR* appName,
+        const CHAR* appVersion
+        )
+    {
+        const auto appNameString = appName != nullptr ? std::string(appName) : std::string(RESOURCE_FILENAME_ATTRIBUTE);
+        const auto appVersionString = appVersion != nullptr ? std::string(appVersion) : std::string(ASSEMBLY_VERSION_ATTRIBUTE);
+
+        got_log_message_callback = gotLogMessageCallback;
+
+        ed::model::Logger::Inst()
+            .ConfigureAppNameAndVersion(appNameString, appVersionString)
+            .SetOutputToConsole(false);
+        if (gotLogMessageCallback != nullptr)
+        {
+            ed::model::Logger::Inst()
+                .SetMessageCallback(
+                    LoggerMessageBridge
+                );
+        }
+
+    }
+
 }
 
-SaaResult SaaInitialize(SaaHandle* handle)
+SaaResult SaaInitialize(SaaHandle* handle,
+    TSaaGotLogMessageCallback gotLogMessageCallback,
+    const CHAR* appName,
+    const CHAR* appVersion
+)
 {
+    SetUpLog(gotLogMessageCallback, appName, appVersion);
+
     device_collection = SoundAgent::CreateDeviceCollection();
     *handle = reinterpret_cast<SaaHandle>(device_collection.get());
 
@@ -131,15 +194,6 @@ namespace
                     const auto devicePnpId = device->GetPnpId();
                     const auto deviceName = device->GetName();
 #ifdef _DEBUG
-                    class RemoveDebugThresholdGuardRaii {
-                    public:
-                        explicit RemoveDebugThresholdGuardRaii() {
-                            _CrtSetDebugFillThreshold(0);
-                        }
-                        ~RemoveDebugThresholdGuardRaii() {
-                            _CrtSetDebugFillThreshold(SIZE_T_MAX);
-                        }
-                    };
                     RemoveDebugThresholdGuardRaii fillGuard;
 #endif
                     strncpy_s(description->PnpId, _countof(description->PnpId), devicePnpId.c_str(),

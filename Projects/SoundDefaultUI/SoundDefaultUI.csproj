@@ -11,6 +11,7 @@
     <ArtifactsDirectory>$(BaseDirectory)artifacts\</ArtifactsDirectory>
     <ReleaseNotesFileName>SoundWinAgent-Release-Notes.md</ReleaseNotesFileName>
     <ApplicationIcon>resources\Headphone.ico</ApplicationIcon>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLib\Ed.Common.props" />
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLib\Ed.CSharp.targets" />
