@@ -4,18 +4,30 @@ using System.Text;
 using System.Windows.Threading;
 using System.Xml.Linq;
 using static SoundDefaultUI.SoundAgentApi;
+using System.Collections.Generic;
+using LogLevel = NLog.LogLevel;
 
 namespace SoundDefaultUI;
 
 public sealed class SoundDeviceService : IDisposable
 {
-    private static Logger _logger = LogManager.GetCurrentClassLogger();
+    private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
     private ulong _serviceHandle;
     private bool _disposed;
     private readonly object _disposeLock = new();
 
-    
-
+    private static readonly Dictionary<string, LogLevel> SpdLogToNlog =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["trace"] = LogLevel.Trace,
+            ["debug"] = LogLevel.Debug,
+            ["info"] = LogLevel.Info,
+            ["warn"] = LogLevel.Warn,
+            ["warning"] = LogLevel.Warn,
+            ["error"] = LogLevel.Error,
+            ["critical"] = LogLevel.Fatal,
+            ["off"] = LogLevel.Off
+        };
     public SoundDeviceService()
     {
         var assembly = typeof(SoundDeviceService).Assembly;
@@ -29,7 +41,15 @@ public sealed class SoundDeviceService : IDisposable
     private static void OnLogMessage(SaaLogMessage logMessage)
     {
         var messageText = Encoding.UTF8.GetString(logMessage.Content).TrimEnd('\0');
-        _logger.Info(messageText);
+
+        if (SpdLogToNlog.TryGetValue(logMessage.Level, out var nlogLevel) && nlogLevel != LogLevel.Off)
+        {
+            Logger.Log(nlogLevel, messageText);
+        }
+        else
+        {
+            Logger.Info(messageText);
+        }
     }
 
 
