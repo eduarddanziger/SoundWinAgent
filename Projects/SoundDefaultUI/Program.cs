@@ -1,7 +1,7 @@
-﻿using System.Runtime.Versioning;
-using SoundDefaultUI;
-using NLog;
+﻿using NLog;
 using NLog.Extensions.Logging;
+using SoundDefaultUI;
+using System.Runtime.Versioning;
 
 
 [assembly: SupportedOSPlatform("Windows7.0")]
@@ -11,6 +11,9 @@ IConfiguration config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", false, true)
     .AddCommandLine(args)
     .Build();
+
+LogManager.Setup()
+    .SetupExtensions(ext => ext.RegisterLayoutRenderer<SoundDefaultUI.NativeThreadIdLayoutRenderer>("native-thread-id"));
 
 LogManager.Configuration = new NLogLoggingConfiguration(config.GetSection("NLog"));
 
@@ -25,4 +28,3 @@ builder.Services.AddTransient<MainViewModel>();
 var app = builder.Build();
 
 await app.RunAsync();
-
