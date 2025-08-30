@@ -44,12 +44,14 @@ public delegate void SaaGotLogMessageDelegate(SaaLogMessage message);
 internal static class SoundAgentApi
 {
 #pragma warning disable SYSLIB1054 // Warning for DllImport -> LibraryImport
+#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
     [DllImport("SoundAgentApiDll.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     internal static extern int SaaInitialize(
         out ulong handle,
         SaaGotLogMessageDelegate? gotLogMessageCallback,
         string? appName,
         string? appVersion
+#pragma warning restore CA2101
     );
 
     [DllImport("SoundAgentApiDll.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
