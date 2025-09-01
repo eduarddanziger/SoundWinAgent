@@ -12,6 +12,7 @@ with a React / TypeScript frontend [list-audio-react-app](https://github.com/edu
 - **SoundWinAgent**: Windows Service collects audio device information and sends it to a remote server.
 - **HttpRequestProcessor**: RabbitMQ to REST API forwarder, which is used to forward audio device information from RabbitMQ to the backend server.
 - **SoundDefaultUI**: Lightweight WPF UI showing the live volume levels of the default audio devices, output and input device separately.
+
   ![SoundDefaultUI screenshot](202509011440SoundDefaultUI.jpg)
 - **SoundAgentCli** (obsolete): Command-line test CLI.
 
