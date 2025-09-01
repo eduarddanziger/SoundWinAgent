@@ -4,7 +4,7 @@ Sound Agent detects and outputs plug-and-play audio endpoint devices under Windo
 
 The Sound Agent registers audio device information on a backend server via REST API, optionally using RabbitMQ / RMQ to REST API forwarder (.NET Windows Service).
 Fir the backend Audio Device Repository Server (ASP.Net Core) see [audio-device-repo-server](https://github.com/eduarddanziger/audio-device-repo-server/)
-with a React / TypeScript frontend [list-audio-react-app](https://github.com/eduarddanziger/list-audio-react-app/).
+with a React / TypeScript frontend [list-audio-react-app](https://github.com/eduarddanziger/list-audio-react-app/) with a [primary Web client](https://eduarddanziger.github.io/list-audio-react-app/).
 
 ## Executables Generated
 
