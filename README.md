@@ -9,9 +9,9 @@ with a React / TypeScript frontend [list-audio-react-app](https://github.com/edu
 ## Executables Generated
 
 - **SoundWinAgent**: Windows Service collects audio device information and sends it to a remote server.
-- **SoundAgentCli**: Command-line test CLI.
 - **HttpRequestProcessor**: RabbitMQ to REST API forwarder, which is used to forward audio device information from RabbitMQ to the backend server.
 - **SoundDefaultUI**: Lightweight WPF UI showing the live volume levels of the default audio devices, output and input device separately.
+- **SoundAgentCli** (obsolete): Command-line test CLI.
 
 ## Technologies Used
 
@@ -81,7 +81,7 @@ release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/rele
 ```
 3. Run the SoundDefaultUI
 
-    ![SoundDefaultUI screenshot](202508251500SoundDefaultUI.JPG)
+    ![SoundDefaultUI screenshot](202509011440SoundDefaultUI.jpg)
 
 ## Developer Environment, How to Build:
 
