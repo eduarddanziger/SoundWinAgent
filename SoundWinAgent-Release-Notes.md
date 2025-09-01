@@ -11,6 +11,15 @@ Released on $date$
 ~~~
 
 ## New
+- ...
+
+3.3.2
+--------
+~~~
+Released on 01.09.2025
+~~~
+
+## New
 - CodeSign.cer certificate included, see readme, **SoundDefaultUI**
 
 ## Changes
