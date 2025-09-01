@@ -4,14 +4,17 @@ Sound Agent detects and outputs plug-and-play audio endpoint devices under Windo
 
 The Sound Agent registers audio device information on a backend server via REST API, optionally using RabbitMQ / RMQ to REST API forwarder (.NET Windows Service).
 Fir the backend Audio Device Repository Server (ASP.Net Core) see [audio-device-repo-server](https://github.com/eduarddanziger/audio-device-repo-server/)
-with a React / TypeScript frontend [list-audio-react-app](https://github.com/eduarddanziger/list-audio-react-app/).
+with a React / TypeScript frontend [list-audio-react-app](https://github.com/eduarddanziger/list-audio-react-app/) with a [primary Web client](https://eduarddanziger.github.io/list-audio-react-app/).
+  ![primaryWebClient screenshot](202509011555ReactRepoApp.jpg)
 
 ## Executables Generated
 
 - **SoundWinAgent**: Windows Service collects audio device information and sends it to a remote server.
-- **SoundAgentCli**: Command-line test CLI.
 - **HttpRequestProcessor**: RabbitMQ to REST API forwarder, which is used to forward audio device information from RabbitMQ to the backend server.
 - **SoundDefaultUI**: Lightweight WPF UI showing the live volume levels of the default audio devices, output and input device separately.
+
+  ![SoundDefaultUI screenshot](202509011440SoundDefaultUI.jpg)
+- **SoundAgentCli** (obsolete): Command-line test CLI.
 
 ## Technologies Used
 
@@ -80,8 +83,6 @@ release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/rele
    Unblock-File -Path .\SoundDefaultUI.exe
 ```
 3. Run the SoundDefaultUI
-
-    ![SoundDefaultUI screenshot](202508251500SoundDefaultUI.JPG)
 
 ## Developer Environment, How to Build:
 

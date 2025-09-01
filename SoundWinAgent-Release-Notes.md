@@ -14,7 +14,7 @@ Released on $date$
 - CodeSign.cer certificate included, see readme, **SoundDefaultUI**
 
 ## Changes
-- SoundDefaultUI: both output and input devices shown
+- SoundDefaultUI: Both output and input devices shown; Logging into c:\ProgramData\SoundDefaultUI\
 
 3.3.1
 --------
