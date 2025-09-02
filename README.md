@@ -35,34 +35,26 @@ with a React / TypeScript frontend [list-audio-react-app](https://github.com/edu
     - net stop SoundWinAgent
 4. SoundWinAgent.exe can be started as a Windows CLI, too. Stop it via Ctrl-C
 5. SoundWinAgent.exe accepts following optional command line parameters
-    - [/url=\<URL\>] can tune the URL of the backend ASP.Net Core REST API Server, example:
-    ```
-      SoundWinAgent.exe /url=http://localhost:5027
-    ```
-      - If /url not used, the url is tuned via the configuration file **SoundWinAgent.xml, apiBaseUrl** element.
-
-    - [/transport=None|Direct|RabbitMQ] defines the transport mechanism to use for deliver
+    - **[/transport=None|Direct|RabbitMQ]** defines the transport mechanism to use for deliver
       audio device information to the backend server. The default is 'None' (no delivery).
-      'Direct' uses an own transient queue and HTTP client; 'RabbitMQ' uses RabbitMQ as a message broker (recommended), example:
+      'Direct' uses an own transient queue and HTTP client;
+      'RabbitMQ' uses RabbitMQ as a message broker (recommended), example:
     ```
        SoundWinAgent.exe /transport=RabbitMQ
     ```
-      - If /transport not used, the transport is tuned via the configuration file SoundWinAgent.xml, apiBaseUrl element
+    - If /transport command line parameter is missing, the transport is tuned via the configuration file SoundWinAgent.xml, apiBaseUrl element
+    - If transport is not 'Direct', the url setting is ignored
+    - **[/url=\<URL\>]** can tune the URL of the backend ASP.Net Core REST API Server, example:
+    ```
+      SoundWinAgent.exe /url=http://localhost:5027
+    ```
+    - If /url command line parameter is missing, the url is tuned via the configuration file **SoundWinAgent.xml, apiBaseUrl** element.
 
 6. SoundWinAgent.exe /help brings a command line help screen with all available options.
 
 ### Use RabbitMQ in SoundWinAgent
 If you want to use RabbitMQ as a message broker (most reliable solution),
-you need to install RabbitMQ (via chocolatey), rabbitmqadmin, and create the necessary exchange and queue.
-
-```powershell
-# Create exchange
-.\rabbitmqadmin declare exchange --name=sdr_updates --type=direct --durable=true --vhost=/
-### Create queue
-.\rabbitmqadmin declare queue --name=sdr_metrics --durable=true --vhost=/
-# Bind queue to exchange
-.\rabbitmqadmin declare binding --source=sdr_updates --destination=sdr_metrics --destination-type=queue --routing-key=metrics-capture --vhost=/
-```
+you need to install RabbitMQ (via chocolatey).
 
 Then download and unzip the latest rollout of RabbitMq-To-RESTAPI-Forwarder: HttpRequestProcessor-x.x.x. from the latest repository release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/releases/latest) and register HttpRequestProcessor.exe as a Windows Service:
 
