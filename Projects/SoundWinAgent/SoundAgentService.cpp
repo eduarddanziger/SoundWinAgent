@@ -55,7 +55,7 @@ protected:
             }
             else if (Poco::icompare(transportMethod_, API_TRANSPORT_METHOD_VALUE01_DIRECT) == 0)
             {
-                requestDispatcherSmartPtr.reset(new DirectHttpRequestDispatcher(apiBaseUrl_, universalToken_, codeSpaceName_));
+                requestDispatcherSmartPtr.reset(new DirectHttpRequestDispatcher(apiBaseUrl_, universalToken_, gitHubCodespaceToBeAwaken_));
             }
             else if (Poco::icompare(transportMethod_, API_TRANSPORT_METHOD_VALUE02_RABBITMQ) == 0)
             {
@@ -87,14 +87,14 @@ protected:
     {
         if (!config().hasProperty(propertyName))
         {
-            spdlog::info("Property \"{}\" not found in configuration. Using default value: \"{}\".", propertyName, defaultValue);
+            spdlog::info(R"(Property "{}" not found in configuration. Using default value: "{}".)", propertyName, defaultValue);
             return defaultValue;
         }
 
         auto returnValue = config().getString(propertyName);
         if (returnValue.empty())
         {
-            spdlog::info("Property \"{}\" is configured but empty. Using default value: \"{}\".", propertyName, defaultValue);
+            spdlog::info(R"(Property "{}" is configured but empty. Using default value: "{}".)", propertyName, defaultValue);
             return defaultValue;
         }
 
@@ -195,7 +195,7 @@ protected:
 
         universalToken_ = ReadMandatoryPossiblyEncryptedConfigProperty(UNIVERSAL_TOKEN_PROPERTY_KEY);
 
-        codeSpaceName_ = ReadMandatoryPossiblyEncryptedConfigProperty(CODESPACE_NAME_PROPERTY_KEY);
+        gitHubCodespaceToBeAwaken_ = ReadMandatoryPossiblyEncryptedConfigProperty(GITHUB_CODESPACE_TO_BE_AWAKEN_PROPERTY_KEY);
 
         setUnixOptions(false);  // Force Windows service behavior
     }
@@ -273,7 +273,7 @@ protected:
 private:
     std::string apiBaseUrl_;
     std::string universalToken_;
-    std::string codeSpaceName_;
+    std::string gitHubCodespaceToBeAwaken_;
     std::string transportMethod_;
 
     bool onlyConsoleOutputRequested_ = false;
@@ -282,7 +282,7 @@ private:
     static constexpr auto UNIVERSAL_TOKEN_PROPERTY_KEY = "custom.universalToken";
     // ReSharper disable once IdentifierTypo
     // ReSharper disable once StringLiteralTypo
-    static constexpr auto CODESPACE_NAME_PROPERTY_KEY = "custom.codespaceName";
+    static constexpr auto GITHUB_CODESPACE_TO_BE_AWAKEN_PROPERTY_KEY = "custom.gitHubCodeSpaceToBeAwaken";
     static constexpr auto API_TRANSPORT_METHOD_PROPERTY_KEY = "custom.transportMethod";
     static constexpr auto API_TRANSPORT_METHOD_VALUE00_NONE = "None";
     static constexpr auto API_TRANSPORT_METHOD_VALUE01_DIRECT = "Direct";
