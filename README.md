@@ -79,8 +79,7 @@ release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/rele
 ## Developer Environment, How to Build:
 
 1. Install Visual Studio 2022
-2. Download [Nuget.exe](https://dist.nuget.org/win-x86-commandline/latest/nuget.exe) and set a NuGet environment variable to the path of the NuGet executable.
-3. Build the solution, e.g. if you use Visual Studio Community Edition:
+2. Build the solution, e.g. if you use Visual Studio Community Edition:
 ```powershell
 %NuGet% restore SoundWinAgent.sln
 "c:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin\MSBuild.exe" SoundWinAgent.sln /p:Configuration=Release /target:Rebuild -restore
