@@ -10,9 +10,7 @@ with a React / TypeScript frontend [list-audio-react-app](https://github.com/edu
 ## Executables Generated
 
 - **SoundWinAgent**: Windows Service collects audio device information and sends it to a remote server.
-- **HttpRequestProcessor**: RabbitMQ to REST API forwarder, which is used to forward audio device information from RabbitMQ to the backend server.
 - **SoundDefaultUI**: Lightweight WPF UI showing the live volume levels of the default audio devices, output and input device separately.
-
   ![SoundDefaultUI screenshot](202509011440SoundDefaultUI.jpg)
 - **SoundAgentCli** (obsolete): Command-line test CLI.
 
@@ -35,41 +33,35 @@ with a React / TypeScript frontend [list-audio-react-app](https://github.com/edu
     - net stop SoundWinAgent
 4. SoundWinAgent.exe can be started as a Windows CLI, too. Stop it via Ctrl-C
 5. SoundWinAgent.exe accepts following optional command line parameters
-    - [/url=\<URL\>] can tune the URL of the backend ASP.Net Core REST API Server, example:
-    ```
-      SoundWinAgent.exe /url=http://localhost:5027
-    ```
-      - If /url not used, the url is tuned via the configuration file **SoundWinAgent.xml, apiBaseUrl** element.
-
-    - [/transport=None|Direct|RabbitMQ] defines the transport mechanism to use for deliver
+    - **[/transport=None|Direct|RabbitMQ]** defines the transport mechanism to use for deliver
       audio device information to the backend server. The default is 'None' (no delivery).
-      'Direct' uses an own transient queue and HTTP client; 'RabbitMQ' uses RabbitMQ as a message broker (recommended), example:
+      'Direct' uses an own transient queue and HTTP client;
+      'RabbitMQ' uses RabbitMQ as a message broker (recommended), example:
     ```
        SoundWinAgent.exe /transport=RabbitMQ
     ```
-      - If /transport not used, the transport is tuned via the configuration file SoundWinAgent.xml, apiBaseUrl element
+    - If /transport command line parameter is missing, the transport is tuned via the configuration file SoundWinAgent.xml, apiBaseUrl element
+    - If transport is not 'Direct', the url setting is ignored
+    - **[/url=\<URL\>]** can tune the URL of the backend ASP.Net Core REST API Server, example:
+    ```
+      SoundWinAgent.exe /url=http://localhost:5027
+    ```
+    - If /url command line parameter is missing, the url is tuned via the configuration file **SoundWinAgent.xml, apiBaseUrl** element.
 
 6. SoundWinAgent.exe /help brings a command line help screen with all available options.
 
 ### Use RabbitMQ in SoundWinAgent
-If you want to use RabbitMQ as a message broker (most reliable solution),
-you need to install RabbitMQ (via chocolatey), rabbitmqadmin, and create the necessary exchange and queue.
+If you want to use RabbitMQ as a message broker (most reliable solution), follow the steps below:
+1. Install RabbitMQ (via chocolatey).
 
-```powershell
-# Create exchange
-.\rabbitmqadmin declare exchange --name=sdr_updates --type=direct --durable=true --vhost=/
-### Create queue
-.\rabbitmqadmin declare queue --name=sdr_metrics --durable=true --vhost=/
-# Bind queue to exchange
-.\rabbitmqadmin declare binding --source=sdr_updates --destination=sdr_metrics --destination-type=queue --routing-key=metrics-capture --vhost=/
-```
-
-Then download and unzip the latest rollout of RabbitMq-To-RESTAPI-Forwarder: HttpRequestProcessor-x.x.x. from the latest repository release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/releases/latest) and register HttpRequestProcessor.exe as a Windows Service:
+2. Download and unzip the latest rollout of RambbitMQ-To REST-API-Forwarder: RmqToRestApiForwarder-x.x.x. from
+the latest release's assets, [RmqToRestApiForwarder Release](https://github.com/eduarddanziger/rmq-to-rest-api-forwarder/releases/latest)
+3. Register RmqToRestApiForwarder.exe as a Windows Service and start it:
 
 ```powershell
 # Register (elevated) and start the RMQ-To-RESTAPI-Forwarder Windows Service
-sc create HttpRequestProcessor binPath="<your folder>\HttpRequestProcessor.exe" start=auto
-sc start HttpRequestProcessor
+sc create RmqToRestApiForwarder binPath="<your folder>\RmqToRestApiForwarder.exe" start=auto
+sc start RmqToRestApiForwarder
 ```
 
 ### SoundDefaultUI
@@ -87,8 +79,7 @@ release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/rele
 ## Developer Environment, How to Build:
 
 1. Install Visual Studio 2022
-2. Download [Nuget.exe](https://dist.nuget.org/win-x86-commandline/latest/nuget.exe) and set a NuGet environment variable to the path of the NuGet executable.
-3. Build the solution, e.g. if you use Visual Studio Community Edition:
+2. Build the solution, e.g. if you use Visual Studio Community Edition:
 ```powershell
 %NuGet% restore SoundWinAgent.sln
 "c:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin\MSBuild.exe" SoundWinAgent.sln /p:Configuration=Release /target:Rebuild -restore

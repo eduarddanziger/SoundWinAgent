@@ -10,6 +10,15 @@ $version$
 Released on $date$
 ~~~
 
+## Changes
+- HttpRequestProcessor renamed to RmqToRestApiForwarder.csproj and moved to the separate repository [rmq-to-rest-api-forwarder](https://github.com/eduarddanziger/rmq-to-rest-api-forwarder.git)
+
+3.3.2
+--------
+~~~
+Released on 01.09.2025
+~~~
+
 ## New
 - CodeSign.cer certificate included, see readme, **SoundDefaultUI**
 
