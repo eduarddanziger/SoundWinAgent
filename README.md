@@ -10,9 +10,7 @@ with a React / TypeScript frontend [list-audio-react-app](https://github.com/edu
 ## Executables Generated
 
 - **SoundWinAgent**: Windows Service collects audio device information and sends it to a remote server.
-- **HttpRequestProcessor**: RabbitMQ to REST API forwarder, which is used to forward audio device information from RabbitMQ to the backend server.
 - **SoundDefaultUI**: Lightweight WPF UI showing the live volume levels of the default audio devices, output and input device separately.
-
   ![SoundDefaultUI screenshot](202509011440SoundDefaultUI.jpg)
 - **SoundAgentCli** (obsolete): Command-line test CLI.
 
@@ -53,15 +51,17 @@ with a React / TypeScript frontend [list-audio-react-app](https://github.com/edu
 6. SoundWinAgent.exe /help brings a command line help screen with all available options.
 
 ### Use RabbitMQ in SoundWinAgent
-If you want to use RabbitMQ as a message broker (most reliable solution),
-you need to install RabbitMQ (via chocolatey).
+If you want to use RabbitMQ as a message broker (most reliable solution), follow the steps below:
+1. Install RabbitMQ (via chocolatey).
 
-Then download and unzip the latest rollout of RabbitMq-To-RESTAPI-Forwarder: HttpRequestProcessor-x.x.x. from the latest repository release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/releases/latest) and register HttpRequestProcessor.exe as a Windows Service:
+2. Download and unzip the latest rollout of RambbitMQ-To REST-API-Forwarder: RmqToRestApiForwarder-x.x.x. from
+the latest release's assets, [RmqToRestApiForwarder Release](https://github.com/eduarddanziger/rmq-to-rest-api-forwarder/releases/latest)
+3. Register RmqToRestApiForwarder.exe as a Windows Service and start it:
 
 ```powershell
 # Register (elevated) and start the RMQ-To-RESTAPI-Forwarder Windows Service
-sc create HttpRequestProcessor binPath="<your folder>\HttpRequestProcessor.exe" start=auto
-sc start HttpRequestProcessor
+sc create RmqToRestApiForwarder binPath="<your folder>\RmqToRestApiForwarder.exe" start=auto
+sc start RmqToRestApiForwarder
 ```
 
 ### SoundDefaultUI

@@ -10,8 +10,8 @@ $version$
 Released on $date$
 ~~~
 
-## New
-- ...
+## Changes
+- HttpRequestProcessor renamed to RmqToRestApiForwarder.csproj and moved to the separate repository [rmq-to-rest-api-forwarder](https://github.com/eduarddanziger/rmq-to-rest-api-forwarder.git)
 
 3.3.2
 --------
