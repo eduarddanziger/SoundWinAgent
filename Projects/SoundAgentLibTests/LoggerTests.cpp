@@ -17,8 +17,8 @@ namespace ed::tests
         TEST_METHOD(AppVersionTest)
         {
             const auto spLogBuffer = std::make_shared<model::LogBuffer>();
-            constexpr auto APP_NAME = "TestApp";
-            constexpr auto APP_VERSION = "0.1";
+            static constexpr auto APP_NAME = "TestApp";
+            static constexpr auto APP_VERSION = "0.1";
             model::Logger::Inst().ConfigureAppNameAndVersion(APP_NAME, APP_VERSION).SetLogBuffer(spLogBuffer);
             model::Logger::Inst().Free();
 
