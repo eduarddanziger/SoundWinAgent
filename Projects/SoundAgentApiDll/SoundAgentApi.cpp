@@ -79,7 +79,7 @@ namespace  {
         )
     {
         const auto appNameString = appName != nullptr ? std::string(appName) : std::string(RESOURCE_FILENAME_ATTRIBUTE);
-        const auto appVersionString = appVersion != nullptr ? std::string(appVersion) : std::string(ASSEMBLY_VERSION_ATTRIBUTE);
+        const auto appVersionString = appVersion != nullptr ? std::string(appVersion) : std::string(PRODUCT_VERSION_ATTRIBUTE);
 
         got_log_message_callback = gotLogMessageCallback;
 

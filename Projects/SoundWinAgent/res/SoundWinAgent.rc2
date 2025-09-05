@@ -39,7 +39,7 @@ VS_VERSION_INFO VERSIONINFO
             VALUE "LegalTrademarks", ASSEMBLY_TRADEMARK_ATTRIBUTE "\0"
             VALUE "OriginalFilename", RESOURCE_FILENAME_ATTRIBUTE "\0"
             VALUE "ProductName", ASSEMBLY_PRODUCT_ATTRIBUTE "\0"
-            VALUE "ProductVersion", ASSEMBLY_VERSION_ATTRIBUTE "\0"
+            VALUE "ProductVersion", PRODUCT_VERSION_ATTRIBUTE "\0"
         END
     END
     BLOCK "VarFileInfo"
