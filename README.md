@@ -33,21 +33,13 @@ with a React / TypeScript frontend [list-audio-react-app](https://github.com/edu
     - net stop SoundWinAgent
 4. SoundWinAgent.exe can be started as a Windows CLI, too. Stop it via Ctrl-C
 5. SoundWinAgent.exe accepts following optional command line parameters
-    - **[/transport=None|Direct|RabbitMQ]** defines the transport mechanism to use for deliver
-      audio device information to the backend server. The default is 'None' (no delivery).
-      'Direct' uses an own transient queue and HTTP client;
-      'RabbitMQ' uses RabbitMQ as a message broker (recommended), example:
+    - **[/transport=None|RabbitMQ]** defines the transport mechanism to use for deliver
+      audio device information to the backend server. The default is 'RabbitMQ'
+      'RabbitMQ' uses RabbitMQ as a message broker, example:
     ```
        SoundWinAgent.exe /transport=RabbitMQ
     ```
-    - If /transport command line parameter is missing, the transport is tuned via the configuration file SoundWinAgent.xml, apiBaseUrl element
-    - If transport is not 'Direct', the url setting is ignored
-    - **[/url=\<URL\>]** can tune the URL of the backend ASP.Net Core REST API Server, example:
-    ```
-      SoundWinAgent.exe /url=http://localhost:5027
-    ```
-    - If /url command line parameter is missing, the url is tuned via the configuration file **SoundWinAgent.xml, apiBaseUrl** element.
-
+    - If /transport command line parameter is missing, the transport is tuned via the configuration file SoundWinAgent.xml, transportMethod element
 6. SoundWinAgent.exe /help brings a command line help screen with all available options.
 
 ### Use RabbitMQ in SoundWinAgent
