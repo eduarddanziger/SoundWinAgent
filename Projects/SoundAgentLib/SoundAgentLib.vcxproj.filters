@@ -78,6 +78,9 @@
     <ClInclude Include="ApiClient\RabbitMqHttpRequestDispatcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ApiClient\Contracts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ApiClient\common\StringUtils.cpp">

@@ -54,6 +54,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ApiClient\AudioDeviceApiClient.h" />
+    <ClInclude Include="ApiClient\Contracts.h" />
     <ClInclude Include="ApiClient\RabbitMqHttpRequestDispatcher.h" />
     <ClInclude Include="ApiClient\common\SpdLogger.h" />
     <ClInclude Include="ApiClient\common\SpdLogger\AppPath.h" />
