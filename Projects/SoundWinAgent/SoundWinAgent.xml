@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
     <custom>
-        <transportMethod>None</transportMethod>
-<!-- <transportMethod>RabbitMQ</transportMethod> -->
+        <transportMethod>RabbitMQ</transportMethod>
+<!-- <transportMethod>None</transportMethod> -->
     </custom>
 </config>
