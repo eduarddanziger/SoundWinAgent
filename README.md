@@ -2,9 +2,9 @@
 
 Sound Agent detects and outputs plug-and-play audio endpoint devices under Windows. It handles audio notifications and device changes.
 
-The Sound Agent registers audio device information on a backend server via REST API, optionally using RabbitMQ / RMQ to REST API forwarder (.NET Windows Service).
+The Sound Agent registers audio device information on a backend server via REST API, using RabbitMQ To REST API Forwarder (.NET Windows Service).
 Fir the backend Audio Device Repository Server (ASP.Net Core) see [audio-device-repo-server](https://github.com/eduarddanziger/audio-device-repo-server/)
-with a React / TypeScript frontend [list-audio-react-app](https://github.com/eduarddanziger/list-audio-react-app/) with a [primary Web client](https://eduarddanziger.github.io/list-audio-react-app/).
+with a React / TypeScript frontend [list-audio-react-app](https://github.com/eduarddanziger/list-audio-react-app/), see [Primary Web Client](https://eduarddanziger.github.io/list-audio-react-app/).
   ![primaryWebClient screenshot](202509011555ReactRepoApp.jpg)
 
 ## Executables Generated
@@ -18,7 +18,7 @@ with a React / TypeScript frontend [list-audio-react-app](https://github.com/edu
 
 - **C++**: Core logic implementation.
 - **Poco and cpprestsdk** packages: Used in order to leverage Windows Server Manager and utilize HTTP REST client code.
-- **RabbitMQ**: Optionally used as a message broker for reliable audio device information delivery.
+- **RabbitMQ**: Used as a message broker for reliable audio device information delivery.
 - **C# / WPF**: Lightweight UI for displaying live volume levels of the currently default audio devices.
 
 ## Usage
@@ -42,8 +42,8 @@ with a React / TypeScript frontend [list-audio-react-app](https://github.com/edu
     - If /transport command line parameter is missing, the transport is tuned via the configuration file SoundWinAgent.xml, transportMethod element
 6. SoundWinAgent.exe /help brings a command line help screen with all available options.
 
-### Use RabbitMQ in SoundWinAgent
-If you want to use RabbitMQ as a message broker (most reliable solution), follow the steps below:
+### Usage of RabbitMQ To REST API Forwarder in SoundWinAgent
+
 1. Install RabbitMQ (via chocolatey).
 
 2. Download and unzip the latest rollout of RambbitMQ-To REST-API-Forwarder: RmqToRestApiForwarder-x.x.x. from
