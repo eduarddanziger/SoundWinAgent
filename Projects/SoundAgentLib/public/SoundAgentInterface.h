@@ -1,36 +1,39 @@
 ﻿// ReSharper disable CppClangTidyModernizeUseNodiscard
 #pragma once
 
+#include <ApiClient/common/ClassDefHelper.h>
+
 #include <memory>
 #include <string>
 #include <optional>
 
-
-#include <ApiClient/common/ClassDefHelper.h>
 
 class SoundDeviceCollectionInterface;
 class DeviceCollectionObserver;
 class SoundDeviceInterface;
 class SoundDeviceObserverInterface;
 
-enum class SoundDeviceEventType : uint8_t {
+enum class SoundDeviceEventType : uint8_t
+{
     Confirmed = 0,
-    Discovered,
-    Detached,
-    VolumeRenderChanged,
-    VolumeCaptureChanged,
-    DefaultRenderChanged,
-    DefaultCaptureChanged
+    Discovered = 1,
+    Detached = 2,
+    VolumeRenderChanged = 3,
+    VolumeCaptureChanged = 4,
+    DefaultRenderChanged = 5,
+    DefaultCaptureChanged = 6
 };
 
-enum class SoundDeviceFlowType : uint8_t {
+enum class SoundDeviceFlowType : uint8_t
+{
     None = 0,
     Render,
     Capture,
     RenderAndCapture
 };
 
-class SoundAgent final {
+class SoundAgent final
+{
 public:
     static std::unique_ptr<SoundDeviceCollectionInterface> CreateDeviceCollection();
 
@@ -39,7 +42,8 @@ public:
     ~SoundAgent() = delete;
 };
 
-class SoundDeviceCollectionInterface {
+class SoundDeviceCollectionInterface
+{
 public:
     virtual size_t GetSize() const = 0;
     virtual std::unique_ptr<SoundDeviceInterface> CreateItem(size_t deviceNumber) const = 0;
@@ -51,8 +55,8 @@ public:
     virtual void ActivateAndStartLoop() = 0;
     virtual void DeactivateAndStopLoop() = 0;
 
-    virtual void Subscribe(SoundDeviceObserverInterface & observer) = 0;
-    virtual void Unsubscribe(SoundDeviceObserverInterface & observer) = 0;
+    virtual void Subscribe(SoundDeviceObserverInterface& observer) = 0;
+    virtual void Unsubscribe(SoundDeviceObserverInterface& observer) = 0;
 
     virtual void ResetContent() = 0;
 
@@ -60,16 +64,18 @@ public:
     DISALLOW_COPY_MOVE(SoundDeviceCollectionInterface);
 };
 
-class SoundDeviceObserverInterface {
+class SoundDeviceObserverInterface
+{
 public:
-    virtual void OnCollectionChanged(SoundDeviceEventType event, const std::string & devicePnpId) = 0;
+    virtual void OnCollectionChanged(SoundDeviceEventType event, const std::string& devicePnpId) = 0;
 
     AS_INTERFACE(SoundDeviceObserverInterface);
     DISALLOW_COPY_MOVE(SoundDeviceObserverInterface);
 };
 
 
-class SoundDeviceInterface {
+class SoundDeviceInterface
+{
 public:
     virtual std::string GetName() const = 0;
     virtual std::string GetPnpId() const = 0;

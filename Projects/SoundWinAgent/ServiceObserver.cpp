@@ -3,12 +3,12 @@
 #include "ServiceObserver.h"
 
 #include "ApiClient/AudioDeviceApiClient.h"
+#include "ApiClient/common/StringUtils.h"
 
 #include <magic_enum/magic_enum.hpp>
 
 #include <spdlog/spdlog.h>
 #include <winternl.h>
-#include <cpprest/asyncrt_utils.h>
 
 ServiceObserver::ServiceObserver(SoundDeviceCollectionInterface& collection,
                                  HttpRequestDispatcherInterface& requestProcessor
@@ -88,7 +88,7 @@ std::string ServiceObserver::GetHostName()
             std::wstring hostName(hostNameBuffer);
             std::ranges::transform(hostName, hostName.begin(),
                 [](wchar_t c) { return std::toupper(c); });
-            return utility::conversions::to_utf8string(hostNameBuffer);
+            return ed::Utf16ToUtf8(hostName);
         }();
     return HOST_NAME;
 }

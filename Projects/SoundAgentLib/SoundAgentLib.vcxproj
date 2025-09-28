@@ -54,12 +54,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ApiClient\AudioDeviceApiClient.h" />
+    <ClInclude Include="ApiClient\Contracts.h" />
     <ClInclude Include="ApiClient\RabbitMqHttpRequestDispatcher.h" />
     <ClInclude Include="ApiClient\common\SpdLogger.h" />
     <ClInclude Include="ApiClient\common\SpdLogger\AppPath.h" />
     <ClInclude Include="ApiClient\common\SpdLogger\LogBuffer.h" />
     <ClInclude Include="ApiClient\common\SpdLogger\Logger.h" />
-    <ClInclude Include="ApiClient\DirectHttpRequestDispatcher.h" />
     <ClInclude Include="ApiClient\HttpRequestDispatcherInterface.h" />
     <ClInclude Include="ApiClient\RequestPublisher.h" />
     <ClInclude Include="ApiClient\SodiumCrypt.h" />
@@ -79,7 +79,6 @@
   <ItemGroup>
     <ClCompile Include="ApiClient\AudioDeviceApiClient.cpp" />
     <ClCompile Include="ApiClient\RabbitMqHttpRequestDispatcher.cpp" />
-    <ClCompile Include="ApiClient\DirectHttpRequestDispatcher.cpp" />
     <ClCompile Include="ApiClient\RequestPublisher.cpp" />
     <ClCompile Include="ApiClient\SodiumCrypt.cpp" />
     <ClCompile Include="SoundDevice.cpp" />

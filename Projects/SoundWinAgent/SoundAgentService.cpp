@@ -3,7 +3,6 @@
 #include "ApiClient/common/SpdLogger.h"
 
 #include "ApiClient/SodiumCrypt.h"
-#include "ApiClient/DirectHttpRequestDispatcher.h"
 #include "ApiClient/RabbitMqHttpRequestDispatcher.h"
 #include "ServiceObserver.h"
 #include "public/CoInitRaiiHelper.h"
@@ -52,10 +51,6 @@ protected:
                     }
                 };
                 requestDispatcherSmartPtr.reset(new EmptyDispatcher());
-            }
-            else if (Poco::icompare(transportMethod_, API_TRANSPORT_METHOD_VALUE01_DIRECT) == 0)
-            {
-                requestDispatcherSmartPtr.reset(new DirectHttpRequestDispatcher(apiBaseUrl_, universalToken_, gitHubCodespaceToBeAwaken_));
             }
             else if (Poco::icompare(transportMethod_, API_TRANSPORT_METHOD_VALUE02_RABBITMQ) == 0)
             {
@@ -169,19 +164,12 @@ protected:
 
         SetUpLog();
 
-        if (apiBaseUrl_.empty())
-        {   // If no URL is provided via command line, read it from the configuration
-            apiBaseUrl_ = ReadMandatoryPossiblyEncryptedConfigProperty(API_BASE_URL_PROPERTY_KEY);
-        }
-        apiBaseUrl_ += "/api/AudioDevices";
-
         if (transportMethod_.empty())
         {   // If no transport method is provided via command line, read it from the configuration
             spdlog::info("Transport method not provided via command line. Reading from configuration...");
             transportMethod_ = ReadOptionalSimpleConfigProperty(API_TRANSPORT_METHOD_PROPERTY_KEY, API_TRANSPORT_METHOD_VALUE00_NONE);
         }
         if (Poco::icompare(transportMethod_, API_TRANSPORT_METHOD_VALUE00_NONE) != 0
-            && Poco::icompare(transportMethod_, API_TRANSPORT_METHOD_VALUE01_DIRECT) != 0
             && Poco::icompare(transportMethod_, API_TRANSPORT_METHOD_VALUE02_RABBITMQ) != 0
         )
         {
@@ -192,10 +180,6 @@ protected:
         {
             spdlog::info(R"(Transport method value "{}" validated.)", transportMethod_);
         }
-
-        universalToken_ = ReadMandatoryPossiblyEncryptedConfigProperty(UNIVERSAL_TOKEN_PROPERTY_KEY);
-
-        gitHubCodespaceToBeAwaken_ = ReadMandatoryPossiblyEncryptedConfigProperty(GITHUB_CODESPACE_TO_BE_AWAKEN_PROPERTY_KEY);
 
         setUnixOptions(false);  // Force Windows service behavior
     }
@@ -211,14 +195,7 @@ protected:
         ServerApplication::defineOptions(options);
 
         options.addOption(
-            Poco::Util::Option("url", "", "Base Server URL, e.g. http://localhost:5027")
-            .required(false)
-            .repeatable(false)
-            .argument("<url>", true)
-            .callback(Poco::Util::OptionCallback<AudioDeviceService>(this, &AudioDeviceService::HandleUrl)));
-
-        options.addOption(
-            Poco::Util::Option("transport", "", "Transport method: None, Direct or RabbitMQ")
+            Poco::Util::Option("transport", "", "Transport method: None or RabbitMQ")
             .required(false)
             .repeatable(false)
             .argument("<transport>", true)
@@ -256,13 +233,6 @@ protected:
         onlyConsoleOutputRequested_ = true;
     }
 
-    void HandleUrl(const std::string& name, const std::string& value)
-    {
-        std::cout << fmt::format(R"(Got Server URL "{}"
-)", value);
-        apiBaseUrl_ = value;
-    }
-
     void HandleTransport(const std::string& name, const std::string& value)
     {
         std::cout << fmt::format(R"(Got Transport Method "{}"
@@ -271,21 +241,14 @@ protected:
     }
 
 private:
-    std::string apiBaseUrl_;
-    std::string universalToken_;
-    std::string gitHubCodespaceToBeAwaken_;
     std::string transportMethod_;
 
     bool onlyConsoleOutputRequested_ = false;
 
-    static constexpr auto API_BASE_URL_PROPERTY_KEY = "custom.apiBaseUrl";
-    static constexpr auto UNIVERSAL_TOKEN_PROPERTY_KEY = "custom.universalToken";
     // ReSharper disable once IdentifierTypo
     // ReSharper disable once StringLiteralTypo
-    static constexpr auto GITHUB_CODESPACE_TO_BE_AWAKEN_PROPERTY_KEY = "custom.gitHubCodeSpaceToBeAwaken";
     static constexpr auto API_TRANSPORT_METHOD_PROPERTY_KEY = "custom.transportMethod";
     static constexpr auto API_TRANSPORT_METHOD_VALUE00_NONE = "None";
-    static constexpr auto API_TRANSPORT_METHOD_VALUE01_DIRECT = "Direct";
     static constexpr auto API_TRANSPORT_METHOD_VALUE02_RABBITMQ = "RabbitMQ";
 };
 
