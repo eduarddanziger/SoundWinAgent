@@ -25,9 +25,9 @@ with a React / TypeScript frontend [list-audio-react-app](https://github.com/edu
 
 ### SoundWinAgent
 1. Download and unzip the latest rollout of SoundWinAgent-x.x.x. from the latest repository release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/releases/latest)
-2. Register / unregister the SoundWinAgent service (elevated):
-    - SoundWinAgent.exe /registerService [/startup=auto|manual|disabled]. 
-    - SoundWinAgent.exe /unregisterService
+2. Register / unregister the SoundWinAgent service (elevated, as admin):
+    - .\SoundWinAgent.exe /registerService [/startup=auto|manual|disabled]. 
+    - .\SoundWinAgent.exe /unregisterService
 3. Start / stop the SoundWinAgent service
     - net start SoundWinAgent
     - net stop SoundWinAgent
@@ -44,14 +44,19 @@ with a React / TypeScript frontend [list-audio-react-app](https://github.com/edu
 
 ### Usage of RabbitMQ To REST API Forwarder in SoundWinAgent
 
-1. Install RabbitMQ (via chocolatey).
+1. Install RabbitMQ via chocolatey. If didn't install chocolatey yet, please follow [Chocolatey](https://chocolatey.org/install)
+
+```powershell
+# Install RabbitMQ via chocolatey (elevated, as admin)
+choco install rabbitmq
+```
 
 2. Download and unzip the latest rollout of RambbitMQ-To REST-API-Forwarder: RmqToRestApiForwarder-x.x.x. from
 the latest release's assets, [RmqToRestApiForwarder Release](https://github.com/eduarddanziger/rmq-to-rest-api-forwarder/releases/latest)
 3. Register RmqToRestApiForwarder.exe as a Windows Service and start it:
 
 ```powershell
-# Register (elevated) and start the RMQ-To-RESTAPI-Forwarder Windows Service
+# Register (elevated, as admin) and start the RMQ-To-RESTAPI-Forwarder Windows Service
 sc create RmqToRestApiForwarder binPath="<your folder>\RmqToRestApiForwarder.exe" start=auto
 sc start RmqToRestApiForwarder
 ```
