@@ -82,6 +82,26 @@ jobs:
         msbuild /p:Configuration=Release /p:VcpkgEnabled=true /p:VcpkgManifestPath=vcpkg.json /p:VcpkgTriplet=x64-windows-static /target:Rebuild -restore
         dotnet publish "Projects/SoundDefaultUI/SoundDefaultUI.csproj" -c Release -p:PublishProfile=FolderProfile -v:detailed
 
+    - name: Package Go cgo wrapper
+      shell: pwsh
+      run: |
+        $version = '${{ steps.get_version.outputs.VERSION }}'
+        $goSrc = Join-Path $PWD 'go/soundagent'
+        if (-not (Test-Path $goSrc)) { Write-Host "Go package directory not found: $goSrc"; exit 0 }
+        New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+        # Collect files (DLL + LIB may reside in build output or go folder depending on copy timing)
+        $dll = Get-ChildItem -Recurse -Filter 'SoundAgentApiDll.dll' | Select-Object -First 1
+        $lib = Get-ChildItem -Recurse -Filter 'SoundAgentApiDll.lib' | Select-Object -First 1
+        $files = @()
+        $files += Join-Path $goSrc 'soundagent.go'
+        $files += Join-Path $goSrc 'SoundAgentApi.h'
+        if ($dll) { Copy-Item $dll.FullName $goSrc -Force; $files += (Join-Path $goSrc $dll.Name) }
+        if ($lib) { Copy-Item $lib.FullName $goSrc -Force; $files += (Join-Path $goSrc $lib.Name) }
+        $zip = "artifacts/soundagent-go-$version.zip"
+        if (Test-Path $zip) { Remove-Item $zip -Force }
+        Compress-Archive -Path $files -DestinationPath $zip
+        Write-Host "Created Go package archive $zip"
+
     - name: Upload entire artifacts directory
       uses: actions/upload-artifact@v4
       with:
@@ -103,9 +123,15 @@ jobs:
           name: Artifacts
           path: build
 
-      - name: Create Release
+      - name: Create or update Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERS=${{ needs.build.outputs.version }}
-          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-          gh release create "$VERS" --title "SoundWinAgent $VERS" --notes "Release of Sound Windows Agent $VERS"
-          gh release upload "$VERS" build/*.*
+          echo "$GH_TOKEN" | gh auth login --with-token
+          if gh release view "$VERS" > /dev/null 2>&1; then
+            echo "Release $VERS already exists; updating assets"
+          else
+            gh release create "$VERS" --title "SoundWinAgent $VERS" --notes "Release of Sound Windows Agent $VERS"
+          fi
+          gh release upload "$VERS" build/*.* --clobber
