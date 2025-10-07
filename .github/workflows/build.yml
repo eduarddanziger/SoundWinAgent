@@ -31,20 +31,8 @@ jobs:
         id: get_version
         shell: pwsh
         run: |
-          $ref = $env:GITHUB_REF
-          # Prefer v* tags (SemVer). Fallback: legacy Release-* tags.
-          if ($ref -match '^refs/tags/v\d+') {
-            $version = $ref -replace '^refs/tags/', ''
-            Write-Host "Tagged build (SemVer): $version"
-          }
-          elseif ($ref -match '^refs/tags/Release-') {
-            $legacy = $ref -replace '^refs/tags/Release-', ''
-            # Also emit a SemVer-looking version (legacy compatibility)
-            $version = $legacy
-            Write-Host "Legacy Release-* tag detected: $legacy"
-          }
-          else {
-            # Not on a tag: derive pre-release from latest v* tag (or seed)
+            $ref = $env:GITHUB_REF
+            # Prefer v* tags (SemVer). Fallback: legacy Release-* tags.
             $latestTag = git describe --tags --match "v[0-9]*" --abbrev=0 2>$null
             if (-not $latestTag) {
                 $latestTag = git describe --tags --match "Release-*" --abbrev=0
@@ -76,12 +64,12 @@ jobs:
                 Write-Output "DISTANCE PADDED, distancePadded: $distancePadded"
                 $version = "$versionNumber-rc$distancePadded"
             } else {
-                $VERSION = $VERSION_NUMBER
+                $version = $versionNumber
             }
-            Write-Host "Derived development version: $version (base: $latestTag)"
-          }
-          "VERSION=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          Write-Host "Using version: $version"
+            $version = 'v' + $version
+            Write-Host "Derived development version: $version (base tag: $latestTag)"
+            "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+            Write-Host "Using version: $version"
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
