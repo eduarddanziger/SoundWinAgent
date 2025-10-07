@@ -33,33 +33,46 @@ private:
 
 DllObserver::~DllObserver() = default;
 
+namespace {
+    std::unique_ptr< SoundDeviceCollectionInterface> device_collection;
+    std::unique_ptr<SoundDeviceObserverInterface> device_collection_observer;
+}
+
+
 void DllObserver::OnCollectionChanged(SoundDeviceEventType event, const std::string& devicePnpId)
 {
-    if(defaultRenderChangedCallback_ != nullptr)
+    if (defaultRenderChangedCallback_ != nullptr)
     {
-        if (event == SoundDeviceEventType::DefaultRenderChanged
-            || event == SoundDeviceEventType::VolumeRenderChanged
-            || event == SoundDeviceEventType::VolumeCaptureChanged)
+        if (event == SoundDeviceEventType::DefaultRenderChanged)
         {
             defaultRenderChangedCallback_(devicePnpId.empty() ? FALSE : TRUE);
+        }
+        if (
+            (event == SoundDeviceEventType::VolumeRenderChanged || event == SoundDeviceEventType::VolumeCaptureChanged)
+            && device_collection != nullptr && device_collection->GetDefaultRenderDevicePnpId() == devicePnpId
+        )
+        {
+            defaultRenderChangedCallback_(TRUE);
         }
     }
     if (defaultCaptureChangedCallback_ != nullptr)
     {
-        if (event == SoundDeviceEventType::DefaultCaptureChanged
-            || event == SoundDeviceEventType::VolumeCaptureChanged
-            || event == SoundDeviceEventType::VolumeRenderChanged)
+        if (event == SoundDeviceEventType::DefaultCaptureChanged)
         {
             defaultCaptureChangedCallback_(devicePnpId.empty() ? FALSE : TRUE);
+        }
+        if (
+            (event == SoundDeviceEventType::VolumeCaptureChanged || event == SoundDeviceEventType::VolumeRenderChanged)
+            && device_collection != nullptr && device_collection->GetDefaultCaptureDevicePnpId() == devicePnpId
+        )
+        {
+            defaultCaptureChangedCallback_(TRUE);
         }
     }
 }
 
 
 namespace  {
-    std::unique_ptr< SoundDeviceCollectionInterface> device_collection;
-    std::unique_ptr<SoundDeviceObserverInterface> device_collection_observer;
-
     TSaaGotLogMessageCallback got_log_message_callback = nullptr;
 
     void LoggerMessageBridge(const std::string& level, const std::string& message)
