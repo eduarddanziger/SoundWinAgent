@@ -5,8 +5,8 @@ on:
     branches:
       - main
     tags:
-      - 'Release-*'
-
+      - 'v*'          # SemVer tags for Go tooling
+      - 'Release-*'   # (Legacy) still trigger, but v* is preferred
   workflow_dispatch:
 
 permissions:
@@ -16,86 +16,115 @@ jobs:
   build:
     runs-on: windows-latest
     outputs:
-      version: ${{ steps.get_version.outputs.VERSION }}  # Output the VERSION variable
+      version: ${{ steps.get_version.outputs.VERSION }}
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      with:
-        submodules: true
-  
-    - name: Unshallow repository
-      run: git fetch --prune --unshallow
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
 
-    - name: Get version from Git tags
-      shell: pwsh
-      id: get_version
-      run: |
-        # Get the latest Release tag
-        $LATEST_TAG = git describe --tags --match "Release-*" --abbrev=0
-        if (-not $LATEST_TAG) {
-            Write-Output "No Release tag found. Using default version."
-            "VERSION=1.0.0" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-            exit 0
-        }
-        Write-Output "LATEST_TAG: $LATEST_TAG"
+      - name: Unshallow repository
+        run: git fetch --prune --unshallow
 
-        # Extract version number from the tag (e.g., Release-1.0.1 -> 1.0.1)
-        $VERSION_NUMBER = $LATEST_TAG -replace '^Release-', ''
-        Write-Output "VERSION_NUMBER: $VERSION_NUMBER"
+      - name: Determine version (SemVer)
+        id: get_version
+        shell: pwsh
+        run: |
+          $ref = $env:GITHUB_REF
+          # Prefer v* tags (SemVer). Fallback: legacy Release-* tags.
+          if ($ref -match '^refs/tags/v\d+') {
+            $version = $ref -replace '^refs/tags/', ''
+            Write-Host "Tagged build (SemVer): $version"
+          }
+          elseif ($ref -match '^refs/tags/Release-') {
+            $legacy = $ref -replace '^refs/tags/Release-', ''
+            # Also emit a SemVer-looking version (legacy compatibility)
+            $version = $legacy
+            Write-Host "Legacy Release-* tag detected: $legacy"
+          }
+          else {
+            # Not on a tag: derive pre-release from latest v* tag (or seed)
+            $latestTag = git describe --tags --match "v[0-9]*" --abbrev=0 2>$null
+            if (-not $latestTag) { $latestTag = 'v0.1.0' }
+            $distance = git rev-list --count "$latestTag..HEAD"
+            if ($distance -eq 0) {
+              $version = $latestTag
+            } else {
+              # Pre-release: vX.Y.Z-dev.<distance>
+              $version = "$latestTag-dev.$distance"
+            }
+            Write-Host "Derived development version: $version (base: $latestTag)"
+          }
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Using version: $version"
 
-        # Get the distance since the latest tag
-        $DISTANCE = git rev-list --count "$LATEST_TAG..HEAD"
-        Write-Output "DISTANCE: $DISTANCE"
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
 
-        # Append -SP<distance> if distance is greater than 0
-        if ($DISTANCE -gt 0) {
-            # Increment the third number
-            $versionParts = $VERSION_NUMBER -split '\.'
-            $versionParts[2] = [int]$versionParts[2] + 1
-            $VERSION_NUMBER = $versionParts -join '.'
-            Write-Output "VERSION CORRECTED: $VERSION_NUMBER"
+      - name: Restore NuGets
+        run: nuget restore SoundWinAgent.sln
 
-            # Add SP info
-            $DISTANCE_PADDED = $DISTANCE.ToString().PadLeft(3, '0')
-            Write-Output "DISTANCE_PADDED: $DISTANCE_PADDED"
-            $VERSION = "$VERSION_NUMBER-RC$DISTANCE_PADDED"
-        } else {
-            $VERSION = $VERSION_NUMBER
-        }
+      - name: Integrate vcpkg with MSBuild
+        run: vcpkg integrate install
 
-        # Output the version
-        "VERSION=$VERSION" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-        Write-Output "Using version: $VERSION"    
+      - name: Build with MSBuild
+        run: |
+          msbuild /p:Configuration=Release /p:VcpkgEnabled=true /p:VcpkgManifestPath=vcpkg.json /p:VcpkgTriplet=x64-windows-static /target:Rebuild -restore
+          dotnet publish "Projects/SoundDefaultUI/SoundDefaultUI.csproj" -c Release -p:PublishProfile=FolderProfile -v:minimal
 
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
+      - name: Ensure Go module metadata
+        shell: pwsh
+        run: |
+          $modDir = Join-Path $PWD 'go/soundagent'
+          if (-not (Test-Path $modDir)) { Write-Host "No go/soundagent directory; skipping go.mod creation"; exit 0 }
+          $goMod = Join-Path $modDir 'go.mod'
+            # NOTE: Update module path to your actual GitHub org/user if different
+          $moduleLine = 'module github.com/eduarddanziger/SoundWinAgent/go/soundagent'
+          $goVersion = 'go 1.22'
+          if (-not (Test-Path $goMod)) {
+            Set-Content -Path $goMod -Value @($moduleLine, $goVersion)
+            Write-Host "Created go.mod"
+          } else {
+            Write-Host "go.mod already exists; leaving unchanged"
+          }
 
-    - name: Restore NuGets
-      run: nuget restore SoundWinAgent.sln
+      - name: Package Go cgo wrapper
+        shell: pwsh
+        run: |
+          $version = '${{ steps.get_version.outputs.VERSION }}'
+          $goSrc = Join-Path $PWD 'go/soundagent'
+          if (-not (Test-Path $goSrc)) { Write-Host "Go package directory not found: $goSrc"; exit 0 }
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          $dll = Get-ChildItem -Recurse -Filter 'SoundAgentApiDll.dll' | Select-Object -First 1
+          $lib = Get-ChildItem -Recurse -Filter 'SoundAgentApiDll.lib' | Select-Object -First 1
+          $files = @()
+          foreach ($n in 'soundagent.go','SoundAgentApi.h','go.mod') {
+            $p = Join-Path $goSrc $n; if (Test-Path $p) { $files += $p }
+          }
+          if ($dll) { Copy-Item $dll.FullName $goSrc -Force; $files += (Join-Path $goSrc $dll.Name) }
+          if ($lib) { Copy-Item $lib.FullName $goSrc -Force; $files += (Join-Path $goSrc $lib.Name) }
+          if (-not $files) { Write-Host 'No Go wrapper files collected'; exit 0 }
+          $zip = "artifacts/soundagent-go-$version.zip"
+          if (Test-Path $zip) { Remove-Item $zip -Force }
+          Compress-Archive -Path $files -DestinationPath $zip
+          Write-Host "Created Go package archive $zip"
 
-    - name: Integrate vcpkg with MSBuild
-      run: vcpkg integrate install
-
-    - name: Build with MSBuild
-      run: |
-        msbuild /p:Configuration=Release /p:VcpkgEnabled=true /p:VcpkgManifestPath=vcpkg.json /p:VcpkgTriplet=x64-windows-static /target:Rebuild -restore
-        dotnet publish "Projects/SoundDefaultUI/SoundDefaultUI.csproj" -c Release -p:PublishProfile=FolderProfile -v:detailed
-
-    - name: Upload entire artifacts directory
-      uses: actions/upload-artifact@v4
-      with:
-        name: Artifacts
-        path: artifacts\
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Artifacts
+          path: artifacts\
 
   publish:
-    if: github.ref != 'refs/pull/develop'
+    # Only create/update GitHub Release for SemVer v* tags (skip dev builds and legacy unless desired)
+    if: startsWith(github.ref, 'refs/tags/v')
     needs: build
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -103,9 +132,15 @@ jobs:
           name: Artifacts
           path: build
 
-      - name: Create Release
+      - name: Create or update Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERS=${{ needs.build.outputs.version }}
-          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-          gh release create "$VERS" --title "SoundWinAgent $VERS" --notes "Release of Sound Windows Agent $VERS"
-          gh release upload "$VERS" build/*.*
+          echo "$GH_TOKEN" | gh auth login --with-token
+          if gh release view "$VERS" > /dev/null 2>&1; then
+            echo "Release $VERS already exists; updating assets"
+          else
+            gh release create "$VERS" --title "SoundWinAgent $VERS" --notes "Release $VERS"
+          fi
+          gh release upload "$VERS" build/*.* --clobber
