@@ -106,17 +106,43 @@ jobs:
         run: |
           $version = '${{ steps.get_version.outputs.VERSION }}'
           $goSrc = Join-Path $PWD 'go/soundagent'
-          if (-not (Test-Path $goSrc)) { Write-Host "Go package directory not found: $goSrc"; exit 0 }
+          if (-not (Test-Path $goSrc)) {
+            Write-Host "Go package directory not found: $goSrc"
+            exit 0
+          }
           New-Item -ItemType Directory -Force -Path artifacts | Out-Null
           $dll = Get-ChildItem -Recurse -Filter 'SoundAgentApiDll.dll' | Select-Object -First 1
           $lib = Get-ChildItem -Recurse -Filter 'SoundAgentApiDll.lib' | Select-Object -First 1
           $files = @()
           foreach ($n in 'soundagent.go','SoundAgentApi.h','go.mod') {
-            $p = Join-Path $goSrc $n; if (Test-Path $p) { $files += $p }
+            $p = Join-Path $goSrc $n
+            if (Test-Path $p) {
+                $files += $p
+            }
           }
-          if ($dll) { Copy-Item $dll.FullName $goSrc -Force; $files += (Join-Path $goSrc $dll.Name) }
-          if ($lib) { Copy-Item $lib.FullName $goSrc -Force; $files += (Join-Path $goSrc $lib.Name) }
-          if (-not $files) { Write-Host 'No Go wrapper files collected'; exit 0 }
+          if ($dll) {
+            $dllTargetFullName = (Join-Path $goSrc $dll.Name)
+            if ($dll.FullName -ne $dllTargetFullName) {
+              Copy-Item $dll.FullName $goSrc -Force
+            }
+            $files += $dllTargetFullName
+          } else {
+            Write-Host "Warning: DLL file not found; Go wrapper may not work: SoundAgentApiDll.dll"
+          }
+
+          if ($lib) {
+            $libTargetFullName = (Join-Path $goSrc $lib.Name)
+            if ($lib.FullName -ne $libTargetFullName) {
+              Copy-Item $lib.FullName $goSrc -Force
+            }
+            $files += $libTargetFullName
+          } else {
+            Write-Host "Warning: LIB file not found; Go wrapper may not work: SoundAgentApiDll.lib"
+          }
+          if (-not $files) {
+            Write-Host 'No Go wrapper files collected'
+            exit 0
+          }
           $zip = "artifacts/soundagent-go-$version.zip"
           if (Test-Path $zip) { Remove-Item $zip -Force }
           Compress-Archive -Path $files -DestinationPath $zip
