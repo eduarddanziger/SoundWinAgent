@@ -279,4 +279,5 @@ Deliverables/*/[Ll]ib
 
 NuGet.Config
 
-/go
+go/*/*
+!go/*/go.mod
