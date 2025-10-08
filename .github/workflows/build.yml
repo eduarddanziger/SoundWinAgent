@@ -39,6 +39,7 @@ jobs:
                 if (-not $latestTag) {
                     Write-Host "No Release tag found. Using default version 1.0.0."
                     "VERSION=1.0.0" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+                    "version=1.0.0" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
                     exit 0
                 }
                 # Extract version number from the tag (e.g., Release-1.0.1 -> 1.0.1)
@@ -51,15 +52,14 @@ jobs:
             Write-Host "latestTag: $latestTag, versionNumber: $versionNumber"
             $distance = git rev-list --count "$latestTag..HEAD"
 
-            # Append -SP<distance> if distance is greater than 0
+            # Append -rc<distance> if distance is greater than 0
             if ($distance -gt 0) {
-                # Increment the third number
+                # Increment the patch number for a prerelease build
                 $versionParts = $versionNumber -split '\.'
                 $versionParts[2] = [int]$versionParts[2] + 1
                 $versionNumber = $versionParts -join '.'
                 Write-Output "VERSION CORRECTED, versionNumber: $versionNumber"
 
-                # Add SP info
                 $distancePadded = $distance.ToString().PadLeft(3, '0')
                 Write-Output "DISTANCE PADDED, distancePadded: $distancePadded"
                 $version = "$versionNumber-rc$distancePadded"
@@ -68,11 +68,17 @@ jobs:
             }
             $version = 'v' + $version
             Write-Host "Derived development version: $version (base tag: $latestTag)"
+            "VERSION=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
             "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
             Write-Host "Using version: $version"
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22.x'
 
       - name: Restore NuGets
         run: nuget restore SoundWinAgent.sln
@@ -85,20 +91,17 @@ jobs:
           msbuild /p:Configuration=Release /p:VcpkgEnabled=true /p:VcpkgManifestPath=vcpkg.json /p:VcpkgTriplet=x64-windows-static /target:Rebuild -restore
           dotnet publish "Projects/SoundDefaultUI/SoundDefaultUI.csproj" -c Release -p:PublishProfile=FolderProfile -v:minimal
 
-      - name: Ensure Go module metadata
+      - name: Validate Go module
         shell: pwsh
         run: |
-          $modDir = Join-Path $PWD 'go/soundagent'
-          if (-not (Test-Path $modDir)) { Write-Host "No go/soundagent directory; skipping go.mod creation"; exit 0 }
-          $goMod = Join-Path $modDir 'go.mod'
-            # NOTE: Update module path to your actual GitHub org/user if different
-          $moduleLine = 'module github.com/eduarddanziger/SoundWinAgent/go/soundagent'
-          $goVersion = 'go 1.22'
-          if (-not (Test-Path $goMod)) {
-            Set-Content -Path $goMod -Value @($moduleLine, $goVersion)
-            Write-Host "Created go.mod"
+          if (Test-Path 'go/soundagent/go.mod') {
+            Push-Location go/soundagent
+            go mod tidy
+            go build ./...
+            Write-Host "Go module validated."
+            Pop-Location
           } else {
-            Write-Host "go.mod already exists; leaving unchanged"
+            Write-Host "No go/soundagent/go.mod found (skipping)."
           }
 
       - name: Package Go cgo wrapper
