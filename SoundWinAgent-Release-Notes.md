@@ -11,7 +11,9 @@ Released on $date$
 ~~~
 
 ## Changes
-- HttpRequestProcessor renamed to RmqToRestApiForwarder.csproj and moved to the separate repository [rmq-to-rest-api-forwarder](https://github.com/eduarddanziger/rmq-to-rest-api-forwarder.git)
+- soundagent.go package generated
+- DirectHttpRequestDispatcher via cpprestsdk removed, replaced by RabbitMQ transport mechanism
+- HttpRequestProcessor moved to the separate repository [rmq-to-rest-api-forwarder](https://github.com/eduarddanziger/rmq-to-rest-api-forwarder.git) as RmqToRestApiForwarder.csproj
 
 3.3.2
 --------

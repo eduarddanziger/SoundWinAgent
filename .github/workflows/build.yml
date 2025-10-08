@@ -155,8 +155,8 @@ jobs:
           path: artifacts\
 
   publish:
-    # Only create/update GitHub Release for SemVer v* tags (skip dev builds and legacy unless desired)
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.ref != 'refs/pull/develop'
+    # if: startsWith(github.ref, 'refs/tags/v')
     needs: build
     runs-on: ubuntu-latest
 
