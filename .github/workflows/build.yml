@@ -171,11 +171,9 @@ jobs:
           path: build
 
       - name: Create or update Release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERS=${{ needs.build.outputs.version }}
-          echo "$GH_TOKEN" | gh auth login --with-token
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
           if gh release view "$VERS" > /dev/null 2>&1; then
             echo "Release $VERS already exists; updating assets"
           else
