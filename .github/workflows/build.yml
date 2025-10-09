@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-    tags:
-      - 'v*'          # SemVer tags for Go tooling
-      - 'Release-*'   # (Legacy) still trigger, but v* is preferred
   workflow_dispatch:
 
 permissions:
@@ -32,23 +29,16 @@ jobs:
         shell: pwsh
         run: |
             $ref = $env:GITHUB_REF
-            # Prefer v* tags (SemVer). Fallback: legacy Release-* tags.
-            $latestTag = git describe --tags --match "v[0-9]*" --abbrev=0 2>$null
+            # Find the latest Release-* tag.
+            $latestTag = git describe --tags --match "Release-*" --abbrev=0
             if (-not $latestTag) {
-                $latestTag = git describe --tags --match "Release-*" --abbrev=0
-                if (-not $latestTag) {
-                    Write-Host "No Release tag found. Using default version 1.0.0."
-                    "VERSION=1.0.0" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-                    "version=1.0.0" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-                    exit 0
-                }
-                # Extract version number from the tag (e.g., Release-1.0.1 -> 1.0.1)
-                $versionNumber = $latestTag -replace '^Release-', ''
+                Write-Host "No Release tag found. Using default version 1.0.0."
+                "VERSION=1.0.0" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+                "version=1.0.0" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+                exit 0
             }
-            else  {
-                # Extract version number from the tag (e.g., v1.0.1 -> 1.0.1)
-                $versionNumber = $latestTag -replace '^v', ''
-            }
+            # Extract version number from the tag (e.g., Release-1.0.1 -> 1.0.1)
+            $versionNumber = $latestTag -replace '^Release-', ''
             Write-Host "latestTag: $latestTag, versionNumber: $versionNumber"
             $distance = git rev-list --count "$latestTag..HEAD"
 
