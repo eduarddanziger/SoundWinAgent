@@ -92,7 +92,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\msbuildLibCpp\Ed.Cpp.targets" />
-  <Target Name="ProcessReleaseNotesAndZipOutput" AfterTargets="Build">
+  <Target Name="ProcessReleaseNotesAndZipOutput" AfterTargets="Sign">
     <ItemGroup>
       <DependentDLLs Include="@(ProjectReference->'%(RootDir)%(Directory)$(OutDir)%(Filename).dll')" />
     </ItemGroup>
