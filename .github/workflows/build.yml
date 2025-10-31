@@ -64,11 +64,6 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.22.x'
-
       - name: Restore NuGets
         run: nuget restore SoundWinAgent.sln
 
@@ -79,66 +74,6 @@ jobs:
         run: |
           msbuild /p:Configuration=Release /p:VcpkgEnabled=true /p:VcpkgManifestPath=vcpkg.json /p:VcpkgTriplet=x64-windows-static /target:Rebuild -restore
           dotnet publish "Projects/SoundDefaultUI/SoundDefaultUI.csproj" -c Release -p:PublishProfile=FolderProfile -v:minimal
-
-      - name: Validate Go module
-        shell: pwsh
-        run: |
-          if (Test-Path 'go/soundagent/go.mod') {
-            Push-Location go/soundagent
-            go mod tidy
-            go build ./...
-            Write-Host "Go module validated."
-            Pop-Location
-          } else {
-            Write-Host "No go/soundagent/go.mod found (skipping)."
-          }
-
-      - name: Package Go cgo wrapper
-        shell: pwsh
-        run: |
-          $version = '${{ steps.get_version.outputs.VERSION }}'
-          $goSrc = Join-Path $PWD 'go/soundagent'
-          if (-not (Test-Path $goSrc)) {
-            Write-Host "Go package directory not found: $goSrc"
-            exit 0
-          }
-          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
-          $dll = Get-ChildItem -Recurse -Filter 'SoundAgentApiDll.dll' | Select-Object -First 1
-          $lib = Get-ChildItem -Recurse -Filter 'SoundAgentApiDll.lib' | Select-Object -First 1
-          $files = @()
-          foreach ($n in 'soundagent.go','SoundAgentApi.h','go.mod') {
-            $p = Join-Path $goSrc $n
-            if (Test-Path $p) {
-                $files += $p
-            }
-          }
-          if ($dll) {
-            $dllTargetFullName = (Join-Path $goSrc $dll.Name)
-            if ($dll.FullName -ne $dllTargetFullName) {
-              Copy-Item $dll.FullName $goSrc -Force
-            }
-            $files += $dllTargetFullName
-          } else {
-            Write-Host "Warning: DLL file not found; Go wrapper may not work: SoundAgentApiDll.dll"
-          }
-
-          if ($lib) {
-            $libTargetFullName = (Join-Path $goSrc $lib.Name)
-            if ($lib.FullName -ne $libTargetFullName) {
-              Copy-Item $lib.FullName $goSrc -Force
-            }
-            $files += $libTargetFullName
-          } else {
-            Write-Host "Warning: LIB file not found; Go wrapper may not work: SoundAgentApiDll.lib"
-          }
-          if (-not $files) {
-            Write-Host 'No Go wrapper files collected'
-            exit 0
-          }
-          $zip = "artifacts/soundagent-go-$version.zip"
-          if (Test-Path $zip) { Remove-Item $zip -Force }
-          Compress-Archive -Path $files -DestinationPath $zip
-          Write-Host "Created Go package archive $zip"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
