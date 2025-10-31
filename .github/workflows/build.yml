@@ -41,6 +41,7 @@ jobs:
             $versionNumber = $latestTag -replace '^Release-', ''
             Write-Host "latestTag: $latestTag, versionNumber: $versionNumber"
             $distance = git rev-list --count "$latestTag..HEAD"
+            Write-Output "distance: $distance"
 
             # Append -rc<distance> if distance is greater than 0
             if ($distance -gt 0) {
@@ -50,9 +51,7 @@ jobs:
                 $versionNumber = $versionParts -join '.'
                 Write-Output "VERSION CORRECTED, versionNumber: $versionNumber"
 
-                $distancePadded = $distance.ToString().PadLeft(3, '0')
-                Write-Output "DISTANCE PADDED, distancePadded: $distancePadded"
-                $version = "$versionNumber-rc$distancePadded"
+                $version = "$versionNumber-rc.$distance"
             } else {
                 $version = $versionNumber
             }
