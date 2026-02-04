@@ -167,9 +167,10 @@ protected:
         if (transportMethod_.empty())
         {   // If no transport method is provided via command line, read it from the configuration
             spdlog::info("Transport method not provided via command line. Reading from configuration...");
-            transportMethod_ = ReadOptionalSimpleConfigProperty(API_TRANSPORT_METHOD_PROPERTY_KEY, API_TRANSPORT_METHOD_VALUE00_NONE);
+            transportMethod_ = ReadOptionalSimpleConfigProperty(API_TRANSPORT_METHOD_CONFIGURATED_PROPERTY_KEY, API_TRANSPORT_METHOD_VALUE00_NONE);
         }
-        if (Poco::icompare(transportMethod_, API_TRANSPORT_METHOD_VALUE00_NONE) != 0
+
+        if (Poco::icompare(transportMethod_, API_TRANSPORT_METHOD_VALUE00_NONE) != 0  // NOLINT(bugprone-branch-clone)
             && Poco::icompare(transportMethod_, API_TRANSPORT_METHOD_VALUE02_RABBITMQ) != 0
         )
         {
@@ -247,7 +248,7 @@ private:
 
     // ReSharper disable once IdentifierTypo
     // ReSharper disable once StringLiteralTypo
-    static constexpr auto API_TRANSPORT_METHOD_PROPERTY_KEY = "custom.transportMethod";
+    static constexpr auto API_TRANSPORT_METHOD_CONFIGURATED_PROPERTY_KEY = "custom.transportMethod";
     static constexpr auto API_TRANSPORT_METHOD_VALUE00_NONE = "None";
     static constexpr auto API_TRANSPORT_METHOD_VALUE02_RABBITMQ = "RabbitMQ";
 };
