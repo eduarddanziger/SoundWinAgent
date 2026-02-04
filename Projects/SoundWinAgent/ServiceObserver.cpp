@@ -119,10 +119,11 @@ std::string ServiceObserver::GetOperationSystemName()
         {
             return "Windows, no version info";
         }
-        char productName[256] = { 0 };
-        DWORD osRevision = 0;
-        char displayVersion[256] = { 0 };
-        char editionId[256] = { 0 };
+        char productName[256]{};
+        DWORD osRevision{0};
+        char displayVersion[256]{};
+        // ReSharper disable once CppLocalVariableMayBeConst
+        char editionId[256]{};
 
         // Get Product Name
         DWORD size = sizeof(productName);
