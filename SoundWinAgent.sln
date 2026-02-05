@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.8.34511.84
+# Visual Studio Version 18
+VisualStudioVersion = 18.2.11415.280 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundAgentLib", "Projects\SoundAgentLib\SoundAgentLib.vcxproj", "{19C404F0-A83C-4E4F-A931-7A76809CC0C5}"
 EndProject
@@ -22,13 +22,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundAgentLibTests", "Projects\SoundAgentLibTests\SoundAgentLibTests.vcxproj", "{6ADFEACB-EFA0-40D3-84FF-9BAEA2A264EA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundWinAgent", "Projects\SoundWinAgent\SoundWinAgent.vcxproj", "{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundAgentApiDll", "Projects\SoundAgentApiDll\SoundAgentApiDll.vcxproj", "{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundDefaultUI", "Projects\SoundDefaultUI\SoundDefaultUI.csproj", "{5B7BBF93-1CE3-7A17-DC7A-432D3575AFB6}"
-	ProjectSection(ProjectDependencies) = postProject
-		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E} = {92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,16 +53,6 @@ Global
 		{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}.Release|x64.ActiveCfg = Release|x64
 		{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}.Release|x64.Build.0 = Release|x64
 		{BC83DAA4-CBA8-4D4F-B6B9-3BAA9B1849A8}.Release|x64.Deploy.0 = Release|x64
-		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Debug|x64.ActiveCfg = Debug|x64
-		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Debug|x64.Build.0 = Debug|x64
-		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Debug|x64.Deploy.0 = Debug|x64
-		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Release|x64.ActiveCfg = Release|x64
-		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Release|x64.Build.0 = Release|x64
-		{92AFAD2A-A573-4239-80DC-4CDC28FD3A7E}.Release|x64.Deploy.0 = Release|x64
-		{5B7BBF93-1CE3-7A17-DC7A-432D3575AFB6}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{5B7BBF93-1CE3-7A17-DC7A-432D3575AFB6}.Debug|x64.Build.0 = Debug|Any CPU
-		{5B7BBF93-1CE3-7A17-DC7A-432D3575AFB6}.Release|x64.ActiveCfg = Release|Any CPU
-		{5B7BBF93-1CE3-7A17-DC7A-432D3575AFB6}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
