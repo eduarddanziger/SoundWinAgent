@@ -11,7 +11,7 @@ Released on $date$
 ~~~
 
 ## Changes
-- soundagent.go package generated
+- Sound Agent DLL API (SoundAgentApiDll) and C# Default UI (SoundDefaultUI) removed
 - DirectHttpRequestDispatcher via cpprestsdk removed, replaced by RabbitMQ transport mechanism
 - HttpRequestProcessor moved to the separate repository [rmq-to-rest-api-forwarder](https://github.com/eduarddanziger/rmq-to-rest-api-forwarder.git) as RmqToRestApiForwarder.csproj
 
