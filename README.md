@@ -10,16 +10,12 @@ with a React / TypeScript frontend [list-audio-react-app](https://github.com/edu
 ## Executables Generated
 
 - **SoundWinAgent**: Windows Service collects audio device information and sends it to a remote server.
-- **SoundDefaultUI**: Lightweight WPF UI showing the live volume levels of the default audio devices, output and input device separately.
-  ![SoundDefaultUI screenshot](202509011440SoundDefaultUI.jpg)
 - **SoundAgentCli** (obsolete): Command-line test CLI.
 
 ## Technologies Used
 
 - **C++**: Core logic implementation.
-- **Poco package: Leverages Windows Server Manager.
 - **RabbitMQ**: Used as a message broker for reliable audio device information delivery.
-- **C# / WPF**: Lightweight UI for displaying live volume levels of the currently default audio devices.
 
 ## Usage
 
@@ -61,18 +57,6 @@ sc create RmqToRestApiForwarder binPath="<your folder>\RmqToRestApiForwarder.exe
 sc start RmqToRestApiForwarder
 ```
 
-### SoundDefaultUI
-1. Download and unzip the latest rollout of SoundDefaultUI-x.x.x. from the latest repository
-release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/releases/latest)
-
-2. Install certificates and unblock the SoundDefaultUI.exe per PowerShell (start as Administrator):
-
-```powershell
-   Import-Certificate -FilePath .\CodeSign.cer -CertStoreLocation Cert:\LocalMachine\Root
-   Unblock-File -Path .\SoundDefaultUI.exe
-```
-3. Run the SoundDefaultUI
-
 ## Developer Environment, How to Build:
 
 1. Install Visual Studio 2022
@@ -81,6 +65,13 @@ release's assets, [Release](https://github.com/eduarddanziger/SoundWinAgent/rele
 %NuGet% restore SoundWinAgent.sln
 "c:\Program Files\Microsoft Visual Studio\2022\Community\Msbuild\Current\Bin\MSBuild.exe" SoundWinAgent.sln /p:Configuration=Release /target:Rebuild -restore
 ```
+
+## Changelog
+- 2025.09 Added RabbitMQ transport option.
+- 2025.09 Added default render/capture device info to device properties/events.
+- 2025.07 Added OS name to REST API messages.
+- 2025.07 Added messages: Device Discovery/Confirmed, VolumeRenderChanged, VolumeCaptureChanged
+
 
 ## License
 
