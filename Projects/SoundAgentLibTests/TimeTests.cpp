@@ -30,10 +30,17 @@ namespace ed::audio
 
             // as local time
             fromTimeUtil = TimePointToStringAsLocal(nowTime, true, true);
-            const auto zonedTime = zoned_time{ std::chrono::current_zone(), nowTime };
-            auto zonedTimeAsSysTime = zonedTime.get_local_time();
+            const zoned_time zt{ std::chrono::current_zone(), nowTime };
+            const auto localTime = zt.get_local_time();
+            const auto offset = zt.get_info().offset;
+            const auto offsetMinutes = std::chrono::duration_cast<std::chrono::minutes>(offset).count();
+            const auto sign = offsetMinutes < 0 ? '-' : '+';
+            const auto absMinutes = offsetMinutes < 0 ? -offsetMinutes : offsetMinutes;
+            const auto hh = absMinutes / 60;
+            const auto mm = absMinutes % 60;
+            const auto tz = fmt::format("{}{:02}{:02}", sign, hh, mm);
 
-            fromFmtDirectly = fmt::format("{:%FT%T%z}", zonedTimeAsSysTime);
+            fromFmtDirectly = fmt::format(fmt::runtime("{:%FT%T}{}"), localTime, tz);
             Assert::AreEqual(fromFmtDirectly, fromTimeUtil);
         }
 
@@ -57,12 +64,15 @@ namespace ed::audio
 
             // with space as delimiter and a time zone
             fromTimeUtil = TimePointToStringAsLocal(timePoint, false, true);
-            const auto fromFmtDirectly = fmt::format("{:%F %T%z}", localTimePoint);
-
-            const auto zoneAsString = fmt::format("{:%z}", localTimePoint);
+            const auto offset = zt.get_info().offset;
+            const auto offsetMinutes = std::chrono::duration_cast<std::chrono::minutes>(offset).count();
+            const auto sign = offsetMinutes < 0 ? '-' : '+';
+            const auto absMinutes = offsetMinutes < 0 ? -offsetMinutes : offsetMinutes;
+            const auto hh = absMinutes / 60;
+            const auto mm = absMinutes % 60;
+            const auto zoneAsString = fmt::format("{}{:02}{:02}", sign, hh, mm);
             const auto expectedWithTimeZone = "2025-05-29 12:34:56.223709"s + zoneAsString;
             Assert::AreEqual(expectedWithTimeZone, fromTimeUtil);
-            Assert::AreEqual(expectedWithTimeZone, fromFmtDirectly);
         }
 
         TEST_METHOD(SystemTimeTest)
@@ -146,7 +156,7 @@ namespace ed::audio
             const auto timeNowRoundedToSeconds = time_point_cast<seconds>(timeNow);
             const auto strRoundedToSeconds = TimePointToStringAsLocal(timeNowRoundedToSeconds, false, false);
             Assert::AreEqual(str.substr(0, OFFSET_TO_MICROSECONDS_FRACTION), str.substr(0, OFFSET_TO_MICROSECONDS_FRACTION));
-            Assert::AreEqual(std::string(".000000"),strRoundedToSeconds.substr(OFFSET_TO_MICROSECONDS_FRACTION, 7));
+            Assert::AreEqual(std::string(".000000"), strRoundedToSeconds.substr(OFFSET_TO_MICROSECONDS_FRACTION, 7));
 
             const auto timeNowWith11Microseconds = timeNowRoundedToSeconds + microseconds(11);
             const auto strWith11Microseconds = TimePointToStringAsLocal(timeNowWith11Microseconds, false, false);
