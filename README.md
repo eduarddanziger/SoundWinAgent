@@ -3,8 +3,7 @@
 Sound Agent detects and outputs plug-and-play audio endpoint devices under Windows. It handles audio notifications and device changes.
 
 The Sound Agent registers audio device information on a backend server via REST API, using RabbitMQ To REST API Forwarder (.NET Windows Service).
-The respective backend, Audio Device Repository Server (ASP.Net Core), resides in [audio-device-repo-server](https://github.com/eduarddanziger/audio-device-repo-server/)
-with a React / TypeScript frontend [list-audio-react-app](https://github.com/eduarddanziger/list-audio-react-app/), see [Primary Web Client](https://eduarddanziger.github.io/list-audio-react-app/).
+The respective backend, Audio Device Repository Server (ASP.Net Core), resides in [audio-device-repo-server](https://github.com/collect-sound-devices/audio-device-repo-server/) with a React / TypeScript frontend [list-audio-react-app](https://github.com/collect-sound-devices/list-audio-react-app/), see [Primary Web Client](https://list-audio-react-app.vercel.app).
   ![primaryWebClient screenshot](202509011555ReactRepoApp.jpg)
 
 ## Executables Generated
