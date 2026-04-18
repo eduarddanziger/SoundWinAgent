@@ -46,7 +46,7 @@ The respective backend, Audio Device Repository Server (ASP.Net Core), resides i
 choco install rabbitmq
 ```
 
-2. Download and unzip the latest rollout of RambbitMQ-To REST-API-Forwarder: RmqToRestApiForwarder-x.x.x. from
+2. Download and unzip the latest rollout of RabbitMQ-To REST-API-Forwarder: RmqToRestApiForwarder-x.x.x. from
 the latest release's assets, [RmqToRestApiForwarder Release](https://github.com/eduarddanziger/rmq-to-rest-api-forwarder/releases/latest)
 3. Register RmqToRestApiForwarder.exe as a Windows Service and start it:
 

@@ -27,9 +27,9 @@ enum class SoundDeviceEventType : uint8_t
 enum class SoundDeviceFlowType : uint8_t
 {
     None = 0,
-    Render,
-    Capture,
-    RenderAndCapture
+    Render = 1,
+    Capture = 2,
+    RenderAndCapture = 3
 };
 
 class SoundAgent final

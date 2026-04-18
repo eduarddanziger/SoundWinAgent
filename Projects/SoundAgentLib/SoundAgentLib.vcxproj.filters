@@ -54,9 +54,6 @@
     <ClInclude Include="ApiClient\AudioDeviceApiClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ApiClient\SodiumCrypt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ApiClient\common\SpdLogger\AppPath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -93,9 +90,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ApiClient\AudioDeviceApiClient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ApiClient\SodiumCrypt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ApiClient\RabbitMqHttpRequestDispatcher.cpp">

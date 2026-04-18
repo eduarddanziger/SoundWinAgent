@@ -1,17 +1,17 @@
 {
-    "dependencies": [
-        "fmt",
-        "poco",
-        "nlohmann-json",
-        {
-            "name": "spdlog",
-            "version>=": "1.15.1"
-        },
-        "libsodium",
-        "magic-enum",
-        "rmqcpp",
-        "boost-locale",
-        "boost-nowide"
-    ],
-  "builtin-baseline": "d5ec528843d29e3a52d745a64b469f810b2cedbf"
+  "dependencies": [
+    "fmt",
+    "poco",
+    "nlohmann-json",
+    {
+      "name": "spdlog",
+      "version>=": "1.15.1"
+    },
+    "libsodium",
+    "magic-enum",
+    "rmqcpp",
+    "boost-locale",
+    "boost-nowide"
+  ],
+  "builtin-baseline": "4ec0e29c50b550f8c660bbc92e80a16986c229cc"
 }

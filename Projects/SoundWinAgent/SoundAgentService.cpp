@@ -2,7 +2,6 @@
 
 #include "ApiClient/common/SpdLogger.h"
 
-#include "ApiClient/SodiumCrypt.h"
 #include "ApiClient/RabbitMqHttpRequestDispatcher.h"
 #include "ServiceObserver.h"
 #include "public/CoInitRaiiHelper.h"
@@ -41,9 +40,11 @@ protected:
                 class EmptyDispatcher : public HttpRequestDispatcherInterface
                 {
                 public:
-                    void EnqueueRequest(bool, const std::chrono::system_clock::time_point&,
-                                        const std::string&, const std::string&,
-                                        const std::unordered_map<std::string, std::string>&, const std::string&
+                    void EnqueueRequest(
+                        bool postOrPut,
+                        const std::string& urlSuffix,
+                        const std::string& payload,
+                        const std::string& hint
                     ) override
                     {
                         spdlog::info("Enqueueing ignored, because the transport method is \"{}\"",
@@ -54,7 +55,7 @@ protected:
             }
             else if (Poco::icompare(transportMethod_, API_TRANSPORT_METHOD_VALUE02_RABBITMQ) == 0)
             {
-                requestDispatcherSmartPtr.reset(new RabbitMqHttpRequestDispatcher());
+                requestDispatcherSmartPtr.reset(new RabbitMqHttpRequestDispatcher("localhost", "guest", "guest"));
             }
 
             ServiceObserver serviceObserver(*coll, *requestDispatcherSmartPtr);
@@ -96,33 +97,6 @@ protected:
         return returnValue;
     }
 
-
-    [[nodiscard]] std::string ReadMandatoryPossiblyEncryptedConfigProperty(const std::string & propertyName) const
-    {
-        if (!config().hasProperty(propertyName))
-        {
-            const auto msg = std::string("FATAL: No \"") + propertyName + "\" property configured.";
-            spdlog::error(msg);
-            throw std::runtime_error(msg);
-        }
-
-        auto returnValue = config().getString(propertyName);
-        try
-        {
-            returnValue = SodiumDecrypt(returnValue, "32-characters-long-secure-key-12");
-        }
-        catch (const std::exception& ex)  // NOLINT(bugprone-empty-catch)
-        {
-            spdlog::info("Decryption doesn't work: {}.", ex.what());
-        }
-        catch (...)
-        {
-            spdlog::error("Unknown error. Propagating...");
-            throw;
-        }
-
-        return returnValue;
-    }
 
     static void FreeLog()
     {
