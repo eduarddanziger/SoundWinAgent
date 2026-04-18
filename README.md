@@ -1,4 +1,4 @@
-# Sound Windows Agent (obsolete)
+# Sound Windows Agent (obsolete) -> ARCHIVED
 
 - The successors of sound agents are Windows and Linux sound scanners, that can be found in [Collect Sound Devices solution domain](https://github.com/collect-sound-devices)
 
