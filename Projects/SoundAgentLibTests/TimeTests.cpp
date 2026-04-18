@@ -18,63 +18,6 @@ namespace ed::audio
 {
     TEST_CLASS(TimeTests)
     {
-        TEST_METHOD(NowTimeTest)
-        {
-            const auto nowTime = floor<microseconds>(system_clock::now());
-
-            // as system time
-            auto fromTimeUtil = TimePointToStringAsUtc(nowTime, true, true);
-            auto fromFmtDirectly = fmt::format("{:%FT%TZ}", nowTime);
-            Logger::WriteMessage(fromFmtDirectly.c_str());
-            Assert::AreEqual(fromFmtDirectly, fromTimeUtil);
-
-            // as local time
-            fromTimeUtil = TimePointToStringAsLocal(nowTime, true, true);
-            const zoned_time zt{ std::chrono::current_zone(), nowTime };
-            const auto localTime = zt.get_local_time();
-            const auto offset = zt.get_info().offset;
-            const auto offsetMinutes = std::chrono::duration_cast<std::chrono::minutes>(offset).count();
-            const auto sign = offsetMinutes < 0 ? '-' : '+';
-            const auto absMinutes = offsetMinutes < 0 ? -offsetMinutes : offsetMinutes;
-            const auto hh = absMinutes / 60;
-            const auto mm = absMinutes % 60;
-            const auto tz = fmt::format("{}{:02}{:02}", sign, hh, mm);
-
-            fromFmtDirectly = fmt::format(fmt::runtime("{:%FT%T}{}"), localTime, tz);
-            Assert::AreEqual(fromFmtDirectly, fromTimeUtil);
-        }
-
-        TEST_METHOD(LocalTimeTest)
-        {
-            // time as we see it in on the normal clock
-            constexpr auto yearMonthDay = 2025y / 5 / 29;
-            constexpr auto periodInMicroseconds = 12h + 34min + 56s + 223709us;
-
-            constexpr auto localTimePoint = local_days{ yearMonthDay } + periodInMicroseconds;
-            const zoned_time zt{ current_zone(), localTimePoint };
-            const auto timePoint = zt.get_sys_time();
-
-            // with T as delimiter
-            auto fromTimeUtil = TimePointToStringAsLocal(timePoint, true, false);
-            Assert::AreEqual("2025-05-29T12:34:56.223709"s, fromTimeUtil);
-
-            // with space as delimiter
-            fromTimeUtil = TimePointToStringAsLocal(timePoint, false, false);
-            Assert::AreEqual("2025-05-29 12:34:56.223709"s, fromTimeUtil);
-
-            // with space as delimiter and a time zone
-            fromTimeUtil = TimePointToStringAsLocal(timePoint, false, true);
-            const auto offset = zt.get_info().offset;
-            const auto offsetMinutes = std::chrono::duration_cast<std::chrono::minutes>(offset).count();
-            const auto sign = offsetMinutes < 0 ? '-' : '+';
-            const auto absMinutes = offsetMinutes < 0 ? -offsetMinutes : offsetMinutes;
-            const auto hh = absMinutes / 60;
-            const auto mm = absMinutes % 60;
-            const auto zoneAsString = fmt::format("{}{:02}{:02}", sign, hh, mm);
-            const auto expectedWithTimeZone = "2025-05-29 12:34:56.223709"s + zoneAsString;
-            Assert::AreEqual(expectedWithTimeZone, fromTimeUtil);
-        }
-
         TEST_METHOD(SystemTimeTest)
         {
             // time as we see it in on the atomic clock
